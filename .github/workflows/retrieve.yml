@@ -35,5 +35,3 @@ jobs:
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "Retrieved changes from Salesforce [skip ci]"
           git push
-		  
-		  
