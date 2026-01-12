@@ -1,0 +1,263 @@
+<aura:component controller="ReceiptController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="savebuttonhide" type="boolean" default="false"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="rcpt" type="Receipt__c" default="{'sObjectType':'Receipt__c'}"/>
+    <aura:attribute name="rcptln" type="Receipt_Line_Item__c" default="{'sObjectType':'Receipt_Line_Item__c'}"/>
+    <aura:attribute name="paymentSchedules" type="object[]"/>
+    <aura:attribute name="recptItemList" type="object[]"/>
+    <aura:attribute name="BookingDetails" type="object[]"/>
+    <aura:attribute name="projectName" type="String" />
+    <aura:attribute name="flatNumber" type="String" />
+    <aura:attribute name="bookingPendingAmount" type="Decimal"/>
+    <aura:attribute name="bookingPendingAmount1" type="Decimal"/>
+    <aura:attribute name="newPendingAmount" type="Decimal"/>
+    <aura:attribute name="receivedAmount" type="Decimal"/>
+    <aura:attribute name="currentPaymentAmount" type="Decimal"/>
+    <aura:attribute name="FlatCost" type="Decimal" default="0.00"/>
+    <aura:attribute name="flatOrVillaPendingAmount" type="Decimal" default="0.00"/>
+    <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}"></aura:handler> 
+    <aura:attribute name="searchText" type="string" default=""/>
+    <aura:attribute name="paymentschdl" type="Payment_schedule__c[]" default="[]" />
+    <aura:attribute name="matchpaymentschdl" type="Payment_schedule__c[]" default="[]"/>
+    <aura:attribute name="paymentTypePicklist" type="String[]" />
+    <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}"></aura:handler>
+    <aura:attribute name="totalrcvdAmount" type="Decimal" default="0.00"/>
+    <aura:attribute name="totalPending" type="Decimal" default="0.00"/>
+    <aura:attribute name="receiptName" type="String" />
+    <aura:attribute name="isDisabled" type="Boolean" default="false"/>
+    <aura:attribute name="saveButtonDisabled" type="Boolean" default="false"/>
+    
+    <aura:attribute name="interestAmount" type="Decimal"/>
+    <!-- Additionl Charges Attributes -->
+    <aura:attribute name="additionlCharges" type="List[]" />
+    <aura:attribute name="bookingType" type="String" />
+    <aura:attribute name="totalPendingTds" type="Decimal" default="0"/>
+    <aura:html tag="style">
+        .slds-p-around–medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content {
+        overflow-y: hidden !important;
+        height: unset !important;
+        max-height: unset !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .header-info {
+        display: flex;
+        justify-content: center;
+        margin: 1rem 0;
+        }
+        .header-details {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        }
+        .card-border {
+        border: 1px solid #d8dde6;     
+        border-radius: 15px;             
+        padding: 12px;                 
+        background-color: #ffffff;      
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-top: 10px;              
+        }
+
+    </aura:html>
+    
+    
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+        <div class="card-border">
+            <!-- Page Header -->
+            <div class="slds-page-header" style="border-radius: 15px; margin: 5px;">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <span class="slds-icon_container slds-icon-standard-opportunity">
+                                    <lightning:icon iconName="standard:contract_payment" variant="error"/> 
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-page-header__title slds-truncate">Receipt</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                                <p class="slds-page-header__name-meta">Enter all mandatory details</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plot/Flat/Villa Details Section -->
+            <div class="slds-p-around_medium">
+                <div class="slds-text-align_center slds-m-bottom_small">
+                    <h2 class="slds-text-heading_medium">Plot/Flat/Villa Details</h2>
+                </div>
+                <div class="header-info">
+                    <div class="header-details">
+                        <div>
+                            <strong>Project Name &nbsp;:</strong> &nbsp; {!v.projectName}
+                        </div>
+                        <div>
+                            <strong>Flat/Villa Number &nbsp;:</strong> &nbsp; {!v.flatNumber}
+                        </div>
+                        <div>
+                            <strong>Flat/Villa Cost &nbsp;:</strong> &nbsp;
+                            <lightning:formattedNumber value="{!v.FlatCost}" maximumFractionDigits="2"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="slds-grid slds-wrap" style="margin-left:10px;margin-right:10px">
+                <div class="slds-has-flexi-truncate">
+                    <div class="slds-grid  slds-wrap slds-grid_pull-padded-xx-small slds-m-bottom--medium">
+                        <div class="slds-size_1-of-2 slds-p-horizontal_x-small">
+                            <lightning:input type="date" label="Receipt Date" value="{!v.rcpt.Receipt_Date__c}" />
+                        </div> 
+                        <div class="slds-size_1-of-2 slds-p-horizontal_x-small">
+                            <lightning:input  label="Remarks" value="{!v.rcpt.Remarks__c}" required="True" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-header slds-modal__header slds-size_1-of-1">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"> Add Receipt Line Items</h2>
+            </div>
+            <div class="slds-modal__content">
+                <aura:iteration items="{!v.recptItemList}" var="qt" indexVar="index">
+                    <lightning:card title="{!index+1+(')')}" class="slds-p-left_xx-small groove" >
+                        <div class="slds-grid slds-wrap slds-grid_pull-padded-x-small" style="padding-right:10px" >
+                            <td width="20%" style="padding-right: 10px;padding-left: 20px;"> 
+                                <div  data-record="{!index}" onchange="{!c.selectingType}">
+                                    <lightning:select name="select1"  aura:id="field" label="Payment Type" required="true" value="{!qt.Payment_Type__c}" >
+                                        <option value="">choose one...</option>
+                                        <aura:if isTrue="{!v.bookingType == 'Apartments'}">
+                                            <option value="Flat Amount">Flat Amount</option>
+                                        </aura:if>
+                                        <aura:if isTrue="{!v.bookingType == 'Villas'}">
+                                            <option value="Villa Amount">Villa Amount</option>
+                                        </aura:if>
+                                        <aura:if isTrue="{!v.bookingType == 'Row House'}">
+                                            <option value="Row House Amount">Row House Amount</option>
+                                        </aura:if>
+                                        <!--
+                                        As Per Trifecta Client - TDS Amount not required - 17/11/2025 
+                                        <option value="TDS">TDS</option>-->
+                                    </lightning:select>                                        
+                                </div>
+                                
+                            </td>
+                            
+                            <td width="20%" style="padding-right: 10px;">
+                                <div  data-record="{!index}">
+                                    <lightning:input name="Amount" type="decimal"  label="Pending Amount"
+                                                     value="{!qt.Pending_Amount__c}" disabled="true"  />
+                                </div>                                                   
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div  data-record="{!index}" >
+                                    <lightning:select aura:id="field" name="select1" label="Payment From"
+                                                      required="true" value="{!qt.Payment_From__c}">
+                                        <option value="">choose one...</option>
+                                        <option value="Bank">Bank</option>
+                                        <option value="Customer">Customer</option>
+                                    </lightning:select>                                        
+                                </div>
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div  >
+                                    <lightning:select aura:id="field" class="select slds-size_1-of-1" 
+                                                      required="true" label="Mode of Payment"   
+                                                      value="{!qt.Mode_of_Payment__c}"   disabled="false"  >
+                                        <option value="" >None</option>
+                                        <aura:iteration items="{!v.paymentTypePicklist}"  var="option">
+                                            
+                                            <option text="{!option}" ></option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                </div>
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div data-record="{!index}">
+                                    <lightning:input  type="text" aura:id="field" label="Bank Name" 
+                                                     required="true" value="{!qt.Bank_Name__c}" /> 
+                                </div>
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div data-record="{!index}">
+                                    <lightning:input  type="text" aura:id="field" label="Branch Name"
+                                                     required="true" value="{!qt.Branch__c}" /> 
+                                </div>
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div data-record="{!index}">
+                                    <lightning:input aura:id="field" type="text" required="true" 
+                                                     label="Transaction/ChequeNo."
+                                                     value="{!qt.Cheque_no_Transaction_Number__c}" /> 
+                                </div>
+                            </td>
+                            <td width="10%" style="padding-right: 10px;">
+                                <div data-record="{!index}">
+                                    <lightning:input  type="date" aura:id="field" 
+                                                     label=" Drawn on" required="true" 
+                                                     value="{!qt.Drawn_On__c}" /> 
+                                </div>
+                            </td>
+                            <td width="20%" style="padding-left: 20px;padding-right: 10px;">
+                                    <div  onchange="{!c.validateReceivedAmount}"  data-record="{!index}">
+                                        <lightning:input aura:id="field" type="number" 
+                                                         step="0.01" required="true"
+                                                         label="Amount Received" 
+                                                         value="{!qt.Received_Amount__c}" /> 
+                                    </div>
+                                </td>
+                            <!--<aura:if isTrue="{!qt.Payment_Type__c != ''}"> 
+                            </aura:if>
+                            <td width="10%" style="padding-top: 26px;">
+                                <a onclick="{!c.removeRow}" data-record="{!index}">
+                                    <lightning:buttonIcon iconName="utility:delete" iconClass="red"  size="x-large" variant="destructive" alternativeText="Delete" />
+                                </a>
+                                <lightning:buttonIcon iconName="utility:add" iconClass="green"  size="x-large" variant="success" alternativeText="Add" onclick="{!c.addRow}"/>
+                            </td>-->
+                        </div>
+                    </lightning:card>
+                </aura:iteration>
+            </div>
+       
+            <div class="card-border" >
+                <!-- Row 1: Amount details (Left aligned) -->
+                <div class="slds-text-align_left slds-p-bottom_small">
+                    <b>Total Amount Received (INR):</b>&nbsp;₹ {!v.totalrcvdAmount} &nbsp;&nbsp;
+                    <b>Total Pending Amount:</b>&nbsp;₹ {!v.totalPending}
+                </div>
+                
+                <!-- Row 2: Buttons (Center aligned) -->
+                <div class="slds-text-align_center slds-p-top_small">
+                    <lightning:button variant="neutral" label="Cancel" onclick="{!c.receiptCancel}" class="slds-m-right_small" />
+                    <lightning:button variant="brand" label="Save" onclick="{!c.receiptSave}" disabled="{!v.saveButtonDisabled}" />
+                </div>
+            </div>
+
+            
+        </div>
+    </aura:if>
+</aura:component>
