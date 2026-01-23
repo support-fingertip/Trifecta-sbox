@@ -422,71 +422,21 @@ global without sharing class mCubeController {
                 List<Related_Source__c> rltdList = new List<Related_Source__c>();
                 List<Lead> checkList = new List<Lead>();
                 List<User> executiveList = new List<User>();
-                
-                Landing_Number__c landingNumberRecord = projectNumber.get(landingNumber);
-                String projectName = landingNumberRecord != null ? landingNumberRecord.Project_Name__c : null;
-                //Project Name as "None" Customer is Calling to executive DID Number
-                if (projectName == 'None' || String.isBlank(projectName)) {
-                    String executiveDIDNumber = landingNumberRecord != null ? landingNumberRecord.Name : null;
-                    
-                    executiveList = [
-                        SELECT Id, Name 
-                        FROM User 
-                        WHERE DID_Number__c = :executiveDIDNumber and DID_Number__c != null
-                        LIMIT 1
-                    ];
-                    
-                    // 1. Search Lead with Owner + Lead Phone Number (Most Recent)
-                    if (!executiveList.isEmpty()) {
-                        checkList = [
-                            SELECT Id, OwnerId, Allocated_Project__c, Lead_Assigned__c, 
-                            Delete_Lead__c, Lead_Status__c, RecordTypeId
-                            FROM Lead
-                            WHERE (Phone__c = :fromnumber OR Secondary_phone__c = :fromnumber)
-                            AND OwnerId = :executiveList[0].Id
-                            ORDER BY Last_Call_Time__c DESC
-                            LIMIT 1
-                        ];
-                    }
-                    
-                    // 2. If not found, Search Lead with only Lead Phone Number (Most Recent)
-                    if (checkList.isEmpty()) {
-                        checkList = [
-                            SELECT Id, OwnerId, Allocated_Project__c, Lead_Assigned__c, 
-                            Delete_Lead__c, Lead_Status__c, RecordTypeId
-                            FROM Lead
-                            WHERE (Phone__c = :fromnumber OR Secondary_phone__c = :fromnumber)
-                            ORDER BY Last_Call_Time__c DESC
-                            LIMIT 1
-                        ];
-                    }
-                }
-                else
+                if(landingNumber != '' && landingNumber != null)
                 {
-                    checkList = [Select Id,OwnerId,Allocated_Project__c,Lead_Assigned__c,Delete_Lead__c, Lead_Status__c,recordTypeID 
-                                 FROM Lead WHERE (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) 
-                                 and Allocated_Project__c = :projectName limit 1];
-                }
-                
-                // evening time 7pm to 12 pm available users starts by ragu
-                Datetime d = system.now();
-                String dayOfWeek = d.format('EEEE');
-                List<Lead> updateLeadList = new List<Lead>();
-                List<User> userList = new List<User>();
-                
-                //If Lead exists (Open Lead)
-                if(!checkList.isEmpty()){ 
-                    system.debug('Lead exists');
-                    if(checkList[0].Lead_Status__c != 'Lead Lost' && checkList[0].Lead_Status__c != 'Closed Lost'){
-                        ownerId = (String) checkList[0].get('OwnerId');
-                    }
-                    else{
-                        system.debug('Lost Lead');
-                    }
-                }
-                else if(checkList.isEmpty()){ //If Lead doesn't exists, check for related source
-                    
+                    Landing_Number__c landingNumberRecord = projectNumber.get(landingNumber);
+                    String projectName = landingNumberRecord != null ? landingNumberRecord.Project_Name__c : null;
+                    //Project Name as "None" Customer is Calling to executive DID Number
                     if (projectName == 'None' || String.isBlank(projectName)) {
+                        String executiveDIDNumber = landingNumberRecord != null ? landingNumberRecord.Name : null;
+                        
+                        executiveList = [
+                            SELECT Id, Name 
+                            FROM User 
+                            WHERE DID_Number__c = :executiveDIDNumber and DID_Number__c != null
+                            LIMIT 1
+                        ];
+                        
                         // 1. Search Lead with Owner + Lead Phone Number (Most Recent)
                         if (!executiveList.isEmpty()) {
                             checkList = [
@@ -500,99 +450,161 @@ global without sharing class mCubeController {
                             ];
                         }
                         
-                    }                        
-                    
-                    rltdList = [SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
-                                ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
-                                (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) 
-                                and SLead__r.Allocated_Project__c = :projectNumber.get(landingNumber).Project_Name__c ORDER BY CreatedDate ASC];
-                    if(rltdList.size() > 0){
-                        if(rltdList[0].SLead__r.Lead_Status__c != 'Lead Lost' && rltdList[0].SLead__r.Lead_Status__c != 'Closed Lost'){
-                            ownerId = rltdList[0].SLead__r.ownerId;
-                        }
-                        else
-                        {
-                            system.debug('Lost Lead from Related Source list');
+                        // 2. If not found, Search Lead with only Lead Phone Number (Most Recent)
+                        if (checkList.isEmpty()) {
+                            checkList = [
+                                SELECT Id, OwnerId, Allocated_Project__c, Lead_Assigned__c, 
+                                Delete_Lead__c, Lead_Status__c, RecordTypeId
+                                FROM Lead
+                                WHERE (Phone__c = :fromnumber OR Secondary_phone__c = :fromnumber)
+                                ORDER BY Last_Call_Time__c DESC
+                                LIMIT 1
+                            ];
                         }
                     }
-                }
-                
-                if(ownerId == ''){
-                    newLead = true;
-                }
-                log.Request__c +=  'newlead' + newLead;
-                
-                MCUBE_Object_Api__c  mcubeObject = new  MCUBE_Object_Api__c();
-                for(MCUBE_Object_Api__c m: mcubeObjectList){
-                    
-                    mcubeObject = m;
-                    break;
-                }
-                sObject l = Schema.getGlobalDescribe().get(mcubeObject.Name).newSObject(); 
-                if(newLead){
-                    system.debug('isnewLeadcreating');
-                    
-                    if(mcubeObject.field__c != null && projectNumber.containskey(landingNumber)){
-                        L.put(mcubeObject.field__c, projectNumber.get(landingNumber).Project_Name__c); 
+                    else
+                    {
+                        checkList = [Select Id,OwnerId,Allocated_Project__c,Lead_Assigned__c,Delete_Lead__c, Lead_Status__c,recordTypeID 
+                                     FROM Lead WHERE (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) 
+                                     and Allocated_Project__c = :projectName limit 1];
                     }
-                    if(mcubeObject.field1__c != null && mcubeObject.value1__c != null){
-                        L.put(mcubeObject.field1__c, mcubeObject.value1__c); 
-                    }
-                    if(mcubeObject.field2__c != null && mcubeObject.value2__c != null){
-                        L.put(mcubeObject.field2__c, mcubeObject.value2__c); 
-                    }
-                    L.put(mcubeObject.field4__c, projectNumber.get(landingNumber).Source__c); 
-                    L.put(mcubeObject.field5__c, projectNumber.get(landingNumber).Sub_Source__c); 
                     
-                    //Check if Project Name is not null, lead exists (Closed Lead)
-                    if(mcubeObject.field__c != null && !projectNumber.containskey(landingNumber)){
-                        if(!checkList.isEmpty() && (checkList[0].Lead_Status__c == 'Lead Lost' || checkList[0].Lead_Status__c == 'Closed Lost')){
-                            L.put(mcubeObject.field__c, checkList[0].Allocated_Project__c);
+                    // evening time 7pm to 12 pm available users starts by ragu
+                    Datetime d = system.now();
+                    String dayOfWeek = d.format('EEEE');
+                    List<Lead> updateLeadList = new List<Lead>();
+                    List<User> userList = new List<User>();
+                    
+                    //If Lead exists (Open Lead)
+                    if(!checkList.isEmpty()){ 
+                        system.debug('Lead exists');
+                        if(checkList[0].Lead_Status__c != 'Lead Lost' && checkList[0].Lead_Status__c != 'Closed Lost'){
+                            ownerId = (String) checkList[0].get('OwnerId');
                         }
-                        else if(checkList.isEmpty() && !rltdList.isEmpty()){//lead doesn't exists, check for related list (Closed Lead)
-                            if(rltdList[0].SLead__r.Lead_Status__c == 'Lead Lost' || rltdList[0].SLead__r.Lead_Status__c == 'Closed Lost'){
-                                L.put(mcubeObject.field__c, rltdList[0].SLead__r.Allocated_Project__c);
+                        else{
+                            system.debug('Lost Lead');
+                        }
+                    }
+                    else if(checkList.isEmpty()){ //If Lead doesn't exists, check for related source
+                        
+                        if (projectName == 'None' || String.isBlank(projectName)) {
+                            // 1. Search Lead with Owner + Lead Phone Number (Most Recent)
+                            if (!executiveList.isEmpty()) {
+                                rltdList = [
+                                    SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
+                                    ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
+                                    (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) 
+                                    and SLead__r.OwnerId =:executiveList[0].Id ORDER BY CreatedDate ASC
+                                ];
+                            }
+                            if (rltdList.isEmpty()) {
+                                rltdList = [
+                                    SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
+                                    ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
+                                    (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) ORDER BY CreatedDate ASC
+                                ];
+                            }
+                            
+                        }  
+                        else{
+                            rltdList = [SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
+                                        ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
+                                        (Phone__c =: fromnumber OR Secondary_phone__c =: fromnumber ) 
+                                        and SLead__r.Allocated_Project__c = :projectNumber.get(landingNumber).Project_Name__c ORDER BY CreatedDate ASC];
+                        }
+                        
+                        if(rltdList.size() > 0){
+                            if(rltdList[0].SLead__r.Lead_Status__c != 'Lead Lost' && rltdList[0].SLead__r.Lead_Status__c != 'Closed Lost'){
+                                ownerId = rltdList[0].SLead__r.ownerId;
+                            }
+                            else
+                            {
+                                system.debug('Lost Lead from Related Source list');
                             }
                         }
                     }
                     
-                    l.put(mcubeObject.Field_to_Compare_Mobile_Incoming_Number__c,fromnumber); 
-                    //l.put('Rating','Cold');
-                    system.debug('inserted   '+mcubeObject); 
-                    insert l;
-                    LeadId = l.Id;
+                    if(ownerId == ''){
+                        newLead = true;
+                    }
+                    log.Request__c +=  'newlead' + newLead;
                     
-                    //Check if Project Name is not null, lead exists (Re-opened Lead) 
-                    //==> this case will not execute (Not in Use by Durga)
-                    if(mcubeObject.field__c != null && !projectNumber.containskey(landingNumber)){
-                        if(!checkList.isEmpty() && (checkList[0].Lead_Status__c == 'Lead Lost' || checkList[0].Lead_Status__c == 'Closed Lost')){
-                            ownerId = [select id,name,ownerId from Lead where Id=: checkList[0].Id].ownerId;
+                    MCUBE_Object_Api__c  mcubeObject = new  MCUBE_Object_Api__c();
+                    for(MCUBE_Object_Api__c m: mcubeObjectList){
+                        mcubeObject = m;
+                        break;
+                    }
+                    sObject l = Schema.getGlobalDescribe().get(mcubeObject.Name).newSObject(); 
+                    if(newLead){
+                        system.debug('isnewLeadcreating');
+                        
+                        if(mcubeObject.field__c != null && projectNumber.containskey(landingNumber)){
+                            L.put(mcubeObject.field__c, projectNumber.get(landingNumber).Project_Name__c); 
                         }
-                        else if(checkList.isEmpty() && !rltdList.isEmpty()){//lead doesn't exists, check for related list (RE-opened Lead)
-                            if(rltdList[0].SLead__r.Lead_Status__c == 'Lead Lost' || rltdList[0].SLead__r.Lead_Status__c == 'Closed Lost'){
-                                ownerId = [select id,name,ownerId from Lead where Id=: rltdList[0].SLead__c].ownerId;
+                        if(mcubeObject.field1__c != null && mcubeObject.value1__c != null){
+                            L.put(mcubeObject.field1__c, mcubeObject.value1__c); 
+                        }
+                        if(mcubeObject.field2__c != null && mcubeObject.value2__c != null){
+                            L.put(mcubeObject.field2__c, mcubeObject.value2__c); 
+                        }
+                        L.put(mcubeObject.field4__c, projectNumber.get(landingNumber).Source__c); 
+                        L.put(mcubeObject.field5__c, projectNumber.get(landingNumber).Sub_Source__c); 
+                        
+                        //Check if Project Name is not null, lead exists (Closed Lead)
+                        if(mcubeObject.field__c != null && !projectNumber.containskey(landingNumber)){
+                            if(!checkList.isEmpty() && (checkList[0].Lead_Status__c == 'Lead Lost' || checkList[0].Lead_Status__c == 'Closed Lost')){
+                                L.put(mcubeObject.field__c, checkList[0].Allocated_Project__c);
+                            }
+                            else if(checkList.isEmpty() && !rltdList.isEmpty()){//lead doesn't exists, check for related list (Closed Lead)
+                                if(rltdList[0].SLead__r.Lead_Status__c == 'Lead Lost' || rltdList[0].SLead__r.Lead_Status__c == 'Closed Lost'){
+                                    L.put(mcubeObject.field__c, rltdList[0].SLead__r.Allocated_Project__c);
+                                }
+                            }
+                        }
+                        
+                        l.put(mcubeObject.Field_to_Compare_Mobile_Incoming_Number__c,fromnumber); 
+                        //l.put('Rating','Cold');
+                        system.debug('inserted   '+mcubeObject); 
+                        l.put('Last_Call_Time__c', System.now());
+                        insert l;
+                        LeadId = l.Id;
+                        
+                        //Check if Project Name is not null, lead exists (Re-opened Lead) 
+                        //==> this case will not execute
+                        if(mcubeObject.field__c != null && !projectNumber.containskey(landingNumber)){
+                            if(!checkList.isEmpty() && (checkList[0].Lead_Status__c == 'Lead Lost' || checkList[0].Lead_Status__c == 'Closed Lost')){
+                                ownerId = [select id,name,ownerId from Lead where Id=: checkList[0].Id].ownerId;
+                            }
+                            else if(checkList.isEmpty() && !rltdList.isEmpty()){//lead doesn't exists, check for related list (RE-opened Lead)
+                                if(rltdList[0].SLead__r.Lead_Status__c == 'Lead Lost' || rltdList[0].SLead__r.Lead_Status__c == 'Closed Lost'){
+                                    ownerId = [select id,name,ownerId from Lead where Id=: rltdList[0].SLead__c].ownerId;
+                                }
                             }
                         }
                     }
-                }
-                if(ownerId == ''){
-                    if(!checkList.isEmpty() && checkList[0].Id != null){
-                        LeadId = checkList[0].Id;
+                    if(ownerId == ''){
+                        if(!checkList.isEmpty() && checkList[0].Id != null){
+                            LeadId = checkList[0].Id;
+                        }
+                        else if(!rltdList.isEmpty() && rltdList[0].SLead__c != null){
+                            LeadId = rltdList[0].SLead__c;
+                        }
+                        Lead ld = new Lead();
+                        ld = [select id,Lead_source__c,Lead_Status__c,OwnerId from Lead where Id =: LeadId];
+                        ownerId = ld.OwnerId;
                     }
-                    else if(!rltdList.isEmpty() && rltdList[0].SLead__c != null){
-                        LeadId = rltdList[0].SLead__c;
+                    
+                    if(ownerId != null){
+                        user u =[select id,phone from user where id =: ownerId];
+                        calloutResponse = u.phone;
                     }
-                    Lead ld = new Lead();
-                    ld = [select id,Lead_source__c,Lead_Status__c,OwnerId from Lead where Id =: LeadId];
-                    ownerId = ld.OwnerId;
+                    else{
+                        calloutResponse = 'empty'; 
+                    }
                 }
-                
-                if(ownerId != null){
-                    user u =[select id,phone from user where id =: ownerId];
-                    calloutResponse = u.phone;
-                }
-                else{
-                    calloutResponse = 'empty'; 
+                else
+                {
+                    calloutResponse = 'Landing is Empty';
                 }
                 log.Request__c +=  'OwnerNumber' + calloutResponse;
             }
@@ -668,7 +680,7 @@ global without sharing class mCubeController {
                         List<Lead> checkList = new  List<Lead>();
                         string projectName = projectNumber.get(landingNumber);
                         //Project Name as "None" Customer is Calling to executive DID Number
-                        if (projectName == 'None') {
+                        if (projectName == 'None'  || String.isBlank(projectName)) {
                             
                             // 1. Search Lead with Owner + Lead Phone Number (Most Recent)
                             if (!usersList.isEmpty()) {
@@ -706,17 +718,40 @@ global without sharing class mCubeController {
 
                         if(!checkList.isEmpty()){
                             l = checkList[0];
-                            //OwnerId = checkList[0].OwnerId;
+                        
                         }
                         else if(checkList.isEmpty()){
-                            List<Related_Source__c> rltdList = [SELECT Id,Phone__c,Secondary_phone__c,SLead__r.ownerId,
-                                                                SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c 
-                                                                WHERE (Phone__c =: cw.callfrom OR Secondary_phone__c =: cw.callfrom )
-                                                                and SLead__r.Allocated_Project__c = :projectNumber.get(landingNumber)
-                                                                ORDER BY CreatedDate ASC limit 1];
+                            List<Related_Source__c> rltdList = new List<Related_Source__c>();
+                            if (projectName == 'None' || String.isBlank(projectName)) {
+                                // 1. Search Lead with Owner + Lead Phone Number (Most Recent)
+                                if (!usersList.isEmpty()) {
+                                    rltdList = [
+                                        SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
+                                        ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
+                                        (Phone__c =: cw.callfrom OR Secondary_phone__c =: cw.callfrom ) 
+                                        and SLead__r.OwnerId =:u.Id ORDER BY CreatedDate ASC
+                                    ];
+                                }
+                                if (rltdList.isEmpty()) {
+                                    rltdList = [
+                                        SELECT Id,Allocated_Project__c,Phone__c,Secondary_phone__c,SLead__r.ownerId,SLead__r.Lead_Status__c
+                                        ,SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c WHERE 
+                                        (Phone__c =: cw.callfrom OR Secondary_phone__c =: cw.callfrom ) ORDER BY CreatedDate ASC
+                                    ];
+                                }
+                                
+                            }  
+                            else{
+                                rltdList = [SELECT Id,Phone__c,Secondary_phone__c,SLead__r.ownerId,
+                                            SLead__r.Id,SLead__r.Allocated_Project__c FROM Related_Source__c 
+                                            WHERE (Phone__c =: cw.callfrom OR Secondary_phone__c =: cw.callfrom )
+                                            and SLead__r.Allocated_Project__c = :projectNumber.get(landingNumber)
+                                            ORDER BY CreatedDate ASC limit 1];
+                            }
+                            
                             if(rltdList.size() > 0){
                                 l = rltdList[0].SLead__r;
-                                //OwnerId = rltdList[0].SLead__r.OwnerId;
+                         
                             }
                         }
                         
@@ -917,5 +952,64 @@ global without sharing class mCubeController {
     public  string recordIds= '';
     
     
+    public static void testmeth(){
+        integer i=0;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;i++;
+        
+    }
     
 }

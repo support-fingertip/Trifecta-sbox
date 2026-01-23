@@ -1,6 +1,13 @@
 public class transferLeadController {
     public static Boolean pushToSales = true;
     public static Boolean transferLead = false;
+    
+    public class databox 
+    {
+        @AuraEnabled public Map<String, String> contryCodes = new Map<String, String>();
+        @AuraEnabled public String profileName;
+    }
+    
     @auraEnabled
     public static Boolean getRecordAccess(String recId){
         UserRecordAccess ura = [SELECT RecordId, HasEditAccess FROM UserRecordAccess WHERE UserId = :UserInfo.getUserId() AND RecordId = :recId];
@@ -58,6 +65,20 @@ public class transferLeadController {
     }
     
     @AuraEnabled(cacheable=true)
+    public static databox getData() {
+        databox dt = new databox();
+        Map<String, String> countryMap = new Map<String, String>();
+        List<Country_Code_Mapping__mdt> countryMetadata = [SELECT Label, CountryCode__c FROM Country_Code_Mapping__mdt ];
+        for (Country_Code_Mapping__mdt country : countryMetadata) {
+            countryMap.put(country.Label, country.CountryCode__c);
+        }
+        dt.contryCodes = countryMap;
+        dt.profileName = [SELECT Profile.Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1].Profile.Name;
+        return dt;
+    }
+    
+    
+    @AuraEnabled(cacheable=true)
     public static Map<String, String> getCountryAndCode() {
         Map<String, String> countryMap = new Map<String, String>();
         List<Country_Code_Mapping__mdt> countryMetadata = [SELECT Label, CountryCode__c FROM Country_Code_Mapping__mdt ];
@@ -67,6 +88,8 @@ public class transferLeadController {
         system.debug('====='+countryMap);
         return countryMap;
     }
+    
+    
      @AuraEnabled(cacheable=true)
     public static List<User> getSalesUsers() {
         // Query users with sales profile - adjust the profile name as needed

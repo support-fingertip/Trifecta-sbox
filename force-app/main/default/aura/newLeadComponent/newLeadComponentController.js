@@ -5,14 +5,25 @@
         var userId = $A.get("$SObjectType.CurrentUser.Id");
         component.set('v.userId',userId);
         //alert(userId);
-        
-        var action = component.get("c.getCountryAndCode");
+     
+        var action = component.get("c.getData");
         //alert(action);
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (state === "SUCCESS") {
-                var countryMap = response.getReturnValue();
-                component.set("v.sectionLabels", countryMap);
+                var result =  response.getReturnValue();
+                component.set("v.sectionLabels", result.contryCodes);
+                const profileName = result.profileName;
+                if(profileName =='CP Head' || profileName =='CP Sourcing Member' || profileName =='CP Coordinator')
+                {
+                    component.set('v.isSourceDisabled',true);
+                    component.set('v.leadSource','Channel Partner');
+                    component.set('v.mainLeadSource','Channel Partner');
+                    if(profileName =='CP Sourcing Member')
+                    {
+                        component.set('v.showSourcingMember',false);
+                    }
+                }
             }
             
         });
@@ -58,7 +69,7 @@
         component.set("v.isSubmitting", true);
         component.set('v.spinner',true);
         event.preventDefault(); 
-        
+        console.log('entered5');
         var leadName = component.find("leadName").get("v.value");
         var leadFirstName = component.find("leadFirstName").get("v.value");
         var salutation = component.find("salutation").get("v.value");
@@ -66,7 +77,10 @@
         var secondaryPhone = component.find("secondPhoneNumber").get("v.value");
         var pattern = /^[A-Za-z ]+$/;
         var numberPattern = /^[0-9]+$/;
-        
+        console.log('entered71'); 
+        var mandatesourcingMember = component.get("v.showSourcingMember");
+        var leadSource = component.get("v.leadSource");
+        console.log('entered7'); 
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
             helper.toastMsg('Error','Name','Please enter alphabets only in Name!');
@@ -90,6 +104,17 @@
             component.set("v.isSubmitting", false);
             helper.toastMsg('Error', 'Secondary Phone', 'Please enter a valid 10-digit secondary phone number');
             return;
+        }
+        if(mandatesourcingMember == true )
+        {
+            var sourcingMember = component.find("sourcingMember").get("v.value");
+            if(!sourcingMember)
+            {
+                component.set("v.isSubmitting", false);
+                helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
+                return;
+            }
+            
         }
 
         var eventFields = event.getParam("fields");

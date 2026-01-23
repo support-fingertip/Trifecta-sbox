@@ -381,37 +381,52 @@ public without sharing class RelatedSourceHandler {
         if(nld.Main_lead_status__c == 'Booked'|| nld.Main_lead_status__c =='Lead Lost' || nld.Main_lead_status__c == 'Closed Lost'
          ){
             string RecTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Pre Sales').getRecordTypeId();
-            ld.Lead_status__c ='New';
-            ld.Lead_Assigned__c=false;
-            ld.Lead_Transfered__c = false;
-            ld.Type_of_lead__c = 'Direct Lead';
-            ld.Lead_Type__c ='Re-Opened';
-            ld.Assigment_count__c ='0';
-            ld.No_Of_Times_Unqualified__c=0;
-            ld.Allocated_Project__c = nld.Allocated_Project__c;
-            ld.Last_Re_Opened_Date__c = system.now();
-            ld.Re_assigned_date__c=null;
-            ld.RNR_date__c=null;
-            ld.status_change_date__c=null;
-            ld.Last_comment__c = '';
-            ld.Site_Visit_Schedule_Date__c=null;
-            ld.Site_visit_Project__c = null;
-            ld.Reassigned_By__c=null;
-            ld.Site_Visit_Feedback__c=null;
-            ld.Followup_Subject__c=null;
-            ld.Next_follow_up_Date__c=null;
-            ld.Next_Site_visit_Date__c=null;
-            ld.Closed_Lost_Reason__c=null;
-            ld.Lead_Lost_Reasons__c = null;
-            ld.Reasons_in_Detail__c = null;
-            ld.Remark_for_Closed_Lost__c=null;
-            ld.RecordTypeId=RecTypeId;
-            
-            //Enquiry Date - 16/12/2025 Added by - Durga Prasad
-            ld.Enquiry_Date__c = system.now();
-            ld.Credit_Source__c =nld.Source_Type__c;
-            ld.Credit_Sub_Source__c =  nld.Lead_source__c;
-        }
+             ld.Lead_status__c ='New';
+             ld.Lead_Assigned__c=false;
+             ld.Lead_Transfered__c = false;
+             ld.Type_of_lead__c = 'Direct Lead';
+             ld.Lead_Type__c ='Re-Opened';
+             ld.Assigment_count__c ='0';
+             ld.No_Of_Times_Unqualified__c=0;
+             ld.Allocated_Project__c = nld.Allocated_Project__c;
+             ld.Last_Re_Opened_Date__c = system.now();
+             ld.Re_assigned_date__c=null;
+             ld.RNR_date__c=null;
+             ld.status_change_date__c=null;
+             ld.Last_comment__c = '';
+             ld.Site_Visit_Schedule_Date__c=null;
+             ld.Site_visit_Project__c = null;
+             ld.Reassigned_By__c=null;
+             ld.Site_Visit_Feedback__c=null;
+             ld.Followup_Subject__c=null;
+             ld.Next_follow_up_Date__c=null;
+             ld.Next_Site_visit_Date__c=null;
+             ld.Closed_Lost_Reason__c=null;
+             ld.Lead_Lost_Reasons__c = null;
+             ld.Reasons_in_Detail__c = null;
+             ld.Remark_for_Closed_Lost__c=null;
+             ld.RecordTypeId=RecTypeId;
+             ld.Re_Assignment_Status__c = '';
+             
+             //Enquiry Date - 16/12/2025 Added by - Durga Prasad
+             ld.Enquiry_Date__c = system.now();
+             ld.Credit_Source__c =nld.Source_Type__c;
+             ld.Credit_Sub_Source__c =  nld.Lead_source__c;
+             
+             //Last Channel Partner and Credit Channel Partner -19/01/2025 added by - Durga Prasad
+             if(nld.Channel_Partner__c != null)
+             {
+                 ld.Last_Channel_Partner__c = nld.Channel_Partner__c;
+                 ld.Credit_Channel_Partner__c = nld.Channel_Partner__c;
+                 //If lead is Re-opened by the channel Patner Mention Lead Owner or Current User we are assigning to Owner of lead
+                 ld.Lead_Assigned__c = true;
+                 ld.Lead_Transfered__c = true;
+                 ld.OwnerId = nld.OwnerId;
+                 ld.Sourcing_Member__c = nld.OwnerId;
+                 ld.Pre_Sales_User__c = nld.OwnerId;
+             }
+             
+         }
         else{
             ld.Lead_Type__c ='Re-Engaged';
             ld.Re_Engaged_Date__c = system.now();
@@ -421,6 +436,13 @@ public without sharing class RelatedSourceHandler {
                 ld.Enquiry_Date__c = system.now();
                 ld.Credit_Source__c =nld.Source_Type__c;
                 ld.Credit_Sub_Source__c =  nld.Lead_source__c;
+                //Last Channel Partner and Credit Channel Partner -19/01/2025 added by - Durga Prasad
+                if(nld.Channel_Partner__c != null)
+                {
+                    ld.Last_Channel_Partner__c = nld.Channel_Partner__c;
+                    ld.Credit_Channel_Partner__c = nld.Channel_Partner__c;
+                }
+              
             }
             
             //After 90 days if it is re-enaging we need to assign to new Executive 
@@ -433,6 +455,16 @@ public without sharing class RelatedSourceHandler {
                 ld.Lead_Assigned__c=false;
                 ld.Lead_Transfered__c = false;
                 ld.RecordTypeId=RecTypeId;
+                
+                //After 90 days if lead is Re-enaging with Channel Partner then we are Assigning to lead owner which they selected
+                if(nld.Channel_Partner__c != null)
+                {
+                    ld.Lead_Assigned__c = true;
+                    ld.Lead_Transfered__c = true;
+                    ld.OwnerId = nld.OwnerId;
+                    ld.Sourcing_Member__c = nld.OwnerId;
+                    ld.Pre_Sales_User__c = nld.OwnerId;
+                }
             }
             
             

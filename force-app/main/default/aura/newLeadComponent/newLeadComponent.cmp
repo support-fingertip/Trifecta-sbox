@@ -22,7 +22,10 @@
     <aura:attribute name="isSubmitting" type="boolean" default="false"/>
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"></aura:handler>
     <aura:handler name="change" value="{!v.searchText}" action="{!c.searchText}"></aura:handler>
-        
+    <aura:attribute name="mainLeadSource" type="String"/>
+    <aura:attribute name="isSourceDisabled" type="boolean" default="false"/>
+    <aura:attribute name="showSourcingMember" type="boolean" default="true"/>
+    
     <div > 
         <aura:if isTrue="{!v.isModalOpen}">
             <lightning:recordEditForm recordTypeId="" objectApiName="Lead" aura:id="myform" onsubmit="{!c.handleSubmit}" onsuccess="{!c.handleSuccess}" onerror="{!c.handleError}"> 
@@ -145,20 +148,44 @@
                                         <div class="slds-grid slds-wrap slds-text-align_left">
                                             
                                             <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
-                                                <lightning:inputField variant="label-stacked" fieldName="Source_Type__c" required='true'/>
+                                                <lightning:inputField variant="label-stacked" fieldName="Source_Type__c" required='true' value="{!v.mainLeadSource}" disabled="{!v.isSourceDisabled}"/>
                                             </div>
                                             <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
-                                                <lightning:inputField variant="label-stacked" fieldName="Lead_source__c"  required='true' value="{!v.leadSource}" onchange="{!c.isChannelPartner}"/>
+                                                <lightning:inputField variant="label-stacked" fieldName="Lead_source__c"  required='true' value="{!v.leadSource}" onchange="{!c.isChannelPartner}" disabled="{!v.isSourceDisabled}"/>
                                             </div>
                                         </div>
                                     </div>
                                     <aura:if isTrue="{!v.leadSource == 'Channel Partner'}">
                                         <div class="slds-scope">
                                             <div class="slds-grid slds-wrap slds-text-align_left">
-                                                <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
-                                                    <lightning:inputField variant="label-stacked" fieldName="Channel_Partner__c"  required='true'/>
-                                                </div>
+                                                <aura:if isTrue="{!v.showSourcingMember}">
+                                                    <!-- When showSourcingMember = true -->
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField
+                                                                              variant="label-stacked"
+                                                                              aura:id="channelPartnerid"
+                                                                              fieldName="Channel_Partner__c"
+                                                                              required="true"/>
+                                                    </div>
+                                                    
+                                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1">
+                                                        <lightning:inputField
+                                                                              variant="label-stacked"
+                                                                              fieldName="Sourcing_Member__c"  aura:id="sourcingMember" required="true"/>
+                                                    </div>
+                                                    
+                                                    <!-- ELSE BLOCK -->
+                                                    <aura:set attribute="else">
+                                                        <div class="slds-size_1-of-1 slds-max-small-size_1-of-1">
+                                                            <lightning:inputField
+                                                                                  variant="label-stacked"
+                                                                                  fieldName="Channel_Partner__c"
+                                                                                  required="true"/>
+                                                        </div>
+                                                    </aura:set>
+                                                </aura:if>
                                             </div>
+                                            
                                         </div>
                                     </aura:if>
                                     <aura:if isTrue="{!v.leadSource == 'Employee Referral'}">

@@ -7,6 +7,12 @@ public without sharing class SiteVisitFormController {
         @AuraEnabled public Map<String, Map<String, String>> sourceToSubSoruce = new  Map<String, Map<String, String>>();
         @AuraEnabled public Lead Lead;
         @AuraEnabled public Site_Visit__c siteVisit;
+        
+        @AuraEnabled public list<Channel_Partner__c> channelPatnerList;
+        @AuraEnabled public list<User> CpUsersList;
+        
+        @AuraEnabled public boolean autoMapSoucingMember;
+        @AuraEnabled public boolean autoMapChannelPartner;
     }
     @AuraEnabled
     public static DataBox getData() {
@@ -20,6 +26,8 @@ public without sharing class SiteVisitFormController {
         }
         dt.countryMap = countryMap;
         dt.sourceToSubSoruce = getDependentMap(new Lead(), 'Source_Type__c', 'Lead_source__c');
+        dt.channelPatnerList = [select Id,Name from Channel_Partner__c where Active__c = true];
+        dt.CpUsersList = [select Id,Name from User where Profile.Name ='CP Sourcing Member'];
         return dt;
     }
     @AuraEnabled
@@ -102,12 +110,15 @@ public without sharing class SiteVisitFormController {
     @AuraEnabled
     public static DataBox getLead(String leadId) {
         DataBox dt = new DataBox();
-        dt.Lead =  [select id,LastName,Name,Phone__c,Lead_Owner_Full_Name__c,Source_Type__c,Lead_source__c,Secondary_Phone__c,
-                    Email,Lead_ID__c, Secondary_Email__c,Lead_Status__c from Lead where Id =: leadId Limit 1];
+        dt.Lead =  [select id,LastName,Name,Phone__c,Lead_Owner_Full_Name__c,OwnerId,Lead_Owner_Profile__c,Source_Type__c,Lead_source__c,Secondary_Phone__c,Credit_Channel_Partner__c,
+                    Credit_Channel_Partner__r.Name,Sourcing_Member__r.Name,Sourcing_Member__c, Email,Lead_ID__c, Secondary_Email__c,Lead_Status__c,
+                    Credit_Source__c,Credit_Sub_Source__c from Lead where Id =: leadId Limit 1];
         list<Site_Visit__c> siteVisitList = [select Id,Name,Date__c,Site_Visit_Create_Owner__c,SDate__c from Site_Visit__c
                                              where SLead__c =:leadId and (Status__c ='Scheduled' OR Status__c ='Rescheduled') limit 1];
         // Assign Site Visit (null if not found)
         dt.siteVisit = (siteVisitList.isEmpty() ? null : siteVisitList[0]);
+        dt.autoMapSoucingMember = dt.Lead.Lead_Owner_Profile__c == 'CP Sourcing Member';
+        dt.autoMapChannelPartner = dt.Lead.Credit_Source__c == 'Channel Partner';
         return dt;
     }
     /**
@@ -119,7 +130,7 @@ public without sharing class SiteVisitFormController {
     * @param selectedUser (Optional) User ID who attended the visit.
     */
     @AuraEnabled
-    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating) {
+    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner) {
         
         System.debug('Input Params => Remark: ' + remark + ', SV Date: ' + svDate + ', Project: ' + selectedProject +
                      ',leadId: ' + leadId + ', selectedRating: ' + selectedRating);
@@ -208,6 +219,14 @@ public without sharing class SiteVisitFormController {
             }
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
+            if(channelPartner != null && channelPartner != '')
+            {
+                visit.Channel_Partner__c = channelPartner;
+            }
+            if(sourcingMember != null && sourcingMember != '')
+            {
+                visit.Sourcing_Member__c = sourcingMember;
+            }
             update visit;   
         }
         else if(hasSvProposedVisit)
@@ -222,6 +241,14 @@ public without sharing class SiteVisitFormController {
             visit.Status__c = 'Verified by GRE';
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
+            if(channelPartner != null && channelPartner != '')
+            {
+                visit.Channel_Partner__c = channelPartner;
+            }
+            if(sourcingMember != null && sourcingMember != '')
+            {
+                visit.Sourcing_Member__c = sourcingMember;
+            }
             update visit;   
         }
         else
@@ -243,6 +270,14 @@ public without sharing class SiteVisitFormController {
             newVisit.Site_Visit_Type__c = visitType;
             newVisit.Project__c = selectedProject;
             newVisit.Comments__c = remark;
+            if(channelPartner != null && channelPartner != '')
+            {
+                newVisit.Channel_Partner__c = channelPartner;
+            }
+            if(sourcingMember != null && sourcingMember != '')
+            {
+                newVisit.Sourcing_Member__c = sourcingMember;
+            }
             insert newVisit;
         }
         

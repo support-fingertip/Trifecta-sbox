@@ -6,7 +6,8 @@ public class CallDetailTriggerTest {
         // Lead 1 → For TAT for New Lead...
         Lead l1 = new Lead(
             LastName = 'Lead One',
-            Company = 'Test Company1'
+            Company = 'Test Company1',
+            Source_Type__c ='Website'
         );
         insert l1;
 
@@ -14,6 +15,8 @@ public class CallDetailTriggerTest {
         Lead l2 = new Lead(
             LastName = 'Lead Two',
             Company = 'Test Company2',
+            Source_Type__c ='Website',
+            Lead_Status__c = 'New',
             Pushed_On__c = System.now().addHours(-2) // <--pushed earlier
         );
         insert l2;
@@ -22,7 +25,8 @@ public class CallDetailTriggerTest {
         Lead l3 = new Lead(
             LastName = 'Lead Three',
             Company = 'Test Company3',
-            Lead_Status__c = 'Site Visit Schedule'
+            Source_Type__c ='Website',
+            Lead_Status__c = 'New'
         );
         insert l3;
 
@@ -58,6 +62,8 @@ public class CallDetailTriggerTest {
         // Dummy insert to fire trigger...
         Call_Detail__c dummy = new Call_Detail__c(Lead__c = l1.Id);
         insert dummy;
+        dummy.Status__c='Customer Busy';
+        update dummy;
         Test.stopTest();
 
         // Assertions...

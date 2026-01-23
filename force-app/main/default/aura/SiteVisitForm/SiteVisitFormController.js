@@ -9,6 +9,8 @@
                 component.set("v.siteVisitRatings", data.siteVisitRatings);
                 component.set("v.sourceToSubSoruce", data.sourceToSubSoruce);
                 component.set("v.sectionLabels", data.countryMap);
+                component.set("v.channelPartnerList", data.channelPatnerList);
+                component.set("v.cpExectiveList", data.CpUsersList);
             }
         });
         $A.enqueueAction(action);
@@ -163,6 +165,9 @@
         
         var primaryPhone = component.find("PhoneNumber").get("v.value");
         var secondaryPhone = component.find("secondPhoneNumber").get("v.value");
+        var leadSource = component.get("v.selectedSubSource");
+        var sourcingMember = component.find("sourcingMember").get("v.value");
+        var channelPartner = component.find("channelPartner").get("v.value");
         
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
@@ -202,6 +207,17 @@
         if (secondaryPhone && (!numberPattern.test(secondaryPhone) || secondaryPhone.length != 10)) {
            
             helper.toastMsg('Error', 'Secondary Phone', 'Please enter a valid 10-digit secondary phone number');
+            return;
+        }
+        
+        if(leadSource =='Channel Partner' && !sourcingMember)
+        {
+            helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
+            return;
+        }
+        if(leadSource =='Channel Partner' && !channelPartner)
+        {
+            helper.toastMsg('Error', 'Channel Partner', 'Please select Channel Partner');
             return;
         }
         component.set("v.isLoading", true);
@@ -289,7 +305,9 @@
             "svDate": dateValue,
             "selectedProject": project,  
             "leadId": leadId,
-            "selectedRating": selectedRating
+            "selectedRating": selectedRating,
+            "sourcingMember": component.get("v.cpExecutiveId"),
+            "channelPartner": component.get("v.channelPartnerId")
         });
         
         action.setCallback(this, function(response) {
@@ -311,7 +329,83 @@
         
         var url = '/lightning/r/Lead/' + leadId + '/view';
         window.open(url, '_blank');
-    }
-
+    },
+	
+    /**Search Channel Partners**/
+    searchChannelPartner: function (component, event, helper) {
+        var channelPartners = component.get("v.channelPartnerList");
+        var searchText = component.get('v.cpSearchText');
+        console.log('searchText:' + searchText)
+        
+        var matchchannelPartners = [];
+        if (searchText != '') {
+            
+            for (var i = 0; i < channelPartners.length; i++) {
+                
+                if (channelPartners[i].Name.toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
+                    matchchannelPartners.push(channelPartners[i]);
+                }
+            }
+            console.log('matchchannelPartners:' + matchchannelPartners)
+            if (matchchannelPartners.length > 0) {
+                component.set('v.searchedChannelPartners', matchchannelPartners);
+            }
+            else 
+            {
+                component.set('v.searchedChannelPartners', []);
+            }
+        } else {
+            component.set('v.searchedChannelPartners', []);
+            component.set('v.channelPartnerId', '');
+            component.set('v.cpSearchText', '');
+        }
+    },
+    updateChannelPartner: function (component, event, helper) {
+        var eid = event.currentTarget.dataset.id;
+        var Name = event.currentTarget.dataset.name;
+        console.log('Name'+Name);
+        console.log('Id'+eid);
+        component.set('v.channelPartnerId', eid);
+        component.set('v.cpSearchText',Name);
+        component.set('v.searchedChannelPartners', []);
+    },
+    
+    /**Search Cp Executives **/
+    searchCpExecutive: function (component, event, helper) {
+        var cpExecutives = component.get("v.cpExectiveList");
+        var searchText = component.get('v.cpExeSearchText');
+        console.log('searchText:' + searchText)
+        
+        var matchcpExecutives = [];
+        if (searchText != '') {
+            
+            for (var i = 0; i < cpExecutives.length; i++) {
+                
+                if (cpExecutives[i].Name.toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
+                    matchcpExecutives.push(cpExecutives[i]);
+                }
+            }
+            console.log('matchcpExecutives:' + matchcpExecutives)
+            if (matchcpExecutives.length > 0) {
+                component.set('v.searchedcpExectives', matchcpExecutives);
+            }
+            else 
+            {
+                component.set('v.searchedcpExectives', []);
+            }
+        } else {
+            component.set('v.searchedcpExectives', []);
+            component.set('v.cpExeSearchText', '');
+            component.set('v.cpExecutiveId', '');
+        }
+    },
+    updateCpExecutive: function (component, event, helper) {
+        var eid = event.currentTarget.dataset.id;
+        var Name = event.currentTarget.dataset.name;
+        component.set('v.cpExecutiveId', eid);
+        component.set('v.cpExeSearchText',Name);
+        component.set('v.searchedcpExectives', []);
+    },
+    
 
 })
