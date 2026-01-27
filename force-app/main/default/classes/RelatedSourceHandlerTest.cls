@@ -239,7 +239,8 @@ public class RelatedSourceHandlerTest {
             Tertiary_Source__c,
             Main_lead_status__c,
             Main_Pre_Sales_User__c,
-            Sales_User__c
+            Sales_User__c,
+            Walking_Lead_Form__c
             FROM Lead
             WHERE Id = :childLead.Id
         ];

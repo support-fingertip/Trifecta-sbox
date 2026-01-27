@@ -204,7 +204,7 @@
                     <button class="slds-button slds-button_destructive" onclick="{!c.clearValues}">Clear</button>
                 </div>
             </lightning:tab>
-            <aura:if isTrue="{!v.otpStatus == 'Active Lead Exist' || v.otpStatus == 'Lead exists but In-Active'}">
+            <aura:if isTrue="{!v.otpStatus == 'Active Lead Exist'}">
                 <lightning:tab label="Update Site Visit" id="2">
                     <lightning:card>
                         <div class="slds-p-around_medium">
@@ -461,7 +461,7 @@
                     
                 </lightning:tab>
             </aura:if>
-            <aura:if isTrue="{!v.otpStatus == 'No Lead Exists'}">
+            <aura:if isTrue="{!v.otpStatus == 'No Lead Exists' || v.otpStatus == 'Lead exists but In-Active'}">
                 <lightning:tab label="Create New Lead" id="3">
                     <lightning:card >
                         <div class="slds-p-around_medium">

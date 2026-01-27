@@ -56,9 +56,7 @@
                             var returnValue = response.getReturnValue()
                             component.set('v.leadRecord',returnValue.Lead);
                             component.set('v.siteVisit',returnValue.siteVisit);
-              
-
-
+ 
                             if(otpStatus == 'Active Lead Exist'){
                                 helper.toastMsg('Success','Lead Status','Active Lead Exist');
                             }
@@ -96,6 +94,7 @@
         component.set("v.siteVisitComments", '');
         component.set("v.selectedRating", 'None');
         component.set("v.tabId", "1");
+        component.set("v.leadId",'');
     },
     handleCountryChange: function(component, event, helper) {
         var selectedUnitId = component.find("CountryLookupField").get("v.value");
@@ -136,6 +135,14 @@
         
         var errorMessage = event.getParam("message");
         if (errorMessage === 'The requested resource does not exist') {
+            
+            
+            var leadId = component.get("v.leadId");
+            if(leadId != null && leadId != '')
+            {
+                console.log('leadId---'+leadId);
+                helper.createSitevisit(component,event, helper,leadId);
+            }
             helper.toastMsg('error', 'Duplicate', 'Lead already exists in the system');
             component.set("v.selectedProject",'None');
             component.set("v.phone",'');
@@ -166,8 +173,7 @@
         var primaryPhone = component.find("PhoneNumber").get("v.value");
         var secondaryPhone = component.find("secondPhoneNumber").get("v.value");
         var leadSource = component.get("v.selectedSubSource");
-        var sourcingMember = component.find("sourcingMember").get("v.value");
-        var channelPartner = component.find("channelPartner").get("v.value");
+    
         
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
@@ -183,7 +189,7 @@
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit Comments');
             return;
         } 
-        if ((!selectedRating || selectedRating =='None') && (otpStatus == "Active Lead Exist" || otpStatus == "Lead exists but In-Active" )) {
+        if ((!selectedRating || selectedRating =='None') && (otpStatus == "Active Lead Exist")) {
             helper.toastMsg('Error', 'Error', 'Please select Site Visit Rating');
             return;
         }
@@ -210,15 +216,23 @@
             return;
         }
         
-        if(leadSource =='Channel Partner' && !sourcingMember)
+        if(leadSource =='Channel Partner' )
         {
-            helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
-            return;
+            var sourcingMember = component.find("sourcingMember").get("v.value");
+            if(!sourcingMember)
+            {
+                helper.toastMsg('Error', 'Sourcing Member', 'Please select sourcing member');
+                return;
+            }
         }
-        if(leadSource =='Channel Partner' && !channelPartner)
+        if(leadSource =='Channel Partner')
         {
-            helper.toastMsg('Error', 'Channel Partner', 'Please select Channel Partner');
-            return;
+             var channelPartner = component.find("channelPartner").get("v.value");
+            if(!channelPartner)
+            {
+                helper.toastMsg('Error', 'Channel Partner', 'Please select Channel Partner');
+                return;
+            }
         }
         component.set("v.isLoading", true);
         
@@ -260,7 +274,7 @@
                 component.set("v.showDetails",false);
                 component.set("v.selectedProject",'None');
                 component.set("v.phone",'');
-                
+                component.set("v.leadId",'');
             }else{
                 helper.toastMsg('Error','Error','Something Went Wrong')
             }

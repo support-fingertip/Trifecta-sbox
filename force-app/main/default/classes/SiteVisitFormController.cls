@@ -290,7 +290,7 @@ public without sharing class SiteVisitFormController {
         sv.SLead__c = ld.Id;
         sv.Date__c = Datetime.now().addMinutes(1);
         sv.Source__c = ld.Lead_source__c;
-        sv.OwnerId = ld.Sales_user__c;
+        sv.OwnerId = ld.OwnerId;
         sv.Project__c = ld.Allocated_Project__c;
         sv.GRE_Verified_Time__c = Datetime.now().addMinutes(1);
         sv.Site_Visit_Entry_Time__c = Datetime.now().addMinutes(1);

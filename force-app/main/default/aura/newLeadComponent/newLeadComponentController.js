@@ -105,7 +105,7 @@
             helper.toastMsg('Error', 'Secondary Phone', 'Please enter a valid 10-digit secondary phone number');
             return;
         }
-        if(mandatesourcingMember == true )
+        if(mandatesourcingMember == true && leadSource == 'Channel Partner')
         {
             var sourcingMember = component.find("sourcingMember").get("v.value");
             if(!sourcingMember)

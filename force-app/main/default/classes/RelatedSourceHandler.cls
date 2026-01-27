@@ -426,6 +426,15 @@ public without sharing class RelatedSourceHandler {
                  ld.Pre_Sales_User__c = nld.OwnerId;
              }
              
+             //If Lead is Re-opened by GRE it shound assign to sales
+             if(nld.Walking_Lead_Form__c)
+             {
+                 string SalesRecTypeId = Schema.SObjectType.Lead.getRecordTypeInfosByName().get('Sales').getRecordTypeId();
+                 ld.Push_To_Sales__c = true;
+                 ld.RecordTypeId=SalesRecTypeId;
+                 ld.Lead_Status__c='SV Done';
+             }
+             
          }
         else{
             ld.Lead_Type__c ='Re-Engaged';
