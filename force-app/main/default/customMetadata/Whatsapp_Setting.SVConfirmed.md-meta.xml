@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>SVConfirmed</label>
+    <protected>false</protected>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Authentication_Key__c</field>
+        <value xsi:type="xsd:string">e25e5693192a27534454b3d20751e</value>
+    </values>
+    <values>
+        <field>Sender_ID__c</field>
+        <value xsi:type="xsd:string">918884777148</value>
+    </values>
+    <values>
+        <field>Template_Name__c</field>
+        <value xsi:type="xsd:string">final_sv_confirmed</value>
+    </values>
+    <values>
+        <field>Template_Number__c</field>
+        <value xsi:type="xsd:double">4.0</value>
+    </values>
+    <values>
+        <field>URL__c</field>
+        <value xsi:type="xsd:string">https://msg.msgclub.net/rest/services/sendSMS/v2/sendtemplate</value>
+    </values>
+</CustomMetadata>

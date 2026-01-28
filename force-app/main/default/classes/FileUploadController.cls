@@ -153,7 +153,8 @@ public with sharing class FileUploadController {
         ];
         
         for (ContentDocumentLink docLink : documentLinks) {
-            if (String.isEmpty(fileName) || docLink.ContentDocument.Title == fileName) {
+            String fullName =  docLink.ContentDocument.Title;
+            if (String.isBlank(fileName) || fullName.startsWith(fileName)) {
                 files.add(new FileWrapper(docLink));
             }
         }

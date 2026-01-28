@@ -5,11 +5,12 @@
 * @description : This class is used to reassign the lost leads for 1st 3 times
 * @author      : Mayuri Patel
 
-* Change Log:
+* Change Log: 28-1-2026  added the condition exclude Cp leads as there is no round robin for CP
 * -----------------------------------------------------------------------------
 * Ver | Author 			| 	  Date 		| Description
 * -----------------------------------------------------------------------------
 * 1.0 | Mayuri Patel 	| 20-11-2025 	| Initial version
+* 1.0 | Durga Prasad 	| 28-1-2026 	| modified version
 * -----------------------------------------------------------------------------
 **************************************************************/
 global class LostLeadReassignment  implements Database.Batchable<SObject>, Database.Stateful, Schedulable {
@@ -24,7 +25,8 @@ global class LostLeadReassignment  implements Database.Batchable<SObject>, Datab
             Hrs_after_Lead_Lost__c,OwnerId FROM Lead
             where Mark_Unqualified__c = true and Lead_Assigned__c = false and Lead_Status__c = 'Lead Lost' and No_Of_Times_Unqualified__c < 3
             /*and (Previous_Stage__c = 'New' or Previous_Stage__c = 'Open')*/ and Lead_Lost_Reasons__c = 'RNR'
-            and Hrs_after_Lead_Lost__c >=:validity
+            and Hrs_after_Lead_Lost__c >=:validity AND Lead_Owner_Profile__c !='CP Sourcing Member' and Lead_Owner_Profile__c !='CP Coordinator'
+            AND Lead_Owner_Profile__c!='CP Head'
         ]);
         
     }
