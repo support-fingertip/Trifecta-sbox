@@ -433,11 +433,11 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Demands %26 Collections</fullName>
+            <fullName>Customer Service %26 Complaints</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Handed Over</fullName>
+            <fullName>Demands %26 Progressive Collections</fullName>
             <default>false</default>
         </values>
         <values>
@@ -445,15 +445,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Progressive Collections</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>Registration</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Swapping</fullName>
             <default>false</default>
         </values>
     </picklistValues>

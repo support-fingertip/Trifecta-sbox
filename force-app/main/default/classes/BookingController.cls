@@ -1,5 +1,4 @@
 public without sharing class BookingController {
-    
     @AuraEnabled
     public static Quote__c quoteRecord(String recId) {
         Quote__c qt = [select id,name,BHK_Type__c,Super_Built_UpArea__c,Rate_sq_Ft_Discount__c,
@@ -150,7 +149,6 @@ public without sharing class BookingController {
         
     }
     
-    
     public static void changeUnitStatus(List<Booking__c> bookList) {   
         Set<Id> units = new Set<Id>();
         for (Booking__c bcc : bookList) {
@@ -164,37 +162,4 @@ public without sharing class BookingController {
             update plotList;
         }
     }
-    
-    /*Not in Use 
-    @AuraEnabled
-    public static List<String> getPaymentTypePicklistValues() {
-    List<String> paymentTypeValues = new List<String>();
-    Schema.DescribeFieldResult fieldResult = Booking__c.Mode_Of_Payment__c.getDescribe();
-    
-    for (Schema.PicklistEntry picklistEntry : fieldResult.getPicklistValues()) {
-    paymentTypeValues.add(picklistEntry.getLabel());
-    }
-    
-    return paymentTypeValues;
-    }
-    @AuraEnabled
-    public static List<String> getFundingtTypePicklistValues() {
-    List<String> paymentTypeValues = new List<String>();
-    Schema.DescribeFieldResult fieldResult = Booking__c.Funding_Type__c.getDescribe();
-    
-    for (Schema.PicklistEntry picklistEntry : fieldResult.getPicklistValues()) {
-    paymentTypeValues.add(picklistEntry.getLabel());
-    }
-    
-    return paymentTypeValues;
-    }
-    @AuraEnabled
-    public static void chnageUnitStatus(Map<Id,String> plotIds){
-    List<Plot__c> plotList = [Select Id,Name,Status__c from Plot__c where Id in: plotIds.keySet()];
-    for(Plot__c plt : plotList){
-    plt.Status__c = plotIds.get(plt.Id);
-    }
-    update plotList;
-    }
-    **/
 }

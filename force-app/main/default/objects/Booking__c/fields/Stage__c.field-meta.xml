@@ -22,14 +22,9 @@
                 <label>Agreement</label>
             </value>
             <value>
-                <fullName>Demands &amp; Collections</fullName>
+                <fullName>Demands &amp; Progressive Collections</fullName>
                 <default>false</default>
-                <label>Demands &amp; Collections</label>
-            </value>
-            <value>
-                <fullName>Progressive Collections</fullName>
-                <default>false</default>
-                <label>Progressive Collections</label>
+                <label>Demands &amp; Progressive Collections</label>
             </value>
             <value>
                 <fullName>Registration</fullName>
@@ -42,19 +37,32 @@
                 <label>Possession / Handover</label>
             </value>
             <value>
-                <fullName>Handed Over</fullName>
+                <fullName>Customer Service &amp; Complaints</fullName>
                 <default>false</default>
-                <label>Handed Over</label>
-            </value>
-            <value>
-                <fullName>Swapping</fullName>
-                <default>false</default>
-                <label>Swapping</label>
+                <label>Customer Service &amp; Complaints</label>
             </value>
             <value>
                 <fullName>Cancellation</fullName>
                 <default>false</default>
                 <label>Cancellation</label>
+            </value>
+            <value>
+                <fullName>Handed Over</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Handed Over</label>
+            </value>
+            <value>
+                <fullName>Progressive Collections</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Progressive Collections</label>
+            </value>
+            <value>
+                <fullName>Swapping</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Swapping</label>
             </value>
         </valueSetDefinition>
     </valueSet>
