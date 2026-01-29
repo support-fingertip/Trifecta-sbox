@@ -208,6 +208,7 @@
     navigateToPaymentSchedule: function (component, event, helper) {
         var selectedUnit = component.get("v.selectedUnit");
         var numberPattern = /^[0-9]+$/;
+        var numberPattern2 = /^\d+(\.\d+)?$/;
         var primaryPhone = component.get("v.oppPlot.Referred_Contact_Number__c");
         var Booking_Referral_Percentage__c = component.get("v.oppPlot.Booking_Referral_Percentage__c");
         var Rate_per_sqft = component.get("v.oppPlot.Rate_per_sqft__c");
@@ -224,7 +225,7 @@
             helper.showToast('Error', 'Error', 'Please enter a valid 10-digit referred contact number');
             return;
         }
-        if (Booking_Referral_Percentage__c && !numberPattern.test(Booking_Referral_Percentage__c.toString())) {
+        if (Booking_Referral_Percentage__c && !numberPattern2.test(Booking_Referral_Percentage__c.toString())) {
             helper.showToast('Error', 'Error', 'Please enter a valid booking referral percentage');
             return;
         }
@@ -232,15 +233,15 @@
             helper.showToast('Error', 'Error', 'Please enter a valid Rate per sqft');
             return;
         }
-        if (Discount_Price && !numberPattern.test(Discount_Price.toString())) {
-            helper.showToast('Error', 'Error', 'Please enter a valid Discount in Percentage');
+        if (Discount_Price && !numberPattern2.test(Discount_Price.toString())) {
+            helper.showToast('Error', 'Error', 'Please enter a valid Discount Price');
             return;
         }
-        if (amenities_charges && !numberPattern.test(amenities_charges.toString())) {
+        if (amenities_charges && !numberPattern2.test(amenities_charges.toString())) {
             helper.showToast('Error', 'Error', 'Please enter a valid Amenities Charges');
             return;
         }
-        if (Extra_car_parking_charges && !numberPattern.test(Extra_car_parking_charges.toString())) {
+        if (Extra_car_parking_charges && !numberPattern2.test(Extra_car_parking_charges.toString())) {
             helper.showToast('Error', 'Error', 'Please enter a valid Additional Car Parking Charges');
             return;
         }

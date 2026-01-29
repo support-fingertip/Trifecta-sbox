@@ -99,7 +99,6 @@
             'First_Applicant_Name__c': 'First Applicant Name',
             'Age__c': 'Age',
             'Son_Daughter_Wife_of1__c': 'S/O',
-            'Occupation__c': 'Occupation',
             'Mobile__c': 'Mobile',
             'Email__c': 'Email',
             'PAN_Number__c': 'PAN Number',
@@ -115,7 +114,6 @@
             'Name': 'Co-Applicant Name',
             'Age__c': 'Age',
             'Son_Daughter_Wife_of__c': 'S/O',
-            'Occupation__c': 'Occupation',
             'Primary_Phone__c': 'Primary Phone',
             'Email__c': 'Email',
             'PAN_Number__c': 'PAN Number'

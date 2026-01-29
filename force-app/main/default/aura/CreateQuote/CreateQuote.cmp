@@ -363,9 +363,11 @@
                                                 </div>
                                             </aura:if>
                                             <!-- GST Percentage -->
-                                            <div class="slds-size_4-of-8 slds-p-horizontal_small">
-                                                <lightning:input class="custom-disabled" name="GST1__c" type="number" formatter="Number" disabled="true" label="GST %" value="{!v.oppPlot.GST__c}" />
-                                            </div>
+                                            <aura:if isTrue="{!v.projectType == 'Row House'}">
+                                                <div class="slds-size_4-of-8 slds-p-horizontal_small">
+                                                    <lightning:input class="custom-disabled" name="GST1__c" type="number" formatter="Number" disabled="true" label="GST %" value="{!v.oppPlot.GST__c}" />
+                                                </div>
+                                            </aura:if>
                                             <!-- Extra Land-->
                                             <aura:if isTrue="{!v.projectType == 'Villas'}">
                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">

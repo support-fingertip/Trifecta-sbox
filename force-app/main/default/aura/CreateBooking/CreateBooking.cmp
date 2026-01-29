@@ -363,7 +363,7 @@
                                         <lightning:input name="S/O" type="text" label="S/o, D/o, W/o" value="{!v.book.Son_Daughter_Wife_of1__c}" required="true"/>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                        <lightning:input name="Occupation" type="text" label="Occupation" value="{!v.book.Occupation__c}" required="true"/>
+                                        <lightning:input name="Occupation" type="text" label="Occupation" value="{!v.book.Occupation__c}"/>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
                                         <lightning:input name="Mobile" type="tel" label="Primary Mobile" value="{!v.book.Mobile__c}" required="true" maxlength="10" minlength="10" pattern="^[0-9]{10}$" messageWhenPatternMismatch="Enter a valid 10-digit phone number."/>
@@ -478,7 +478,7 @@
                                                                     <lightning:input name="Son_Daughter_Wife_of__c" type="Text" formatter="Text"  disabled="false" label="S/o, D/o, W/o" aura:id="pro" value="{!prd.Son_Daughter_Wife_of__c}" required="true"/>
                                                                 </div>
                                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
-                                                                    <lightning:input name="Occupation__c" type="Text" formatter="Text"  disabled="false" label="Occupation" aura:id="pro" value="{!prd.Occupation__c}" required="true"/>
+                                                                    <lightning:input name="Occupation__c" type="Text" formatter="Text"  disabled="false" label="Occupation" aura:id="pro" value="{!prd.Occupation__c}"/>
                                                                 </div>
                                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small"  >
                                                                     <lightning:input name="Primary_Phone__c"

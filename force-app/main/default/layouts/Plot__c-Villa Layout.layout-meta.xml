@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <excludeButtons>OpenSlackRecordChannel</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -102,17 +103,17 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>GST1__c</field>
+                <field>Bescom__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Extra_Land_Rate_Per_Sq_ft__c</field>
+                <behavior>Edit</behavior>
+                <field>Land_Rate_Per_Sqft__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
-                <field>Bescom__c</field>
+                <behavior>Readonly</behavior>
+                <field>Extra_Land_Rate_Per_Sq_ft__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>

@@ -243,15 +243,6 @@
                     </td>
                 </tr>
                 <tr class="section-header">
-                    <td style="width: 60%;">GST ( {!qout.GST__c} % )</td>
-                    <td style="width: 20%;"></td>
-                    <td style="width: 20%;" class="right">
-                        <apex:outputText value="{0, number, ##,##,###}">
-                            <apex:param value="{!qout.GST_Amount__c}" /> 
-                        </apex:outputText>  
-                    </td>
-                </tr>
-                <tr class="section-header">
                     <td style="width: 60%;">Total Value</td>
                     <td style="width: 20%;"></td>
                     <td style="width: 20%;" class="right">
@@ -307,17 +298,16 @@
             <!-- Terms and Conditions -->
             <h5>Terms and Conditions:</h5>
             <table>
-                <tr><td>1. Cost sheet is valid till October - 2025 subject to change without notice.</td></tr>
-                <tr><td>2. Any introduction of new taxes, levies, Cess and increase or decrease in the taxes would be to the customer's account.</td></tr>
-                <tr><td>3. Agreements of sale is to be executed within 20 days from the date of booking.</td></tr>
-                <tr><td>4. Cancellation charges of Rs.25,000/- (Rupees Twenty Thousand Only) is applicable up to 21 days from the date of booking.</td></tr>
-                <tr><td>5. All refunds will be processed within 90 days from the date of cancellation without any interest.</td></tr>
-                <tr><td>6. Stamp duty, registration charges and incidental expenses to be borne by the customer and to be paid at the time of registration.</td></tr>
-                <tr><td>7. Maintenance from the date of Registration to be paid in advance to Association/Builder/Respective Agency Separately on actuals.</td></tr>
-                <tr><td>8. Cheque should be drawn in favour of "M/s. Trifecta Projects Pvt Ltd".</td></tr>
-                <tr><td>9. Errors and omissions are expected (E&amp;OE).</td></tr>
-                <tr><td>10. Above cost does not include BWSSB Deposits &amp; BWSSB Cost, which should be borne by the customers as and when applicable.</td></tr>
-                <tr><td>11. GST included in the Total Cost.</td></tr>
+                <tr><td>1. Any introduction of new taxes, levies, Cess and increase or decrease in the taxes would be to the customer’s account.</td></tr>
+                <tr><td>2. Agreements of sale is to be executed within 20 days from the date of booking</td></tr>
+                <tr><td>3.Cancellation charges of Rs.25,000/- (Rupees Twenty Thousand Only) is applicable up to 21 days from the date of booking, "Booking form" norms applicable post 21 days</td></tr>
+                <tr><td>4. All refunds will be processed within 90 days from the date of cancellation without any interest</td></tr>
+                <tr><td>5. Stamp duty, registration charges and incidental expenses to be borne by the customer and to be paid at the time of registration</td></tr>
+                <tr><td>6. Maintenance from the date of Registration to be paid in advance to Association/Builder/Respective Agency Separately on actuals</td></tr>
+                <tr><td>7. Cheque should be drawn in favour of "M/s. Trifecta Projects Pvt Ltd"</td></tr>
+                <tr><td>8. Errors and omissions are excepted (E&amp;OE)</td></tr>
+                <tr><td>9. Above Cost does not include BWSSB Deposits &amp; BWSSB Cost,which should be borne by the customers as and when applicable</td></tr>
+                <tr><td>10. GST included in the Total Cost.</td></tr>
             </table>
         </body>
     </html>
