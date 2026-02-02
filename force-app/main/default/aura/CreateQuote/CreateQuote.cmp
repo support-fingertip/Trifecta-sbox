@@ -263,10 +263,12 @@
                                                 <!-- Booking Referral Percentage -->
                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
                                                     <lightning:input class="custom-disabled" aura:id="numberField" 
-                                                                     name="Booking_Referral_Percentage__c" type="number" 
-                                                                     formatter="percent-fixed" step="0.01"
-                                                                     label="Booking Referral %" 
-                                                                     value="{!v.oppPlot.Booking_Referral_Percentage__c}" />
+                                                                     name="Booking_Referral_Amount1__c"
+                                                                     type="number" 
+                                                                     formatter="Currency"
+                                                                     step="0.01" 
+                                                                     label="Booking Referral Amount" 
+                                                                     value="{!v.oppPlot.Booking_Referral_Amount1__c}" />
                                                 </div>
                                                 <!-- Referred by Lead ID -->
                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
@@ -378,10 +380,12 @@
                                                 <!-- Booking Referral Percentage -->
                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
                                                     <lightning:input class="custom-disabled" aura:id="numberField" 
-                                                                     name="Booking_Referral_Percentage__c" type="number" 
-                                                                     formatter="percent-fixed" step="0.01"
-                                                                     label="Booking Referral %" 
-                                                                     value="{!v.oppPlot.Booking_Referral_Percentage__c}" />
+                                                                     name="Booking_Referral_Amount1__c"
+                                                                     type="number" 
+                                                                     formatter="Currency"
+                                                                     step="0.01" 
+                                                                     label="Booking Referral Amount" 
+                                                                     value="{!v.oppPlot.Booking_Referral_Amount1__c}" />
                                                 </div>
                                                 <!-- Referred by Lead ID -->
                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">

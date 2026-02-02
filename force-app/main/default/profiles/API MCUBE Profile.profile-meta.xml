@@ -49,6 +49,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingTriggerHandler</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingWelcomeMail</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -6467,6 +6471,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Quote__c.Block__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Quote__c.Booking_Referral_Amount1__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

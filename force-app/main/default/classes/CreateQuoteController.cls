@@ -48,8 +48,8 @@ public Without Sharing class  CreateQuoteController {
     public static returnBox getData(string recId){
         returnBox rt = new returnBox();
         User us = [select Id,Discount_Limit__c from User where Id =: UserInfo.getUserId()];
-        Lead ld =[select id ,Allocated_Project__c,Source_Type__c from Lead where id =:recId limit 1];
-        rt.showReferalPercentage = ld.Source_Type__c == 'Referral and Loyalty' ? true : false;
+        Lead ld =[select id ,Allocated_Project__c,Source_Type__c,Credit_Source__c from Lead where id =:recId limit 1];
+        rt.showReferalPercentage = ld.Credit_Source__c == 'Referral and Loyalty' ? true : false;
         // Check Project existence
         String projectName = ld.Allocated_Project__c;
         rt.isProjectNameExisted = !String.isBlank(projectName);

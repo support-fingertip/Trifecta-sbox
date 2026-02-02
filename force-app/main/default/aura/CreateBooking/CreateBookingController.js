@@ -129,32 +129,6 @@
         component.set("v.isModalOpen", false);
         $A.get("e.force:closeQuickAction").fire();
     },
-    validateBookingDate: function(component, event, helper) {
-        var bookingDate = component.get("v.book.Booking_Date__c");
-        var dopyamentDate = component.get("v.book.Date_of_Payment__c");
-        
-        if (bookingDate) {
-            var selectedDate = new Date(bookingDate);
-            var currentDate = new Date();
-            
-            // Check if date is in future
-            if (selectedDate > currentDate) {
-                helper.showToast('Error', 'Error!', "Booking date cannot be a future date.");
-                component.set("v.book.Booking_Date__c", null);
-            } 
-        }
-        if (dopyamentDate) {
-            var selectedDate = new Date(dopyamentDate);
-            var currentDate = new Date();
-            
-            // Check if date is in future
-            if (selectedDate > currentDate) {
-                helper.showToast('Error', 'Error!', "Date of Payment cannot be a future date.");
-                component.set("v.book.Date_of_Payment__c", null);
-            } 
-        }
-    },
-    
     save: function(component, event, helper) {
         if(helper.validateFields(component,event,helper)) {
             // If validation passes, call the helper function to save the record

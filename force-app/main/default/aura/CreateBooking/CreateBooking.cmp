@@ -113,8 +113,7 @@
                                                          type="datetime"
                                                          label="Booking Date"
                                                          value="{!v.book.Booking_Date__c}" 
-                                                         required="true" 
-                                                         onchange="{!c.validateBookingDate}"/>                    
+                                                         required="true" />                    
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
                                         <lightning:input name="Booking Amount"
@@ -164,19 +163,8 @@
                                     </div>
                                     <aura:if isTrue="{!OR(v.book.Mode_Of_Payment__c == 'Credit Card',v.book.Mode_Of_Payment__c == 'Debit Card')}">
                                         <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                            <lightning:input name="Branch Name" type="text" label="Credit/Debit Card Number" value="{!v.book.Credit_Debit_Card_Number__c}" required="true"/>
+                                            <lightning:input name="Branch Name" type="text" label="Credit/Debit Card Number" value="{!v.book.Credit_Debit_Card_Number__c}"/>
                                         </div> 
-                                    </aura:if>
-                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                        <lightning:input name="Date of Payment" type="date" label="Date of Payment" value="{!v.book.Date_of_Payment__c}" required="true"  onchange="{!c.validateBookingDate}"/>     
-                                    </div>
-                                    <aura:if isTrue="{!v.book.Mode_Of_Payment__c == 'Cheque'}">
-                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                            <lightning:input name="Posting Date" type="date" label="Expected Clearence Date" value="{!v.book.Posting_in_Date__c}" required="true" />     
-                                        </div>
-                                        <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                            <lightning:input name="Cheque Date" type="date" label="Cheque Date" value="{!v.book.Cheque_Date__c}" required="true" />     
-                                        </div>
                                     </aura:if>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
                                         <lightning:select name="Finding Type" label="Funding Type " aura:id="statusField" value="{!v.book.Funding_Type__c}">
@@ -363,7 +351,7 @@
                                         <lightning:input name="S/O" type="text" label="S/o, D/o, W/o" value="{!v.book.Son_Daughter_Wife_of1__c}" required="true"/>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                        <lightning:input name="Occupation" type="text" label="Occupation" value="{!v.book.Occupation__c}"/>
+                                        <lightning:input name="Occupation" type="text" label="Occupation" value="{!v.book.Occupation__c}" required="true"/>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
                                         <lightning:input name="Mobile" type="tel" label="Primary Mobile" value="{!v.book.Mobile__c}" required="true" maxlength="10" minlength="10" pattern="^[0-9]{10}$" messageWhenPatternMismatch="Enter a valid 10-digit phone number."/>
@@ -372,7 +360,7 @@
                                         <lightning:input name="PEmail" type="text" label="Email" value="{!v.book.Email__c}" onchange="{!c.handleEmailChange}" required="true"/>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
-                                        <lightning:input name="PAN" type="text" label="PAN" value="{!v.book.PAN_Number__c}" required="true"  pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"  messageWhenPatternMismatch="Enter a valid PAN (e.g., ABCDE1234F)." onchange="{!c.formatPAN}"/>
+                                        <lightning:input name="PAN" type="text" label="PAN" value="{!v.book.PAN_Number__c}"  pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"  messageWhenPatternMismatch="Enter a valid PAN (e.g., ABCDE1234F)." onchange="{!c.formatPAN}"/>
                                     </div> 
                                 </div>
                             </div>
@@ -478,7 +466,7 @@
                                                                     <lightning:input name="Son_Daughter_Wife_of__c" type="Text" formatter="Text"  disabled="false" label="S/o, D/o, W/o" aura:id="pro" value="{!prd.Son_Daughter_Wife_of__c}" required="true"/>
                                                                 </div>
                                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
-                                                                    <lightning:input name="Occupation__c" type="Text" formatter="Text"  disabled="false" label="Occupation" aura:id="pro" value="{!prd.Occupation__c}"/>
+                                                                    <lightning:input name="Occupation__c" type="Text" formatter="Text"  disabled="false" label="Occupation" aura:id="pro" value="{!prd.Occupation__c}" required="true"/>
                                                                 </div>
                                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small"  >
                                                                     <lightning:input name="Primary_Phone__c"
@@ -493,7 +481,6 @@
                                                                 <div class="slds-size_4-of-8 slds-p-horizontal_small">
                                                                     <lightning:input name="PAN_Number__c" type="text" disabled="false" 
                                                                                      formatter="Text" label="PAN No." value="{!prd.PAN_Number__c}" 
-                                                                                     required="true"
                                                                                      pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"  messageWhenPatternMismatch="Enter a valid PAN (e.g., ABCDE1234F)."
                                                                                      />
                                                                 </div>

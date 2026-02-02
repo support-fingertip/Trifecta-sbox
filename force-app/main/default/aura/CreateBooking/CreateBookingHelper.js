@@ -99,24 +99,23 @@
             'First_Applicant_Name__c': 'First Applicant Name',
             'Age__c': 'Age',
             'Son_Daughter_Wife_of1__c': 'S/O',
+            'Occupation__c': 'Occupation',
             'Mobile__c': 'Mobile',
             'Email__c': 'Email',
-            'PAN_Number__c': 'PAN Number',
             
             'Address__c': 'Current Address',
             'Pincode__c': 'Current Address Pincode',
             'Permanent_Address1__c': 'Permanent Address',
-            'Pincode1__c': 'Permanent Address Pincode',
-            'Date_of_Payment__c' : 'Date of Payment'
+            'Pincode1__c': 'Permanent Address Pincode'
         };
         
         var coappFieldLabels = {
             'Name': 'Co-Applicant Name',
             'Age__c': 'Age',
             'Son_Daughter_Wife_of__c': 'S/O',
+            'Occupation__c': 'Occupation',
             'Primary_Phone__c': 'Primary Phone',
-            'Email__c': 'Email',
-            'PAN_Number__c': 'PAN Number'
+            'Email__c': 'Email'
         };
         
         var mandatoryFields = Object.keys(fieldLabels);
@@ -151,13 +150,13 @@
         }
         
         // Payment Mode validation
-        if (book.Mode_Of_Payment__c === 'Credit Card' || book.Mode_Of_Payment__c === 'Debit Card') {
+        /*if (book.Mode_Of_Payment__c === 'Credit Card' || book.Mode_Of_Payment__c === 'Debit Card') {
             if (!book.Credit_Debit_Card_Number__c) {
                 isValid = false;
                 this.showToast('Error', 'Error!', "Credit/Debit Card Number is mandatory when Mode of Payment is 'Credit Card' or 'Debit Card'.");
                 return isValid;
             }
-        }
+        }*/
         
         if (book.Mobile__c) {
             var numberPattern = /^[0-9]+$/;
@@ -193,20 +192,6 @@
             if (!numberPattern.test(book.PAN_Number__c) && book.PAN_Number__c.length != 10) {
                 isValid = false;
                 this.showToast('Error', 'Error!', "Please enter valid customer PAN Number");
-                return isValid;
-            }
-        }
-        
-        if (book.Mode_Of_Payment__c === 'Cheque') {
-            
-            if(!book.Posting_in_Date__c){
-                isValid = false;
-                this.showToast('Error', 'Error!', "Please enter the Expected Clearence Date");
-                return isValid;
-            }
-            if(!book.Cheque_Date__c){
-                isValid = false;
-                this.showToast('Error', 'Error!', "Please enter the Cheque Date");
                 return isValid;
             }
         }
