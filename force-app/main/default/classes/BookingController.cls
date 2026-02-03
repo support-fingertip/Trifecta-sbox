@@ -4,7 +4,7 @@ public without sharing class BookingController {
         Quote__c qt = [select id,name,BHK_Type__c,Super_Built_UpArea__c,Rate_sq_Ft_Discount__c,
                        Unit_Number__c,Unit__r.Unit_Facing_Direction__c, Unit__r.Status__c,Property_Type__c,
                        Project__c,Wing__c,Block__c,Agreement_Value_Before_GST__c,SLead__r.Email,Rate_per_sqft__c,
-                       Extra_Land_Amount__c,Grand_Total_Amount__c,
+                       Extra_Land_Amount__c,Grand_Total_Amount__c,Carpet_Area__c,
                        SLead__r.Name, SLead__r.Phone__c,SLead__r.Age__c,Plot_Land_Area__c,Construction_Cost__c,Land_Cost__c
                        from Quote__c where Id=:recId ];
         return qt;

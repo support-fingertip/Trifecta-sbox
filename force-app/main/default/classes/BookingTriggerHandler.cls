@@ -64,6 +64,17 @@ public class BookingTriggerHandler {
             if (oldBk.Stage__c != bk.Stage__c) {
                 
                 /* Agreement */
+                if (bk.Stage__c == 'Booked') {
+                    if (bk.New_Booking_CRM_Executive__c != null) {
+                        bk.OwnerId = bk.New_Booking_CRM_Executive__c;
+                    }
+                    else
+                    {
+                        bk.addError('Please specify the New Booking CRM Executive in the booking to proceed');
+                    }
+                }
+                
+                /* Agreement */
                 if (bk.Stage__c == 'Agreement') {
                     if (bk.Agreement_CRM_Executive__c != null) {
                         bk.OwnerId = bk.Agreement_CRM_Executive__c;
@@ -77,7 +88,7 @@ public class BookingTriggerHandler {
                     if (bk.Demands_Collections_CRM_Executive__c != null) {
                         bk.OwnerId = bk.Demands_Collections_CRM_Executive__c;
                     } else {
-                         bk.addError('Please specify the Demands & Collections Booking CRM Executive in the booking to proceed');
+                        bk.addError('Please specify the Demands & Collections Booking CRM Executive in the booking to proceed');
                     }
                 }
                 
@@ -86,7 +97,7 @@ public class BookingTriggerHandler {
                     if (bk.Registration_CRM_Executive__c != null) {
                         bk.OwnerId = bk.Registration_CRM_Executive__c;
                     } else {
-                       bk.addError('Please specify the Registration Booking CRM Executive in the booking to proceed');
+                        bk.addError('Please specify the Registration Booking CRM Executive in the booking to proceed');
                     }
                 }
                 
@@ -112,63 +123,68 @@ public class BookingTriggerHandler {
                     if (bk.Cancellation_CRM_Executive__c != null) {
                         bk.OwnerId = bk.Cancellation_CRM_Executive__c;
                     } else {
-                       bk.addError('Please specify the Cancellation Booking CRM Executive in the booking to proceed');
+                        bk.addError('Please specify the Cancellation Booking CRM Executive in the booking to proceed');
                     }
                 }
             }
         }
     }
     
-    public static void afterUpdate(list<Booking__c> newBookingList,map<Id,Booking__c> oldBookingMap)
-    {
-        Map<Id,set<Id>> bookingWithUserId = new Map<Id,set<Id>>();
-        for(Booking__c bk : newBookingList)
-        {
-            Booking__c oldBk =  oldBookingMap.get(bk.Id);
-            if(oldBk.OwnerId != bk.OwnerId)
-            {
-                set<Id> userIds = new set<Id>();
-                if(bk.New_Booking_CRM_Executive__c != null)
-                {
+    public static void afterUpdate(List<Booking__c> newBookingList, Map<Id, Booking__c> oldBookingMap) {
+        
+        Map<Id, Set<Id>> bookingWithUserId = new Map<Id, Set<Id>>();
+        
+        // ===== 1. COLLECT USERS FOR SHARING WHEN OWNER CHANGES =====
+        for (Booking__c bk : newBookingList) {
+            
+            Booking__c oldBk = oldBookingMap.get(bk.Id);
+            
+            if (oldBk.OwnerId != bk.OwnerId) {
+                
+                Set<Id> userIds = new Set<Id>();
+                
+                if (bk.New_Booking_CRM_Executive__c != null)
                     userIds.add(bk.New_Booking_CRM_Executive__c);
-                }
-                if(bk.Agreement_CRM_Executive__c != null)
-                {
+                
+                if (bk.Agreement_CRM_Executive__c != null)
                     userIds.add(bk.Agreement_CRM_Executive__c);
-                }
-                if(bk.Demands_Collections_CRM_Executive__c != null)
-                {
+                
+                if (bk.Demands_Collections_CRM_Executive__c != null)
                     userIds.add(bk.Demands_Collections_CRM_Executive__c);
-                }
-                if(bk.Registration_CRM_Executive__c != null)
-                {
+                
+                if (bk.Registration_CRM_Executive__c != null)
                     userIds.add(bk.Registration_CRM_Executive__c);
-                 }
-                if(bk.Possession_Handover_CRM_Executive__c != null)
-                {
+                
+                if (bk.Possession_Handover_CRM_Executive__c != null)
                     userIds.add(bk.Possession_Handover_CRM_Executive__c);
-                }
-                if(bk.Customer_Service_CRM_Executive__c != null)
-                {
+                
+                if (bk.Customer_Service_CRM_Executive__c != null)
                     userIds.add(bk.Customer_Service_CRM_Executive__c);
-                }
-                if(bk.Cancellation_CRM_Executive__c != null)
-                {
+                
+                if (bk.Cancellation_CRM_Executive__c != null)
                     userIds.add(bk.Cancellation_CRM_Executive__c);
-                }
-                bookingWithUserId.put(bk.Id,userIds);
+                
+                if (bk.Sales_User__c != null)
+                    userIds.add(bk.Sales_User__c);
+                
+                if (bk.Project_Sales_Head__c != null)
+                    userIds.add(bk.Project_Sales_Head__c);
+                
+                bookingWithUserId.put(bk.Id, userIds);
             }
         }
         
-        //share the Quote Acess to users which mentioned
+        // ===== 2. CREATE SHARING RECORDS =====
         List<Booking__Share> bookingShares = new List<Booking__Share>();
         Map<Id, Booking__c> newBookingMap = new Map<Id, Booking__c>(newBookingList);
         
         for (Id bookingId : bookingWithUserId.keySet()) {
+            
             Booking__c bk = newBookingMap.get(bookingId);
             
             for (Id userId : bookingWithUserId.get(bookingId)) {
                 
+                // Skip Owner
                 if (userId == bk.OwnerId) {
                     continue;
                 }
@@ -176,16 +192,66 @@ public class BookingTriggerHandler {
                 Booking__Share bs = new Booking__Share();
                 bs.ParentId = bookingId;
                 bs.UserOrGroupId = userId;
-                bs.AccessLevel = 'Edit';
+                
+                // View access for Sales Head & Sales User
+                if (userId == bk.Project_Sales_Head__c ||userId == bk.Sales_User__c) {
+                        
+                        bs.AccessLevel = 'Read';
+                    }
+                else {
+                    bs.AccessLevel = 'Edit';
+                }
+                
                 bs.RowCause = Schema.Booking__Share.RowCause.Manual;
                 
                 bookingShares.add(bs);
             }
         }
-
+        
         if (!bookingShares.isEmpty()) {
             insert bookingShares;
         }
-
+        
+        // ===== 3. SEND OWNER ASSIGNMENT NOTIFICATION =====
+        
+        String notificationTypeId = getNotificationTypeId();
+        for (Booking__c bk : newBookingList) {
+            
+            Booking__c oldBk = oldBookingMap.get(bk.Id);
+            
+            if (oldBk.OwnerId != bk.OwnerId && bk.OwnerId != null) {
+                
+     
+                
+                String title = bk.Lead_Name__c + ' booking has been assigned to you';
+                
+                String body = 'Booking: ' + bk.Name + '\n'
+                    + 'Stage: ' + bk.Stage__c + '\n'
+                    + 'Customer Name: ' + bk.Lead_Name__c + '\n'
+                    + 'Please proceed with the next steps.';
+                
+                CustomNotificationService.notificationSend(
+                    title,
+                    bk.Id,
+                    body,
+                    new Set<String>{bk.OwnerId},
+                    notificationTypeId
+                );
+            }
+        }
     }
+    
+    // ===== HELPER TO GET NOTIFICATION TYPE =====
+    private static String getNotificationTypeId() {
+        
+        CustomNotificationType nt = [
+            SELECT Id
+            FROM CustomNotificationType
+            WHERE DeveloperName = 'Booking_Assignment_Notification'
+            LIMIT 1
+        ];
+        
+        return nt.Id;
+    }
+    
 }

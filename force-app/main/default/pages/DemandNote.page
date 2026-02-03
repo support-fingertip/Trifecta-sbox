@@ -1,0 +1,350 @@
+<apex:page controller="DemandNoteController" renderAs="pdf" applyBodyTag="false" showHeader="false" sidebar="false">
+    <head>
+        <style type="text/css">
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 11pt;
+                line-height: 1.4;
+                color: #000;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+            
+            .company-name {
+                font-size: 18pt;
+                font-weight: bold;
+                color: #003366;
+                margin-bottom: 5px;
+            }
+            
+            .company-address {
+                font-size: 9pt;
+                color: #666;
+                margin-bottom: 5px;
+            }
+            
+            .info-section {
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .info-row {
+                display: table;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .info-left {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                font-size: 10pt;
+            }
+            
+            .info-right {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                text-align: right;
+                font-size: 10pt;
+            }
+            
+            .section-title {
+                font-size: 14pt;
+                font-weight: bold;
+                text-align: center;
+                margin: 20px 0;
+                text-decoration: underline;
+            }
+            
+            .content-text {
+                text-align: justify;
+                margin: 15px 0;
+                font-size: 10pt;
+                line-height: 1.6;
+            }
+            
+            .highlight {
+                font-weight: bold;
+            }
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 9pt;
+            }
+            
+            table, th, td {
+                border: 1px solid #000;
+            }
+            
+            th {
+                background-color: #f0f0f0;
+                padding: 8px;
+                text-align: center;
+                font-weight: bold;
+            }
+            
+            td {
+                padding: 6px 8px;
+                text-align: left;
+            }
+            
+            td.amount {
+                text-align: right;
+            }
+            
+            td.center {
+                text-align: center;
+            }
+            
+            .total-row {
+                font-weight: bold;
+                background-color: #f9f9f9;
+            }
+            
+            .notes-section {
+                margin: 20px 0;
+                font-size: 9pt;
+            }
+            
+            .note-item {
+                margin-bottom: 8px;
+                padding-left: 15px;
+                text-indent: -15px;
+            }
+            
+            .bank-details-table {
+                margin-top: 20px;
+            }
+            
+            .bank-details-table td {
+                padding: 5px 10px;
+            }
+            
+            .signature-section {
+                margin-top: 40px;
+                text-align: right;
+            }
+            
+            .signature-line {
+                margin-top: 60px;
+                border-top: 1px solid #000;
+                width: 200px;
+                display: inline-block;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div class="container">
+            <!-- Header Section -->
+            <div class="header">
+                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                <div class="company-address">
+                    Trifecta Adatto, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+                    Garudacharpalya, Mahadevapura Post, Bangalore – 560048, Karnataka.<br/>
+                    Web: www.trifectaprojects.com
+                </div>
+            </div>
+            
+            <!-- Customer and Project Information -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Customer ID:</strong> {!demandNote.customerId}
+                    </div>
+                    <div class="info-right">
+                        <strong>Dated:</strong> <apex:outputText value="{0,date,dd MMM yyyy}">
+                            <apex:param value="{!demandNote.demandDate}" />
+                        </apex:outputText>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Customer Name:</strong> {!demandNote.customerName}
+                    </div>
+                    <div class="info-right">
+                        <strong>{!demandNote.projectName}</strong>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Unit No:</strong> {!demandNote.unitNo}
+                    </div>
+                    <div class="info-right">
+                        {!demandNote.projectAddress}
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Block:</strong> {!demandNote.block}
+                    </div>
+                    <div class="info-right">
+                        <strong>Email:</strong> {!demandNote.email}<br/>
+                        <strong>Contact No.</strong> {!demandNote.contactNo}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demand Note Title -->
+            <div class="section-title">DEMAND NOTE</div>
+            
+            <!-- Letter Content -->
+            <div class="content-text">
+                Dear Sir/Madam,
+            </div>
+            
+            <div class="content-text">
+                This is with reference to the Agreement executed for <strong>{!demandNote.projectName}</strong>, 
+                FLAT No. <strong>{!demandNote.unitNo}</strong>. As per the agreed payment schedule, we hereby 
+                raised the demand note for the below-mentioned milestone/payment.
+            </div>
+            
+            <div class="content-text">
+                You are requested to remit the total dues of Rs. <strong>
+                <apex:outputText value="{0, number, ###,###,##0.00}">
+                    <apex:param value="{!demandNote.totalAmount}" />
+                </apex:outputText>/-</strong> 
+                (Rupees <strong>{!demandNote.totalAmountInWords}</strong>) in favour of 
+                <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before 
+                <strong><apex:outputText value="{0,date,dd MMM yyyy}">
+                    <apex:param value="{!demandNote.dueDate}" />
+                </apex:outputText></strong>. 
+                Please make the payment in the below bank account details.
+            </div>
+            
+            <!-- Milestone Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Milestone Demand Note</th>
+                        <th>Due Date</th>
+                        <th>Previous Dues Carried Forward</th>
+                        <th>Milestone Excluding the TDS</th>
+                        <th>TDS @ 1%</th>
+                        <th>Total Milestone Amount Payable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:repeat value="{!demandNote.milestones}" var="milestone">
+                        <tr>
+                            <td>{!milestone.milestoneName}</td>
+                            <td class="center">
+                                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!milestone.dueDate}" />
+                                </apex:outputText>
+                            </td>
+                            <td class="amount">
+                                <apex:outputText value="{0, number, ###,###,##0}">
+                                    <apex:param value="{!milestone.previousDues}" />
+                                </apex:outputText>
+                            </td>
+                            <td class="amount">
+                                <apex:outputText value="{0, number, ###,###,##0}">
+                                    <apex:param value="{!milestone.milestoneExcludingTDS}" />
+                                </apex:outputText>
+                            </td>
+                            <td class="amount">
+                                <apex:outputText value="{0, number, ###,###,##0}">
+                                    <apex:param value="{!milestone.tdsAmount}" />
+                                </apex:outputText>
+                            </td>
+                            <td class="amount">
+                                <apex:outputText value="{0, number, ###,###,##0}">
+                                    <apex:param value="{!milestone.totalAmount}" />
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                    <tr class="total-row">
+                        <td colspan="5"><strong>Total Outstanding Amount (In Words)</strong></td>
+                        <td class="amount"><strong>Rupees {!demandNote.totalAmountInWords}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Important Notes -->
+            <div class="notes-section">
+                <div class="note-item">
+                    <strong>1.</strong> TDS 1% is applicable; we request you to pay 1% TDS as applicable to 
+                    authorities and share the challan of this payment along with the payment for 99% towards payment.
+                </div>
+                <div class="note-item">
+                    <strong>2.</strong> Please note that Form 26QB is mandatory for tax audit, till then these 
+                    amounts will appear as an outstanding.
+                </div>
+                <div class="note-item">
+                    <strong>3.</strong> Kindly note that in case of non-receipt of due amount within stipulated 
+                    time, interest @12% p.a. shall be charged as per terms on the delayed payments.
+                </div>
+            </div>
+            
+            <!-- Bank Details Table -->
+            <table class="bank-details-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">TRIFECTA PROJECTS PVT LTD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bank Name</strong></td>
+                        <td>{!demandNote.bankInfo.bankName}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Account Number</strong></td>
+                        <td>{!demandNote.bankInfo.accountNumber}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IFSC Code</strong></td>
+                        <td>{!demandNote.bankInfo.ifscCode}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type of Account</strong></td>
+                        <td>{!demandNote.bankInfo.accountType}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Branch</strong></td>
+                        <td>{!demandNote.bankInfo.branch}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div style="margin-top: 30px;">
+                    <strong>TRIFECTA PROJECTS PVT LTD</strong>
+                </div>
+                <div class="signature-line"></div>
+                <div style="margin-top: 5px;">
+                    <strong>Authorized Signatory</strong>
+                </div>
+            </div>
+        </div>
+    </body>
+</apex:page>

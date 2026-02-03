@@ -177,6 +177,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>DemandNoteController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>DemandRaisedHelper</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1114,6 +1118,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Block_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Booking_Amount__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -1220,6 +1229,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Car_Parking__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Carpet_Area__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3176,6 +3190,26 @@
         <editable>false</editable>
         <field>ForecastingItem__hd.RawRollup__hst</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>General_Settings__c.Project_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>General_Settings__c.Subject__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>General_Settings__c.Template_Body__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>General_Settings__c.Type__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -8475,6 +8509,9 @@
         <layout>Follow_up__c-Follow up Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
+        <layout>General_Settings__c-General Settings Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>Inspection__c-Inspection Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -8668,6 +8705,10 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>CostSheet</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>DemandNote</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
@@ -8924,6 +8965,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>GRE_Form</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>General_Settings__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

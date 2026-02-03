@@ -37,6 +37,8 @@
                 book.Construction_Cost__c =  qt.Construction_Cost__c; 
                 book.Plot_Land_Cost__c =  qt.Land_Cost__c; 
                 book.Extra_Land_Amount__c =  qt.Extra_Land_Amount__c;
+                book.Carpet_Area__c =  qt.Carpet_Area__c;
+                
                 
                 /*book.Aadhaar_Uploaded__c = true;
                 book.PAN_Uploaded__c = true;
