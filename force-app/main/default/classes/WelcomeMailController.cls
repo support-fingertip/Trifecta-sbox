@@ -1,10 +1,59 @@
+/****************************************************************
+* Class Name   : WelcomeEmailController
+* Company      : Fingertipplus
+* Created Date : 03-02-2026
+* @description : This Apex class is used to generate Welcome Email
+*                content from General Settings template, perform
+*                merge with Booking data and send email to customer.
+* @author      : Durga Prasad
+*
+* Change Log:
+* -----------------------------------------------------------------------------
+* Ver | Author         | Date        | Description
+* -----------------------------------------------------------------------------
+* 1.0 | Durga Prasad  | 03-02-2026  | Initial version
+* -----------------------------------------------------------------------------
+*****************************************************************/
 public without sharing class WelcomeMailController {
     
     public class DataBox {
         @auraEnabled public Booking__c bookingRecord;
         @auraEnabled public String emailTemplate;
     }
-    
+    /**
+     * Method Name  : getRecordData
+     * Description  : Fetches Booking data and prepares merged Welcome Email template.
+     *
+     * Functionality:
+     * 1. Retrieves Booking__c record based on provided recordId.
+     * 2. Fetches project-specific email template from General_Settings__c 
+     *    where Type__c = 'Welcome Email Template'.
+     * 3. Performs merge operation by replacing placeholders with Booking values:
+     *      ##APPLICANT_NAME##
+     *      ##PROJECT_NAME##
+     *      ##BLOCK_NAME##
+     *      ##UNIT_NUMBER##
+     *      ##SALEABLE_AREA##
+     *      ##CARPET_AREA##
+     *      ##AGREEMENT_DATE##
+     *      ##CRM_NAME##
+     *      ##CRM_PHONE##
+     *      ##CRM_EMAIL##
+     *      ##SIGNATURE##
+     * 4. Prepares final HTML content and wraps it inside DataBox object.
+     *
+     * Parameters:
+     * @param recordId - Id of Booking__c record
+     *
+     * Returns:
+     * @return DataBox - Wrapper containing:
+     *         - bookingRecord : Booking__c record
+     *         - emailTemplate : Merged HTML email body
+     *
+     * Used From:
+     * - LWC component for previewing Welcome Email
+     * - Email send screen before confirmation
+    */
     @AuraEnabled
     public static DataBox getRecordData(Id recordId) {
         DataBox db = new DataBox();
@@ -97,8 +146,40 @@ public without sharing class WelcomeMailController {
         return db;
     }
     
-    
-    
+    /**
+    * Method Name  : sendWelcomeEmail
+    * Description  : Generates and sends Welcome Email for a Booking record.
+    *
+    * Functionality:
+    * 1. Fetches Booking__c record based on recordId.
+    * 2. Fetches project-specific email template from General_Settings__c 
+    *    where Type__c = 'Welcome Email Template'.
+    * 3. Performs merge logic by replacing placeholders like:
+    *      ##APPLICANT_NAME##
+    *      ##PROJECT_NAME##
+    *      ##BLOCK_NAME##
+    *      ##UNIT_NUMBER##
+    *      ##SALEABLE_AREA##
+    *      ##CARPET_AREA##
+    *      ##AGREEMENT_DATE##
+    *      ##SIGNATURE##
+    * 4. Prepares final HTML email body.
+    * 5. Sends email to provided recipients with inline attachments if any.
+    *
+    * Parameters:
+    * @param recordId     - Id of Booking__c record
+    * @param toAddresses  - List of recipient email addresses
+    * @param contentIds   - List of ContentDocumentIds for attachments (optional)
+    *
+    * Used From:
+    * - LWC Welcome Email component
+    * - Manual email send action from Booking record
+    *
+    * Template Source:
+    * - General_Settings__c.Template_Body__c
+    * - Filter: Project_Name__c = Booking.Project__c
+    *           AND Type__c = 'Welcome Email Template'
+    **/
     @AuraEnabled
     public static void sendWelcomeEmail(Id recordId, String emailContent, List<String> toAddresses, List<String> contentIds) {
         system.debug('Content IDs: ' + contentIds);
@@ -116,11 +197,16 @@ public without sharing class WelcomeMailController {
         if (bk != null && bk.Email__c != null) {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             
-            // Set Organization-Wide Email Address
-            OrgWideEmailAddress[] owea = [SELECT Id, Address FROM OrgWideEmailAddress WHERE Address = 'mrgarunkumar8892@gmail.com'];
-            if (owea.size() > 0) {
-                mail.setOrgWideEmailAddressId(owea[0].Id);
-            }
+            string displayName = label.Default_Email_Address_Label;
+            //sender using Org-Wide Email Addres
+            OrgWideEmailAddress owea = [
+                SELECT Id 
+                FROM OrgWideEmailAddress 
+                WHERE DisplayName =:displayName 
+                LIMIT 1
+            ];
+            mail.setOrgWideEmailAddressId(owea.Id);
+
             
             List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
             Set<Id> contentDocumentIds = new Set<Id>();
@@ -144,14 +230,17 @@ public without sharing class WelcomeMailController {
                 lstCCEmail.add(bk.CRM_Head__r.Email);
             }
             
+            //=====================
+            //Rasing the Fist Demand
+            //====================
             String mess= DemandRaisedSave.raiseCustomDemand(ps.Id);
             System.debug(mess);
             String projectType = bk.Project_Type__c;
             
             String quotePdf ='TrifectaCostsheet';
+            
             String consolidatedReceipt ='ConsolidatedReceipt';
-            String saleAgreement ='SaleAgreement';
-            String demandInvioceCustom ='Demand_Invioce_Custom';
+            String demandInvioceCustom ='DemandNote';
             
             // Declare once at top
             Messaging.EmailFileAttachment vfAttachment;
@@ -184,17 +273,12 @@ public without sharing class WelcomeMailController {
             }
             
             // ===== Common Attachments =====
-            Messaging.EmailFileAttachment vfAttachment1 =
-                generateVFPageAttachment(quotePdf, bk.Quote__c);
+            Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
             
-            Messaging.EmailFileAttachment vfAttachment2 =
-                generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
+            Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
             
-            Messaging.EmailFileAttachment vfAttachment3 =
-                generateVFPageAttachment(consolidatedReceipt, recordId);
-            
-            Messaging.EmailFileAttachment vfAttachment4 =
-                generateVFPageAttachment(saleAgreement, recordId);
+            Messaging.EmailFileAttachment vfAttachment3 = generateVFPageAttachment(consolidatedReceipt, recordId);
+        
             
             // ===== Add only if not null =====
             if (vfAttachment != null) {
@@ -208,9 +292,6 @@ public without sharing class WelcomeMailController {
             }
             if (vfAttachment3 != null) {
                 emailAttachments.add(vfAttachment3);
-            }
-            if (vfAttachment4 != null) {
-                emailAttachments.add(vfAttachment4);
             }
             
             system.debug(toAddresses);
@@ -268,12 +349,10 @@ public without sharing class WelcomeMailController {
         PageReference vfPage = new PageReference('/apex/' + vfPageName);
         System.debug(vfPage);
         if(psId!=null){
-            
             vfPage.getParameters().put('id', recordId);
             vfPage.getParameters().put('PId', psId);
         }
         else{
-            
             vfPage.getParameters().put('id', recordId);
         }
         vfPage.setRedirect(true);
@@ -283,17 +362,13 @@ public without sharing class WelcomeMailController {
         if (Test.isRunningTest()) {
             // For test classes, we can't actually generate PDFs
             pdfBlob = Blob.valueOf('Test PDF Content');
-        } else {
+        } 
+        else {
             pdfBlob = vfPage.getContentAsPDF();
         }
         System.debug(pdfBlob);
         Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-        
-        if(vfPageName=='Demand_Invioce_Custom'){
-            
-            attachment.setFileName('Demand Invioce' + '.pdf');
-        }
-        
+        attachment.setFileName(vfPageName + '.pdf');
         attachment.setBody(pdfBlob);
         attachment.setContentType('application/pdf');
         
@@ -316,15 +391,9 @@ public without sharing class WelcomeMailController {
             pdfBlob = vfPage.getContentAsPDF();
         }
         System.debug(pdfBlob);
+        
         Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-        if(vfPageName=='BookingFormZGC'){
-            
-            attachment.setFileName('BookingForm' + '.pdf');   
-        }
-        else{
-            
-            attachment.setFileName(vfPageName + '.pdf');
-        }
+        attachment.setFileName(vfPageName + '.pdf');
         attachment.setBody(pdfBlob);
         attachment.setContentType('application/pdf');
         

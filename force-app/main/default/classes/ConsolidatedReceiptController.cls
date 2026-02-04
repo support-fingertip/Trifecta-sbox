@@ -43,15 +43,6 @@ public class ConsolidatedReceiptController {
         //List<Additional_Charge__c> acList = [select id,name,Amount__c,Date__c from Additional_Charge__c where Booking__c =:bookingId ];
         List<ReceiptWrapper> reppList = new List<ReceiptWrapper>();
         List<AdditionalChargesWrapper> acwList = new List<AdditionalChargesWrapper>();
-        /*for(Additional_Charge__c ac : acList){
-AdditionalChargesWrapper acw = new AdditionalChargesWrapper();
-acw.acDate = ac.Date__c;
-if(ac.Amount__c != null){
-acw.acAmount = ac.Amount__c.setScale(2).format();
-}
-acw.acName = ac.name;
-acwList.add(acw);
-}*/
         for(Receipt_Line_Item__c re : repLst){
             ReceiptWrapper rw = new ReceiptWrapper();
             rw.receiptDate = re.Receipt__r.Receipt_Date__c;

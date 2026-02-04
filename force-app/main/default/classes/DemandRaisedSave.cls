@@ -570,7 +570,8 @@ projectBeneficiaryAccountNo = '';
                 System.debug('Error inserting record: ' + e.getMessage());
                 return 'Error: ' + e.getMessage();
             }
-        }else{
+        }
+        else{
             return 'ERROR: No milestone records';
         }
     }

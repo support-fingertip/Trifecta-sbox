@@ -49,14 +49,12 @@ public without sharing class ReceiptController {
         }
         
         //As Per Trifecta Client - TDS Amount not required - 17/11/2025 
-        /*Decimal finalTdsamount = TotaltdsAmount - paidTdsAmount;
-finalTdsamount = finalTdsamount.setScale(2, RoundingMode.HALF_UP);
-dt.tdsAmount = finalTdsamount;
-dt.flatOrVillaPendingAmount = bk.Pending_Amount__c - finalTdsamount;
-*/
-        
-        
-        dt.flatOrVillaPendingAmount = bk.Pending_Amount__c;
+        Decimal finalTdsamount = TotaltdsAmount - paidTdsAmount;
+        finalTdsamount = finalTdsamount.setScale(2, RoundingMode.HALF_UP);
+        dt.tdsAmount = finalTdsamount;
+        dt.flatOrVillaPendingAmount = bk.Pending_Amount__c - finalTdsamount; 
+
+        //dt.flatOrVillaPendingAmount = bk.Pending_Amount__c;
         
         //Post sales it will be Useful
         Decimal iterestAmount = 0;

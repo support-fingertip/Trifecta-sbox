@@ -6169,6 +6169,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Project__c.CRM_Head__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Project__c.CRM_Manager__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9151,6 +9156,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>General_Settings__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>Home_Custom</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

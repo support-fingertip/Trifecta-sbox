@@ -80,7 +80,7 @@ public without sharing class BookingController {
         Project__c pro = [select id,name,CRM_executive__c,Project_Type__c,Finance_User__c,Project_Sales_Head__c,
                           New_Booking_CRM_Executive__c,Agreement_CRM_Executive__c,Demands_Collections_CRM_Executive__c,
                           Registration_CRM_Executive__c,Possession_Handover_CRM_Executive__c,Customer_Service_CRM_Executive__c,
-                          Cancellation_CRM_Executive__c,CRM_Manager__c from Project__c where Project__c =: qt.Project__c];
+                          Cancellation_CRM_Executive__c,CRM_Manager__c,CRM_Head__c from Project__c where Project__c =: qt.Project__c];
         if(qt.Unit__r.Status__c == 'Sold' || qt.Unit__r.Status__c == 'Booked'){
             return 'Unit not available';
         }
@@ -111,6 +111,7 @@ public without sharing class BookingController {
             bk.Customer_Service_CRM_Executive__c = pro.Customer_Service_CRM_Executive__c;
             bk.Cancellation_CRM_Executive__c = pro.Cancellation_CRM_Executive__c;
             bk.CRM_Manager__c = pro.CRM_Manager__c;
+            bk.CRM_Head__c = pro.CRM_Head__c;
             insert bk;
             
             List<Co_Applicant__c> applicantListToInsert = new List<Co_Applicant__c>();

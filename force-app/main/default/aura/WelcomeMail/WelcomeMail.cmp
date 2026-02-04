@@ -54,7 +54,7 @@
                 <lightning:button variant="neutral" label="Cancel" title="Cancel"  disabled="{!v.isLoadingNew}" 
                                   onclick="{!c.Cancel}"/>
                 <lightning:button class="slds-button slds-button_brand" onclick="{!c.sendEmail}" 
-                                  disabled="{!v.isSending}" label="Save"/>
+                                  disabled="{!v.isSending}" label="Send"/>
             </footer>
         </div>
     </div>  

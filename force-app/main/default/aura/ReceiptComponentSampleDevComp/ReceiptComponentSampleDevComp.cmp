@@ -159,9 +159,7 @@
                                         <aura:if isTrue="{!v.bookingType == 'Row House'}">
                                             <option value="Row House Amount">Row House Amount</option>
                                         </aura:if>
-                                        <!--
-                                        As Per Trifecta Client - TDS Amount not required - 17/11/2025 
-                                        <option value="TDS">TDS</option>-->
+                                        <option value="TDS">TDS</option>
                                     </lightning:select>                                        
                                 </div>
                                 
@@ -230,14 +228,14 @@
                                                          value="{!qt.Received_Amount__c}" /> 
                                     </div>
                                 </td>
-                            <!--<aura:if isTrue="{!qt.Payment_Type__c != ''}"> 
+                            <aura:if isTrue="{!qt.Payment_Type__c != ''}"> 
                             </aura:if>
                             <td width="10%" style="padding-top: 26px;">
                                 <a onclick="{!c.removeRow}" data-record="{!index}">
                                     <lightning:buttonIcon iconName="utility:delete" iconClass="red"  size="x-large" variant="destructive" alternativeText="Delete" />
                                 </a>
                                 <lightning:buttonIcon iconName="utility:add" iconClass="green"  size="x-large" variant="success" alternativeText="Add" onclick="{!c.addRow}"/>
-                            </td>-->
+                            </td>
                         </div>
                     </lightning:card>
                 </aura:iteration>
