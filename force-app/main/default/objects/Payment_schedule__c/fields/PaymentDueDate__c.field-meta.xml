@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PaymentDueDate__c</fullName>
     <externalId>false</externalId>
-    <formula>/*Master_Payment_Schedule__r.Completed_Date__c*/  Demanded_Date__c + (15 + Due_Date_Extension__c)</formula>
+    <formula>Demanded_Date__c + (15 + Due_Date_Extension__c)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Payment Due Date</label>
     <required>false</required>

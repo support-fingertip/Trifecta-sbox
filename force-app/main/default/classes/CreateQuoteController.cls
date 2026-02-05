@@ -91,11 +91,12 @@ public Without Sharing class  CreateQuoteController {
     public static List<Payment_schedule__c> getPaymentSchedules(String Pay, String Project,String blockId){
         List<Payment_schedule__c> schdules = new List<Payment_schedule__c>();
         List<Master_payment_schedule__c> Master = new List<Master_payment_schedule__c>();
-
+        
         // Step 1: Try to get block-wise schedule if blockId is present
         if (blockId != null) {
             Master = [ SELECT Id, Project__c, S_No__c, Name, Payment_Percent__c, Amount__c, Completed_Date__c, Due_Date__c, Status__c,
-                      Is_Land__c,Is_Construction__c FROM Master_payment_schedule__c WHERE Project__r.Project__c = :Project
+                      Is_Land__c,Is_Construction__c,Block__r.Intrest_Percentage__c,Block__c FROM Master_payment_schedule__c
+                      WHERE Project__r.Project__c = :Project
                       AND Block__c = :blockId and Block__c!= null ORDER BY S_No__c ASC];
         }
         for(Master_payment_schedule__c mps : Master){
@@ -104,8 +105,9 @@ public Without Sharing class  CreateQuoteController {
             ps.Payment_percent__c = mps.Payment_Percent__c;
             ps.Type__c = mps.Is_Land__c ? 'Land' : mps.Is_Construction__c ? 'Construction' : '';
             ps.Name = mps.Name;
-           // ps.status__c=mps.Status__c;
+            ps.Interest_Percent__c = mps.Block__c !=null ? mps.Block__r.Intrest_Percentage__c : 0;
             ps.S_No__c = mps.S_No__c;
+            
             schdules.add(ps); 
         }
         
@@ -161,6 +163,7 @@ public Without Sharing class  CreateQuoteController {
                 ps.Master_Payment_Schedule__c = pay.Master_Payment_Schedule__c;
                 ps.S_No__c = pay.S_No__c;
                 ps.Type__c = pay.Type__c;
+                ps.Interest_Percent__c = pay.Interest_Percent__c;
                 
                 if (pay.Payment_Percent__c != null && pay.Type__c == 'Land') {
                     if (quo != null && !quo.isEmpty() && quo[0].Total_Land_Amount__c != null) {

@@ -169,6 +169,8 @@
     <searchLayouts>
         <excludedStandardButtons>MassChangeOwner</excludedStandardButtons>
         <searchResultsAdditionalFields>Project__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Intrest_Percentage__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>CREATEDBY_USER</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>CREATED_DATE</searchResultsAdditionalFields>
     </searchLayouts>

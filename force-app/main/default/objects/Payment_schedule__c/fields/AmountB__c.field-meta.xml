@@ -2,7 +2,15 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AmountB__c</fullName>
     <externalId>false</externalId>
-    <formula>Booking__r.Total_Amount__c * Payment_percent__c</formula>
+    <formula>IF(
+TEXT(Type__c) = &quot;Land&quot;,
+Booking__r.Total_Land_Amount__c * Payment_percent__c,
+IF(
+TEXT(Type__c) = &quot;Construction&quot;,
+ Booking__r.Construction_Cost__c * Payment_percent__c,
+ Booking__r.Total_Amount__c * Payment_percent__c
+)
+)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>AmountB</label>
     <precision>18</precision>
