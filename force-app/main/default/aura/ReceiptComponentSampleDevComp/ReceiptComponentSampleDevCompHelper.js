@@ -2,7 +2,7 @@
     addProductRecord: function(component, event) {
         var productList = component.get("v.recptItemList");
         // Check if the list already has 2 items
-        if (productList.length >= 2) {
+        if (productList.length >= 3) {
             return;
         }
         productList.push({
@@ -15,6 +15,7 @@
             'Received_Amount__c': '',
             'Payment_From__c':'',
             'Bank_Name__c':'',
+            'Cheque_Date__c':'',
             'Branch__c':'',
             'Drwan_On__c':'',
             'GRAND_TOTAL__c':'',
@@ -36,8 +37,8 @@
                 component.set("v.projectName", data.bookingRecord.Project__c);
                 component.set("v.flatNumber", data.bookingRecord.Unit_Number__c);
                 component.set("v.FlatCost", data.bookingRecord.Total_Amount__c);
-                console.log('data.flatOrVillaPendingAmount'+data.flatOrVillaPendingAmount);
                 component.set("v.flatOrVillaPendingAmount",data.flatOrVillaPendingAmount);
+                component.set("v.interestPending",data.iterestAmount);
                 component.set("v.bookingPendingAmount",data.bookingRecord.Pending_Amount__c);
                 component.set("v.bookingPendingAmount1",data.bookingRecord.Pending_Amount__c);
                 component.set("v.totalPending", data.bookingRecord.Pending_Amount__c);
@@ -57,57 +58,123 @@
     },
     
     validateCumulativeAmount: function(component, event, helper, index) {
+        
         var recptItemList = component.get("v.recptItemList");
-        var totalPendingAmount = component.get("v.bookingPendingAmount1");
-        var cumulativeReceivedAmount = 0;
         
+        var totalPrincipalPending = component.get("v.bookingPendingAmount1");   // principal pending
+        var totalInterestPending  = component.get("v.interestAmount");  // interest pending
+        
+        var principalReceived = 0;
+        var interestReceived  = 0;
+        
+        // ===== ROW LEVEL VALIDATION =====
         for (var i = 0; i < recptItemList.length; i++) {
-            if (
-                recptItemList[i].Payment_Type__c === 'Flat Amount' ||
-                recptItemList[i].Payment_Type__c === 'Plot Amount' ||
-                recptItemList[i].Payment_Type__c === 'GST Amount' ||
-                recptItemList[i].Payment_Type__c === 'Villa Amount' ||
-                recptItemList[i].Payment_Type__c === 'Row House Amount' ||
-                recptItemList[i].Payment_Type__c === 'TDS'
-            ) {
-                let received = parseFloat(recptItemList[i].Received_Amount__c) || 0;
-                let pending = parseFloat(recptItemList[i].Pending_Amount__c) || 0;
-                
-                //  Row-level validation — prevent exceeding the row's pending amount
-                if (received > pending) {
-                    helper.showToast("Received amount cannot exceed the pending "+recptItemList[i].Payment_Type__c, "error");
-                    recptItemList[i].Received_Amount__c = null;
-                    received = 0;
-                }
-                
-                cumulativeReceivedAmount += received;
-            }
-        }
-        
-        //  Overall total validation — prevent cumulative > total pending
-        if (cumulativeReceivedAmount > totalPendingAmount) {
-            helper.showToast("Cumulative received amount cannot exceed the total pending amount", "error");
-            recptItemList[index].Received_Amount__c = null;
             
-            // Recalculate total again after resetting the current field
-            cumulativeReceivedAmount = 0;
+            let type     = recptItemList[i].Payment_Type__c;
+            let received = parseFloat(recptItemList[i].Received_Amount__c) || 0;
+            let pending  = parseFloat(recptItemList[i].Pending_Amount__c) || 0;
+            
+            // Prevent exceeding row pending
+            if (received > pending) {
+                helper.showToast(
+                    "Received amount cannot exceed pending " + type,
+                    "error"
+                );
+                
+                recptItemList[i].Received_Amount__c = null;
+                received = 0;
+            }
+            
+            // ===== BUCKET SEPARATION =====
+            
+            // PRINCIPAL TYPES
+            if (
+                type === 'Flat Amount' ||
+                type === 'Plot Amount' ||
+                type === 'Villa Amount' ||
+                type === 'Row House Amount' ||
+                type === 'GST Amount' ||
+                type === 'TDS'
+            ) {
+                principalReceived += received;
+            }
+            
+            // INTEREST TYPE
+            else if (type === 'Interest Amount') {
+                interestReceived += received;
+            }
+        }
+        
+        
+        // ===== OVERALL PRINCIPAL VALIDATION =====
+        if (principalReceived > totalPrincipalPending) {
+            
+            helper.showToast(
+                "Total principal received cannot exceed total pending principal",
+                "error"
+            );
+            
+            recptItemList[index].Received_Amount__c = null;
+            principalReceived = 0;
+            
             for (var j = 0; j < recptItemList.length; j++) {
+                
+                let type = recptItemList[j].Payment_Type__c;
+                
                 if (
-                    recptItemList[j].Payment_Type__c === 'Flat Amount' ||
-                    recptItemList[j].Payment_Type__c === 'Plot Amount' ||
-                    recptItemList[j].Payment_Type__c === 'GST Amount' ||
-                    recptItemList[j].Payment_Type__c === 'Villa Amount' ||
-                    recptItemList[j].Payment_Type__c === 'TDS'
+                    type === 'Flat Amount' ||
+                    type === 'Plot Amount' ||
+                    type === 'Villa Amount' ||
+                    type === 'Row House Amount' ||
+                    type === 'GST Amount' ||
+                    type === 'TDS'
                 ) {
-                    cumulativeReceivedAmount += parseFloat(recptItemList[j].Received_Amount__c) || 0;
+                    principalReceived +=
+                        parseFloat(recptItemList[j].Received_Amount__c) || 0;
                 }
             }
         }
         
-        component.set("v.totalrcvdAmount", cumulativeReceivedAmount);
-        component.set("v.totalPending", parseFloat((totalPendingAmount - cumulativeReceivedAmount).toFixed(2)));
+        
+        // ===== OVERALL INTEREST VALIDATION =====
+        if (interestReceived > totalInterestPending) {
+            
+            helper.showToast(
+                "Total interest received cannot exceed pending interest",
+                "error"
+            );
+            
+            recptItemList[index].Received_Amount__c = null;
+            interestReceived = 0;
+            
+            for (var k = 0; k < recptItemList.length; k++) {
+                
+                if (recptItemList[k].Payment_Type__c === 'Interest Amount') {
+                    
+                    interestReceived +=
+                        parseFloat(recptItemList[k].Received_Amount__c) || 0;
+                }
+            }
+        }
+        
+        
+        // ===== SET COMPONENT VALUES =====
+        
+        component.set("v.totalrcvdAmount", principalReceived);
+        component.set(
+            "v.totalPending",
+            parseFloat((totalPrincipalPending - principalReceived).toFixed(2))
+        );
+        
+        component.set("v.interestReceived", interestReceived);
+        component.set(
+            "v.interestPending",
+            parseFloat((totalInterestPending - interestReceived).toFixed(2))
+        );
+        
         component.set("v.recptItemList", recptItemList);
     },
+    
     getTotalAmount: function(component, event, helper) {
         var totalPendingAmount = component.get("v.bookingPendingAmount1");
         var recptItemList = component.get("v.recptItemList");

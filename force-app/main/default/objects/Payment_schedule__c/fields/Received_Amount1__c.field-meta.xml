@@ -9,6 +9,11 @@
         <operation>equals</operation>
         <value>Submitted for Approval, Approved</value>
     </summaryFilterItems>
+    <summaryFilterItems>
+        <field>Receipt_Line_Item__c.Payment_Type__c</field>
+        <operation>notEqual</operation>
+        <value>Interest</value>
+    </summaryFilterItems>
     <summaryForeignKey>Receipt_Line_Item__c.Payment_schedule__c</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>
     <trackHistory>false</trackHistory>

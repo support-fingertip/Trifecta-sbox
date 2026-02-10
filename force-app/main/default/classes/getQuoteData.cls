@@ -17,6 +17,7 @@ public class getQuoteData {
     public Decimal totalAmountRowHouseAB { get; set; } 
     public Decimal grandtotalAmount { get; set; }
     public Decimal biscomStp { get; set; }
+    public string projectName { get; set; }
 
     // Separate lists for Payment Schedules
     public List<Payment_Schedule__c> landSchedules { get; set; }
@@ -28,7 +29,7 @@ public class getQuoteData {
 
         //  Fetch Quote and child payment schedules
         qout = [
-            SELECT Id, RERA__c, Unit__r.Unit_Facing_Direction__c, Unit__r.Floor__c,
+            SELECT Id, RERA__c, Unit__r.Unit_Facing_Direction__c, Unit__r.Floor__c,Project__c,
                    Carpet_Area__c, Balcony_Area_Sq_ft__c, Super_Built_UpArea__c, Rate_sq_Ft_Discount__c,
                    Base_Value__c, PLC__c, Floor_Rise_Charges_Rate__c, Total_Car_Parking_Charges__c,
                    amenities_charges__c, Legal_Documentation_Charges__c, GST__c, Grand_Total_Before_GST__c,
@@ -43,6 +44,8 @@ public class getQuoteData {
             WHERE Id = :recId
             LIMIT 1
         ];
+        
+        projectName = qout.Project__c != null ? qout.Project__c : '';
 
    
         subTotalA = nvl(qout.Base_Value__c) + nvl(qout.Floor_Rise_Charge__c)

@@ -1,109 +1,248 @@
-<apex:page standardController="Booking__c" extensions="ConsolidatedReceiptController" renderAs="pdf" applyHtmlTag="false" showHeader="false" cache="true" readOnly="true">
+<apex:page standardController="Booking__c"
+           extensions="ConsolidatedReceiptController"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           readOnly="true">
+    
     <head>
         <style>
-            table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-            padding: 5px;
-            }
-            .header {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-            }
-            .details-container {
-            display: flex;
-            justify-content: space-between;
+            @page {
+            size: A4;
+            margin: 10mm;
+            border: 0.5px solid #000;
             }
             
-            .customer-details, .booking-details {
-            flex: 1;
+            body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            margin: 0;
+            padding: 20px;
             }
+            
+            .header {
+            text-align: center;
+            margin-bottom: 20px;
+            }
+            
+            .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            }
+            
+            .company-address {
+            font-size: 9pt;
+            margin-bottom: 15px;
+            }
+            
+            .receipt-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            }
+            
+            .info-section {
+            width: 100%;
+            margin-bottom: 25px;
+            font-size: 9pt;
+            }
+            
+            .info-left {
+            float: left;
+            width: 48%;
+            }
+            
+            .info-right {
+            float: right;
+            width: 48%;
+            }
+            
+            .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 9pt;
+            }
+            
+            .payment-table th,
+            .payment-table td {
+            border: 0.5px solid #000;
+            padding: 6px;
+            }
+            
+            .center { text-align: center; }
+            .right  { text-align: right; }
+            
+            .total-row {
+            font-weight: bold;
+            }
+            
+            .clear { clear: both; }
+            
         </style>
     </head>
+    
     <body>
-        <table width="100%"  cellspacing="0" border="0" style="border: none !important; border-collapse: collapse; border-spacing: 0;" >
-            <tr>
-                <td style="font-size: 12px;text-align:left;border: none;"></td>
+        <div class="container">
+            
+            <!-- ================= HEADER ================= -->
+            <div class="header">
                 
-                <td style="font-size: 12px;text-align:right;border: none;"><img src="{!$Resource.TrifectaLogo}" width="55px" height="55px" /></td>
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            style="height:70px; width:70px;"/>
                 
+                <div class="company-name">
+                    TRIFECTA PROJECTS PVT LTD
+                </div>
                 
-            </tr>
-        </table>
-        <div style="text-align:center;" class="header">
-            <strong>Trifecta Adatto, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road, Garudacharpalya,<br/>
-                Mahadevapura Post, Bangalore – 560048, Karnataka.<br/>
-                Web: www.trifectaprojects.com</strong>
-        </div>
-        <div style="height:15px; padding:10px 0; text-align:center;">
-            <strong>Consolidated Receipt</strong>
-        </div>
-        <p>
-            <span style="float:right;display: inline-block;">
-                <strong>Date: <apex:outputText value="{0,date,dd/MM/yyyy}">
-                    <apex:param value="{!TODAY()}" />
-                    </apex:outputText></strong>
-            </span>
-        </p>
-        <div class="details-container">
-            <div class="customer-details">
-                <h3>
-                    Customer Details : 
-                </h3>
-                <div>
-                    <div>Applicant's Name :&nbsp;&nbsp;&nbsp;{!Booking__c.S__c} {!Booking__c.First_Applicant_Name__c} </div>
+                <div class="company-address">
+                    {!bookingInfo.companyAddress}
+                </div>
+                
+                <div class="receipt-title">
+                    PAYMENT RECEIPT
+                </div>
+            </div>
+            
+            <!-- ================= CUSTOMER INFO ================= -->
+            
+            <div class="info-section">
+                
+                <div class="info-left">
+                    
                     <div>
-                        <apex:outputPanel rendered="{!NOT(ISBLANK(firstCoApplicant.Name))}">Co Applicant's Name :{!firstCoApplicant.Salutation__c} {!firstCoApplicant.Name}</apex:outputPanel>
+                        <b>Customer ID:</b> {!bookingInfo.customerId}
+                    </div>
+                    
+                    <div>
+                        <b>Customer Name:</b> {!bookingInfo.customerName}
                         
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+                    </div>
+                    
+                    <div>
+                        <b>Unit No:</b> {!bookingInfo.unitNo}
+                    </div>
+                    
+                    <div>
+                        <b>Block:</b> {!bookingInfo.block}
                     </div>
                     
                 </div>
-            </div><br/>
-            <div class="booking-details">
-                <table width="100%" style="table-layout: fixed; border-collapse: separate; border-spacing: 0; margin-top: 0; border: 1px solid black;" border="1">
-                    <tr>
-                        <th colspan="2" style="text-align:center;">Booking Details:</th>
-                    </tr>
-                    <tr>
-                        <td>Project</td>
-                        <td>{!Booking__c.Project__c}</td>
-                    </tr>
-                    <tr>
-                        <td>Unit No</td>
-                        <td>{!Booking__c.Unit_No__c}</td>
-                    </tr>
-                </table>
+                
+                <div class="info-right">
+                    
+                    <div>
+                        <b>Date:</b> {!bookingInfo.receiptDate}
+                    </div>
+                    
+                    <div>
+                        <b>Project:</b> {!bookingInfo.project}
+                    </div>
+                    
+                    <div>
+                        {!bookingInfo.projectAddress}
+                    </div>
+                    
+                    <div>
+                        <b>Email:</b> {!bookingInfo.email}
+                    </div>
+                    
+                    <div>
+                        <b>Contact No:</b> {!bookingInfo.contactNo}
+                    </div>
+                    
+                </div>
+                
+                <div class="clear"></div>
             </div>
+            
+            <!-- ================= PAYMENT LEDGER STATEMENT ================= -->
+            
+            <div style="margin-top:20px;">
+                
+                <div style="text-align:center;font-weight:bold;">
+                   PAYMENT LEDGER STATEMENT
+                </div>
+                
+                
+                <div style="text-align:center;margin-top:20px">
+                    We have received the below mentioned payments via following modes:
+                </div>
+              
+                <table class="payment-table">
+                    
+                    <thead>
+                        <tr>
+                            <th>Sl.No.</th>
+                            <th>Receipt No.</th>
+                            <th>Receipt Date</th>
+                            <th>Mode of Payment</th>
+                            <th>Cheque/ Draft/ Ref. No.</th>
+                            <th>Cheque/ Draft/ Ref. Date</th>
+                            <th>Drawn On</th>
+                            <th>Received Amount</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        
+                        <apex:variable var="index" value="{!0}" />
+                        
+                        <apex:repeat value="{!repList}" var="item">
+                            
+                            <apex:variable var="index" value="{!index + 1}" />
+                            
+                            <tr>
+                                <td class="center">{!index}</td>
+                                <td class="center">{!item.receiptNo}</td>
+                                <td class="center">
+                                    <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                        <apex:param value="{!item.receiptDate}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="center">{!item.modeOfPayment}</td>
+                                <td class="center">{!item.instruMentNo}</td>
+                                <td class="center">
+                                    <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                        <apex:param value="{!item.refdate}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="center">{!item.bankName}</td>
+                                <td class="right">{!item.receiptAmount}</td>
+                            </tr>
+                            
+                        </apex:repeat>
+                        
+                        <!-- TOTAL -->
+                        <tr class="total-row">
+                            <td colspan="7" class="right">Total</td>
+                            
+                            <td colspan="1" class="right">
+                                <apex:outputText value="{0,number,###,##0.00}">
+                                    <apex:param value="{!totalAmount}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+            
+            <!-- ================= FOOTER ================= -->
+            
+            <div style="margin-top:20px;text-align:center;font-weight:bold;">
+                Total Amount Received &nbsp;    
+                <apex:outputText value="{0,number,###,##0.00}">
+                    <apex:param value="{!totalAmount}"/>
+                </apex:outputText>/- ( {!receiptAmountInWords})
+            </div>
+                            
         </div>
-        <p>We have received the below mentioned payments via following modes:</p>
-        
-        <!-- Display grouped transactions -->
-        <table width="100%" style="table-layout: fixed; border-collapse: separate; border-spacing: 0; margin-top: 0; border: 1px solid black;" border="1">
-            <tr>
-                <th>Receipt Date</th>
-                <th>Payment Schedule Name</th>
-                <th>Amount</th>
-                <th>Mode of Payment</th>
-                <th>Cheque No / Transaction Number</th>
-            </tr>
-            <apex:repeat value="{!repList}" var="wrapper">
-                <tr>
-                    <td><apex:outputText value="{0,date,dd/MM/yyyy}">
-                        <apex:param value="{!wrapper.receiptDate}" />
-                        </apex:outputText></td>
-                    <td>{!wrapper.payNameName}</td>
-                    <td>{!wrapper.receiptAmount}</td>
-                    <td>{!wrapper.modeOfPayment}</td>
-                    <td>{!wrapper.instruMentNo}</td>
-                </tr>
-            </apex:repeat>
-        </table>
-        
-        <p>Total paid: <b>Rs. {!totalAmount}/-</b></p>
-        <p>In words <b>{!receiptAmountInWords}/-</b></p>
-        
-        <p>TRIFECTA PROJECTS PVT LTD.</p>
-        <p>Note: This is a system-generated Statement and doesn’t require a signature.</p>
     </body>
 </apex:page>

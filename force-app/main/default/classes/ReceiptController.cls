@@ -33,11 +33,12 @@ public without sharing class ReceiptController {
                               WHERE Booking__c =:recid ORDER BY S_No__c ASC];
         dt.paymentTypePicklist = getPicklistValues('Receipt_Line_Item__c','Mode_of_Payment__c');
         
-        Booking__c bk =[select Id,Name,Project__c,TOTAL__c,Unit_Number__c,
+        Booking__c bk =[select Id,Name,Project__c,TOTAL__c,Unit_Number__c,Total_Tds_Amount__c,
                         Pending_Amount__c,Total_Amount__c,Project_Type__c from Booking__c where Id=: recId];
         dt.bookingRecord = bk; 
         
-        Decimal TotaltdsAmount = bk.Total_Amount__c * 0.01;
+        
+        Decimal TotaltdsAmount = bk.Total_Tds_Amount__c;
         TotaltdsAmount = TotaltdsAmount.setScale(2, RoundingMode.HALF_UP);
         List<Receipt_Line_Item__c> rcptitmlst =  [SELECT Id,Name,Receipt__c,Payment_schedule__c,
                                                   Received_Amount__c,Receipt__r.Booking__c,Booking__c,
@@ -53,10 +54,8 @@ public without sharing class ReceiptController {
         finalTdsamount = finalTdsamount.setScale(2, RoundingMode.HALF_UP);
         dt.tdsAmount = finalTdsamount;
         dt.flatOrVillaPendingAmount = bk.Pending_Amount__c - finalTdsamount; 
-
-        //dt.flatOrVillaPendingAmount = bk.Pending_Amount__c;
         
-        //Post sales it will be Useful
+        //Getting Interestamount
         Decimal iterestAmount = 0;
         List<Payment_Schedule__c> payList = [select id,name,Interest_Up_To_Date__c from Payment_schedule__c where Booking__c =: recId];
         for(Payment_Schedule__c pay : payList){
@@ -103,7 +102,7 @@ public without sharing class ReceiptController {
         //Status Auto Approved
         rc.Approval_status__c = 'Approved';
         insert rc;
-        List<Payment_Schedule__c> payList = [SELECT Id, Amount1__c,Is_Demanded__c,
+        List<Payment_Schedule__c> payList = [SELECT Id, Amount1__c,Is_Demanded__c,Interest_Pending_Amount__c,
                                              Villa_Flat_Amount_Pending__c, Pending_Amount__c,
                                              S_No__c FROM Payment_Schedule__c WHERE Pending_Amount__c > 0 
                                              and Booking__c = :bk.Id ORDER BY S_No__c ASC];
@@ -151,7 +150,7 @@ public without sharing class ReceiptController {
                         rece.Drawn_On__c = receiptLineItemMap.get(inte).Drawn_On__c;
                         rece.Payment_Type__c = receiptLineItemMap.get(inte).Payment_Type__c;
                         rece.Mode_of_Payment__c = receiptLineItemMap.get(inte).Mode_of_Payment__c;
-                        rece.Mode_of_Payment__c = receiptLineItemMap.get(inte).Mode_of_Payment__c;
+                        rece.Cheque_Date__c = receiptLineItemMap.get(inte).Cheque_Date__c;
                         rece.Cheque_no_Transaction_Number__c = receiptLineItemMap.get(inte).Cheque_no_Transaction_Number__c;
                         //Auto Approved
                         rece.Approval_Status_Picklist__c = 'Approved';
@@ -167,9 +166,80 @@ public without sharing class ReceiptController {
             }
         }
         
+        
+        //--------------------------------
+        // Additional Amount 
+        // -------------------------------
+        
    		// ------------------------------
    		// Interest Amount Calculation
    		// -----------------------------
+        for(Payment_Schedule__c paymentSchedule : payList){
+            if (interestAmount <= 0 || interestAmount == null) {
+                break;
+            }
+            if( (interestAmount != 0 || interestAmount != null) &&  paymentSchedule.Interest_Pending_Amount__c != null
+               && paymentSchedule.Interest_Pending_Amount__c > 0 )
+            {
+               
+                Decimal amountToReceive = Math.min(paymentSchedule.Interest_Pending_Amount__c, interestAmount);
+                interestAmount -= amountToReceive;
+                Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
+                rece.Booking__c = bk.Id;
+                rece.Name = 'Against Interest';
+                rece.Payment_Type__c = 'Interest';
+                rece.Receipt__c = rc.Id;
+                rece.Payment_Schedule__c = paymentSchedule.Id;
+                rece.Received_Amount__c = amountToReceive;
+                rece.Amount__c = amountToReceive;
+                rece.Bank_Name__c = polist[0].Bank_Name__c;
+                rece.Mode_of_Payment__c =  polist[0].Mode_of_Payment__c;
+                rece.Branch__c =polist[0].Branch__c;
+                rece.Cheque_no_Transaction_Number__c = polist[0].Cheque_no_Transaction_Number__c;
+                rece.Cheque_Date__c = polist[0].Cheque_Date__c;
+                rece.Drawn_On__c = polist[0].Drawn_On__c;
+                //Auto Approved
+                rece.Approval_Status_Picklist__c = 'Approved';
+                if(amountToReceive > 0){
+                    receiptsToCreate.add(rece);
+                }
+            }
+        }
+        
+        // After allocating interest against each Payment Schedule’s Interest_Pending__c,
+        // there can be a scenario where the user entered Interest Amount is MORE than
+        // the actual pending interest available in all schedules.
+        //
+        // Example:
+        // User entered Interest Paid  = 10,000
+        // Total Interest Pending      = 8,000
+        // ------------------------------------
+        // Excess interest             = 2,000
+        //
+        // This remaining 2,000 cannot be mapped to Interest bucket,
+        // so it will be adjusted against the last available Payment Schedule
+        // as a normal payment line item to ensure total received amount is not lost.
+        if(interestAmount !=null && interestAmount !=0) {
+            system.debug('Interest');
+            Integer PaymentScheduleSize = payList.size();
+            Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
+            rece.Booking__c = bk.Id;
+            rece.Name = 'Against Interest';
+            rece.Payment_Type__c = 'Interest';
+            rece.Receipt__c = rc.Id;
+            rece.Payment_Schedule__c = payList[PaymentScheduleSize-1].Id;
+            rece.Received_Amount__c = interestAmount;
+            rece.Amount__c = interestAmount;
+            rece.Bank_Name__c = polist[0].Bank_Name__c;
+            rece.Mode_of_Payment__c =  polist[0].Mode_of_Payment__c;
+            rece.Branch__c =polist[0].Branch__c;
+            rece.Cheque_no_Transaction_Number__c = polist[0].Cheque_no_Transaction_Number__c;
+            rece.Cheque_Date__c = polist[0].Cheque_Date__c;
+            rece.Drawn_On__c = polist[0].Drawn_On__c;
+            rece.Approval_Status_Picklist__c = 'Approved';
+            receiptsToCreate.add(rece);
+        }
+        
         
         // Insert all Receipt Line Items
         if (!receiptsToCreate.isEmpty()) {

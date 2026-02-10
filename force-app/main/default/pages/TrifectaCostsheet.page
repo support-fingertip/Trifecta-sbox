@@ -99,7 +99,7 @@
                             <tr class="header-row">
                                 <td class="header-empty"></td>
                                 <td class="header-text">
-                                    <div class="header-title">Trifecta Vanto - Cost Sheet</div>
+                                    <div class="header-title">{!projectName} - Cost Sheet</div>
                                 </td>
                                 <td class="header-logo">
                                     <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"

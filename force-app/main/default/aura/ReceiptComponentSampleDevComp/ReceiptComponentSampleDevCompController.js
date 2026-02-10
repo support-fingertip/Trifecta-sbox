@@ -29,6 +29,9 @@
         else if(selectedType === 'TDS'){
             recptItemList[index].Pending_Amount__c = component.get('v.totalPendingTds');
         }
+        else if(selectedType === 'Interest Amount'){
+            recptItemList[index].Pending_Amount__c = component.get('v.interestAmount');
+        }
         
         if(isTrue){
             recptItemList.splice(index, 1);
@@ -90,7 +93,7 @@
                 'poc' : tarik,
                 'recid':  component.get('v.recordId'),
                 'paidAmount' : component.get('v.totalrcvdAmount'),
-                'interestAmount' : (0)
+                'interestAmount' : component.get('v.interestReceived')
             });
             action.setCallback(this, function(response) {
                 var state = response.getState();      

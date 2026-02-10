@@ -2,11 +2,13 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Interest_Up_to_Date__c</fullName>
     <externalId>false</externalId>
+    <formula>Interest_A__c + Interest_Amount__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Interest Up to Date</label>
-    <summarizedField>Interest_Amount_Line_Item__c.Interest_Amount__c</summarizedField>
-    <summaryForeignKey>Interest_Amount_Line_Item__c.Payment_schedule__c</summaryForeignKey>
-    <summaryOperation>sum</summaryOperation>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
-    <type>Summary</type>
+    <type>Currency</type>
 </CustomField>

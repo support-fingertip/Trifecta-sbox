@@ -5,7 +5,7 @@
     <formula>OR(
 ISPICKVAL(Cancellation_Status__c, &quot;Pending&quot;),
 ISPICKVAL(Swap_Unit_Status__c, &quot;Pending&quot;),
-				ISPICKVAL(Approval_status__c, &quot;Pending&quot;),
+				ISPICKVAL(Sub_Stages__c, &quot;Submitted for Approval&quot;),
 				ISPICKVAL(Time_Extension_Approval_Status__c, &quot;Pending&quot;)  
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>

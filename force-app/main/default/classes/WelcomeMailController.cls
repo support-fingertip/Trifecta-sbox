@@ -58,8 +58,8 @@ public without sharing class WelcomeMailController {
     public static DataBox getRecordData(Id recordId) {
         DataBox db = new DataBox();
         // 1. Get Booking Data
-        Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,
-                          Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c, 
+        Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,
+                          Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,
                           Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,
                           Block_Name__c,Owner_Full_Name__c,Email__c FROM Booking__c WHERE Id = :recordId LIMIT 1];
         db.bookingRecord = bk;
@@ -121,17 +121,17 @@ public without sharing class WelcomeMailController {
         // CRM
         template = template.replace(
             '##CRM_NAME##',
-            'Shylaja '
+             bk.Owner_Full_Name__c != null ? String.valueOf(bk.Owner_Full_Name__c) : ''
         );
         
         template = template.replace(
             '##CRM_PHONE##',
-            '+91 8088097739'
+             bk.Owner_Phone_Number__c != null ? String.valueOf(bk.Owner_Phone_Number__c) : ''
         );
         
         template = template.replace(
             '##CRM_EMAIL##',
-            'vantocrm@trifectaprojects.com'
+            bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : ''
         );
         
         // Signature – controlled from system

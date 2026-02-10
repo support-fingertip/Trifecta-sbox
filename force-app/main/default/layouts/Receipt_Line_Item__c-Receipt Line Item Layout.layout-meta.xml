@@ -36,6 +36,10 @@
                 <behavior>Readonly</behavior>
                 <field>Receipt_Date__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Cheque_Date__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

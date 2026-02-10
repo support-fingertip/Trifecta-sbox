@@ -37,6 +37,11 @@
                 <label>Possession / Handover</label>
             </value>
             <value>
+                <fullName>Maintenance</fullName>
+                <default>false</default>
+                <label>Maintenance</label>
+            </value>
+            <value>
                 <fullName>Customer Service &amp; Complaints</fullName>
                 <default>false</default>
                 <label>Customer Service &amp; Complaints</label>

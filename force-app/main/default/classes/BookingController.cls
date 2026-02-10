@@ -76,11 +76,9 @@ public without sharing class BookingController {
                        Infrastructure_Charges_per_sqft__c,Project__c,Property_Type__c,Unit__c,
                        SLead__r.Secondary_Email__c,SLead__r.Name,Plot_Type__c,Plot_Land_Area__c,
                        Quote_date__c,Floor_Rise_Charges_Rate__c,Clubhouse_Charges__c,Unit__r.Status__c,
-                       Unit__r.Name, Legal_Documentation_Charges__c FROM Quote__c WHERE Id=:recId];
-        Project__c pro = [select id,name,CRM_executive__c,Project_Type__c,Finance_User__c,Project_Sales_Head__c,
-                          New_Booking_CRM_Executive__c,Agreement_CRM_Executive__c,Demands_Collections_CRM_Executive__c,
-                          Registration_CRM_Executive__c,Possession_Handover_CRM_Executive__c,Customer_Service_CRM_Executive__c,
-                          Cancellation_CRM_Executive__c,CRM_Manager__c,CRM_Head__c from Project__c where Project__c =: qt.Project__c];
+                       Unit__r.Name, Legal_Documentation_Charges__c,Unit__r.Block_Lookup__r.CRM_Executive__c FROM Quote__c WHERE Id=:recId];
+        Project__c pro = [select id,name,CRM_executive__c,Project_Type__c,Finance_User__c,Project_Sales_Head__c,CRM_Manager__c,
+                          CRM_Head__c from Project__c where Project__c =: qt.Project__c];
         if(qt.Unit__r.Status__c == 'Sold' || qt.Unit__r.Status__c == 'Booked'){
             return 'Unit not available';
         }
@@ -103,14 +101,8 @@ public without sharing class BookingController {
             bk.Sales_User__c = UserInfo.getUserId();
             
             //CRM Team
-            bk.New_Booking_CRM_Executive__c = pro.New_Booking_CRM_Executive__c;
-            bk.Agreement_CRM_Executive__c = pro.Agreement_CRM_Executive__c;
-            bk.Demands_Collections_CRM_Executive__c = pro.Demands_Collections_CRM_Executive__c;
-            bk.Registration_CRM_Executive__c = pro.Registration_CRM_Executive__c;
-            bk.Possession_Handover_CRM_Executive__c = pro.Possession_Handover_CRM_Executive__c;
-            bk.Customer_Service_CRM_Executive__c = pro.Customer_Service_CRM_Executive__c;
-            bk.Cancellation_CRM_Executive__c = pro.Cancellation_CRM_Executive__c;
             bk.CRM_Manager__c = pro.CRM_Manager__c;
+            bk.CRM_Executive__c = (qt?.Unit__r?.Block_Lookup__r?.CRM_Executive__c != null)? qt.Unit__r.Block_Lookup__r.CRM_Executive__c : null;
             bk.CRM_Head__c = pro.CRM_Head__c;
             insert bk;
             

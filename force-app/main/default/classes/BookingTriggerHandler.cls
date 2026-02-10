@@ -1,6 +1,44 @@
+/****************************************************************
+* Class Name   : BookingTriggerHandler
+* Company      : Fingertipplus
+* Created Date : 05-02-2026
+* @description : Trigger handler for Booking__c object.
+*                Handles:
+*                - Payment Schedule mapping from Quote to Booking
+*                - WhatsApp & SMS notifications on booking creation
+*                - Owner assignment custom notification on update
+* @author      : Durga Prasad
+*
+* Change Log:
+* -----------------------------------------------------------------------------
+* Ver | Author        | Date        | Description
+* -----------------------------------------------------------------------------
+* 1.0 | Durga Prasad  | 05-02-2026  | Initial version
+* -----------------------------------------------------------------------------
+*****************************************************************/
 public class BookingTriggerHandler {
-    public static void afterInsert(list<Booking__c> newBookingList)
-    {
+    /**
+     * Method Name  : afterInsert
+     * Description  : Executes after Booking__c records are inserted.
+     *
+     * Functionality:
+     * 1. Maps related Payment_Schedule__c records from Quote__c → Booking__c.
+     * 2. Updates all payment schedules linked to the Quote with the newly
+     *    created Booking Id.
+     * 3. Triggers WhatsApp and SMS notifications if the custom label
+     *    'Enable_whatsapp_notifications' is set to TRUE.
+     *
+     * Process Flow:
+     * - Collect Quote Ids from new Booking records.
+     * - Fetch all Payment_Schedule__c linked to those Quotes.
+     * - Update Booking__c lookup on Payment_Schedule__c.
+     * - Enqueue WhatsAppController and SMSHandler queueable jobs.
+     *
+     *
+     * Parameters:
+     * @param newBookingList - List of newly inserted Booking__c records
+    */
+    public static void afterInsert(list<Booking__c> newBookingList){
         for(Booking__c bk: newBookingList)
         {
             // Step 1: Map Quote Id → Booking Id
@@ -42,7 +80,33 @@ public class BookingTriggerHandler {
             }
         }
     }
-    public static void beforeUpdate( List<Booking__c> newBookingList,Map<Id, Booking__c> oldBookingMap)
+    
+    /**
+     * Method Name  : beforeUpdate
+     * Description  : Executes before Booking__c records are updated to enforce
+     *                business rules during approval stage transition.
+     *
+     * Functionality:
+     * 1. Detects when Sub_Stages__c is changed to 'Management User Approved'.
+     * 2. Validates that an Initial CRM Executive (CRM_Executive__c) is populated.
+     * 3. If CRM Executive is available:
+     *      - Transfers Booking ownership to the CRM Executive.
+     * 4. If CRM Executive is NOT available:
+     *      - Blocks the update with a validation error message.
+     *
+     * Business Rule:
+     * - A booking cannot move to 'Management User Approved' stage
+     *   without assigning an Initial Booking CRM Executive.
+     *
+     *
+     * Parameters:
+     * @param newBookingList - List of Booking__c records being updated
+     * @param oldBookingMap  - Map of old Booking__c records by Id
+     *
+     * Used From:
+     * - Booking Trigger (before update context)
+     */
+    public static void beforeUpdate(List<Booking__c> newBookingList,Map<Id, Booking__c> oldBookingMap)
     {
         for (Booking__c bk : newBookingList)
         {
@@ -51,178 +115,43 @@ public class BookingTriggerHandler {
             /* Case 1: Sub Stage changed to Management User Approved */
             if (oldBk.Sub_Stages__c != bk.Sub_Stages__c && bk.Sub_Stages__c == 'Management User Approved') 
             {
-                if (bk.New_Booking_CRM_Executive__c != null) {
-                    bk.OwnerId = bk.New_Booking_CRM_Executive__c;
+                if (bk.CRM_executive__c != null) {
+                    bk.OwnerId = bk.CRM_executive__c;
                 }
                 else
                 {
-                    bk.addError('Please specify the New Booking CRM Executive in the booking to proceed');
-                }
-            }
-            
-            /* Case 2: Stage changed */
-            if (oldBk.Stage__c != bk.Stage__c) {
-                
-                /* Agreement */
-                if (bk.Stage__c == 'Booked') {
-                    if (bk.New_Booking_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.New_Booking_CRM_Executive__c;
-                    }
-                    else
-                    {
-                        bk.addError('Please specify the New Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                
-                /* Agreement */
-                if (bk.Stage__c == 'Agreement') {
-                    if (bk.Agreement_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Agreement_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Agreement Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                
-                /* Demands & Progressive Collections */
-                else if (bk.Stage__c == 'Demands & Progressive Collections') {
-                    if (bk.Demands_Collections_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Demands_Collections_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Demands & Collections Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                
-                /* Registration */
-                else if (bk.Stage__c == 'Registration') {
-                    if (bk.Registration_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Registration_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Registration Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                
-                /* Possession_Handover_CRM_Executive__c */
-                else if (bk.Stage__c == 'Possession / Handover') {
-                    if (bk.Possession_Handover_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Possession_Handover_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Possession / Handover Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                
-                /* Customer_Service_CRM_Executive__c */
-                else if (bk.Stage__c == 'Customer Service & Complaints') {
-                    if (bk.Customer_Service_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Customer_Service_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Customer Service Booking CRM Executive in the booking to proceed');
-                    }
-                }
-                /* Customer_Service_CRM_Executive__c */
-                else if (bk.Stage__c == 'Cancellation') {
-                    if (bk.Cancellation_CRM_Executive__c != null) {
-                        bk.OwnerId = bk.Cancellation_CRM_Executive__c;
-                    } else {
-                        bk.addError('Please specify the Cancellation Booking CRM Executive in the booking to proceed');
-                    }
+                    bk.addError('Please specify the Initial Booking CRM Executive in the booking to proceed with Approval');
                 }
             }
         }
     }
     
+    /**
+     * Method Name  : afterUpdate
+     * Description  : Executes after Booking__c records are updated.
+     *
+     * Functionality:
+     * 1. Detects change in OwnerId of Booking.
+     * 2. Sends a Custom Notification to the newly assigned owner.
+     *
+     * Notification Contains:
+     * - Booking Name
+     * - Stage
+     * - Customer Name
+     * - Action message for next steps
+     *
+     * Parameters:
+     * @param newBookingList - List of updated Booking__c records
+     * @param oldBookingMap  - Map of old Booking__c records by Id
+    */
     public static void afterUpdate(List<Booking__c> newBookingList, Map<Id, Booking__c> oldBookingMap) {
-        
-        Map<Id, Set<Id>> bookingWithUserId = new Map<Id, Set<Id>>();
-        
-        // ===== 1. COLLECT USERS FOR SHARING WHEN OWNER CHANGES =====
-        for (Booking__c bk : newBookingList) {
-            
-            Booking__c oldBk = oldBookingMap.get(bk.Id);
-            
-            if (oldBk.OwnerId != bk.OwnerId) {
-                
-                Set<Id> userIds = new Set<Id>();
-                
-                if (bk.New_Booking_CRM_Executive__c != null)
-                    userIds.add(bk.New_Booking_CRM_Executive__c);
-                
-                if (bk.Agreement_CRM_Executive__c != null)
-                    userIds.add(bk.Agreement_CRM_Executive__c);
-                
-                if (bk.Demands_Collections_CRM_Executive__c != null)
-                    userIds.add(bk.Demands_Collections_CRM_Executive__c);
-                
-                if (bk.Registration_CRM_Executive__c != null)
-                    userIds.add(bk.Registration_CRM_Executive__c);
-                
-                if (bk.Possession_Handover_CRM_Executive__c != null)
-                    userIds.add(bk.Possession_Handover_CRM_Executive__c);
-                
-                if (bk.Customer_Service_CRM_Executive__c != null)
-                    userIds.add(bk.Customer_Service_CRM_Executive__c);
-                
-                if (bk.Cancellation_CRM_Executive__c != null)
-                    userIds.add(bk.Cancellation_CRM_Executive__c);
-                
-                if (bk.Sales_User__c != null)
-                    userIds.add(bk.Sales_User__c);
-                
-                if (bk.Project_Sales_Head__c != null)
-                    userIds.add(bk.Project_Sales_Head__c);
-                
-                bookingWithUserId.put(bk.Id, userIds);
-            }
-        }
-        
-        // ===== 2. CREATE SHARING RECORDS =====
-        List<Booking__Share> bookingShares = new List<Booking__Share>();
-        Map<Id, Booking__c> newBookingMap = new Map<Id, Booking__c>(newBookingList);
-        
-        for (Id bookingId : bookingWithUserId.keySet()) {
-            
-            Booking__c bk = newBookingMap.get(bookingId);
-            
-            for (Id userId : bookingWithUserId.get(bookingId)) {
-                
-                // Skip Owner
-                if (userId == bk.OwnerId) {
-                    continue;
-                }
-                
-                Booking__Share bs = new Booking__Share();
-                bs.ParentId = bookingId;
-                bs.UserOrGroupId = userId;
-                
-                // View access for Sales Head & Sales User
-                if (userId == bk.Project_Sales_Head__c ||userId == bk.Sales_User__c) {
-                        
-                        bs.AccessLevel = 'Read';
-                    }
-                else {
-                    bs.AccessLevel = 'Edit';
-                }
-                
-                bs.RowCause = Schema.Booking__Share.RowCause.Manual;
-                
-                bookingShares.add(bs);
-            }
-        }
-        
-        if (!bookingShares.isEmpty()) {
-            insert bookingShares;
-        }
-        
-        // ===== 3. SEND OWNER ASSIGNMENT NOTIFICATION =====
-        
+        // ===== 1. SEND OWNER ASSIGNMENT NOTIFICATION =====
         String notificationTypeId = getNotificationTypeId();
+        Map<Id, Id> bookingToOwnerMap = new Map<Id, Id>();
         for (Booking__c bk : newBookingList) {
-            
             Booking__c oldBk = oldBookingMap.get(bk.Id);
-            
             if (oldBk.OwnerId != bk.OwnerId && bk.OwnerId != null) {
-                
-     
-                
+                bookingToOwnerMap.put(bk.Id, bk.OwnerId);
                 String title = bk.Lead_Name__c + ' booking has been assigned to you';
                 
                 String body = 'Booking: ' + bk.Name + '\n'
@@ -239,9 +168,95 @@ public class BookingTriggerHandler {
                 );
             }
         }
+        syncChildOwner(bookingToOwnerMap);
+    }
+    /**
+    * Method Name  : syncChildOwner
+    * Description  : Generic method to update owner of related child objects
+    *                based on Booking owner change.
+    *
+    * Supported Objects:
+    * - Payment_Schedule__c
+    * - Co_Applicant__c
+    *
+    * Parameters:
+    * @param bookingToOwnerMap - Map<BookingId, NewOwnerId>
+    */
+    public static void syncChildOwner(Map<Id, Id> bookingToOwnerMap) {
+        
+        if (bookingToOwnerMap.isEmpty()) {
+            return;
+        }
+        //1.Co-Applicants - Master Detail
+        //2.Receipt - Master Detail
+        //3.Demand Raised - Master Detail
+        //4.Payment Schdule - Lookup
+        //5.Refund - Lookup
+        //6.Inspections - lookup
+        
+        // ===== 1. Update Payment Schedules =====
+        List<Payment_Schedule__c> psList = [
+            SELECT Id, OwnerId, Booking__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c IN :bookingToOwnerMap.keySet()
+        ];
+        
+        for (Payment_Schedule__c ps : psList) {
+            ps.OwnerId = bookingToOwnerMap.get(ps.Booking__c);
+        }
+        
+        // ===== 2. Update RefundList =====
+        List<Refund__c> refundList = [
+            SELECT Id, OwnerId, Booking__c
+            FROM Refund__c
+            WHERE Booking__c IN :bookingToOwnerMap.keySet()
+        ];
+        
+        for (Refund__c ps : refundList) {
+            ps.OwnerId = bookingToOwnerMap.get(ps.Booking__c);
+        }
+        
+           
+        // ===== 2. Update Inspections =====
+        List<Inspection__c> inspectionList = [
+            SELECT Id, OwnerId, Booking__c
+            FROM Inspection__c
+            WHERE Booking__c IN :bookingToOwnerMap.keySet()
+        ];
+        
+        for (Inspection__c ps : inspectionList) {
+            ps.OwnerId = bookingToOwnerMap.get(ps.Booking__c);
+        }
+        
+    
+
+        
+        // ===== 3. DML =====
+        if (!psList.isEmpty()) {
+            update psList;
+        }
+
+        if (!refundList.isEmpty()) {
+            update refundList;
+        }
+
+        if (!inspectionList.isEmpty()) {
+            update inspectionList;
+        }
+        
     }
     
-    // ===== HELPER TO GET NOTIFICATION TYPE =====
+    
+    
+    
+    /**
+     * Method Name  : getNotificationTypeId
+     * Description  : Fetches Custom Notification Type Id for
+     *                Booking Assignment Notification.
+     *
+     * Returns:
+     * @return String - CustomNotificationType Id
+    */
     private static String getNotificationTypeId() {
         
         CustomNotificationType nt = [

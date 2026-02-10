@@ -4,6 +4,7 @@
     <columns>NAME</columns>
     <columns>Project_Type__c</columns>
     <columns>First_Applicant_Name__c</columns>
+    <columns>Sub_Stages__c</columns>
     <columns>Plot__c</columns>
     <columns>Stage__c</columns>
     <columns>Email1__c</columns>

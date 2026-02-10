@@ -3,7 +3,7 @@
     <fullName>CRM_executive__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>CRM Executive</label>
+    <label>Initial Booking CRM Executive</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Bookings5</relationshipName>
     <required>false</required>
