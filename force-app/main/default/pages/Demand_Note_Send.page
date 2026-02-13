@@ -1,268 +1,301 @@
-<apex:page standardController="Demand_Raised__c" extensions="Demand_Note_send_Controller" renderAs="pdf" showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" standardStylesheets="false">
-    <!-- Page Styling -->
-    <style type="text/css">
-        @page {
-        size: A4;
-        margin: 40px;
-        font-family: Arial, sans-serif;
-        line-height: 1.5;
-        font-size: 12px;
-        }
-        strong {
-        font-weight: bold;
-        }
-        td {
-        padding-left: 0;
-        }
-        .no-left-padding {
-        padding-left: 0;
-        }
-    </style>
-    <div style="position: relative; min-height: 100%; padding-bottom: 80px; border:1px solid black;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-            <tbody>
-                <!-- First row - merged and with borders --> <tr>
-       <td>
-        <img src="{!$Resource.Zuari}" width="150px" height="60"/>
-      </td>
-      <td colspan="3" style="padding: 4px; text-align: left; padding-left: 120px; font-weight: bold; vertical-align: middle; width: 70%;">
-        <B style="font-size: 16px;">TAX INVOICE</B>
-      </td>
-    </tr>
-                <tr>
-                    <td colspan="2" style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;"><b>Details Of The Company</b></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Name:{!Demand_Raised__c.Booking__r.Company_Name__c} </td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;">Invoice No:&nbsp;ZIIL/KA/2024-25 </td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Address:{!Demand_Raised__c.Booking__r.Project1__r.Project_Address__c} </td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;">Date of Invoice: &nbsp;<apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!Demand_Raised__c.Demanded_Date__c}"/></apex:outputText></td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 4px 6px 0px; text-align:left; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 0px 0px; text-align:left; width: 25%;">GSTIN:{!Demand_Raised__c.Booking__r.Project1__r.GSTIN__c}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 0px 0px; text-align:left; width: 25%;">PAN:{!Demand_Raised__c.Booking__r.PAN_Number__c}</td>
-                    <td style="padding: 6px; width: 25%;">Place of Supply: Karnataka</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 0px 6px 0px; text-align:left; width: 25%;">CIN:{!Demand_Raised__c.Booking__r.Project1__r.CIN__c} </td>
-                    <td style="padding: 6px; width: 25%;">State Code :{!Demand_Raised__c.Booking__r.Project1__r.State_Code__c}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;"><b>Details of Recipient/Receiver</b></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;"></td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Name: &nbsp;{!Demand_Raised__c.Booking__r.S__c}&nbsp;{!Demand_Raised__c.Booking__r.First_Applicant_Name__c}</td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                    <td style="padding: 0px 6px 6px 0px; width: 25%;"></td>
-                    <td style="padding: 6px 50px; width: 45%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Address: &nbsp; {!Demand_Raised__c.Booking__r.Permanent_Address2__Street__s}&nbsp;{!Demand_Raised__c.Booking__r.Permanent_Address2__City__s}&nbsp;{!Demand_Raised__c.Booking__r.Permanent_Address2__StateCode__s}&nbsp;{!Demand_Raised__c.Booking__r.Permanent_Address2__CountryCode__s}&nbsp;{!Demand_Raised__c.Booking__r.Permanent_Address2__PostalCode__s}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 24.9%;"></td>
-                    <td style="padding: 6px 50px; width: 45%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">GSTIN :&nbsp;{!Demand_Raised__c.Booking__r.Customer_GSTIN__c} </td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Unit No:&nbsp;{!Demand_Raised__c.Booking__r.Plot__r.Name}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Project :&nbsp;{!Demand_Raised__c.Booking__r.Plot__r.Project_Name__c}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Address Of Delivery :&nbsp;{!Demand_Raised__c.Booking__r.Project1__r.Project_Address__c}</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-                <tr>
-                    <td style="padding: 0px 6px 6px 0px; text-align:left; width: 25%;">Country : INDIA</td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                    <td style="padding: 6px; width: 25%;"></td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <!-- Account Summary -->
-        <table style="width:75%; border-collapse:collapse; font-family:'Times New Roman', Times, serif; font-size:12px; margin-top:5px;">
-            <tr>
-                <td style="width:29%; border:none; vertical-align:middle; font-size:12px;">
-                    <b>Account Summary - </b>
-                </td>
-                <td style="width:100%; border:none; vertical-align:middle; font-size:12px;">
-                    <table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">
-                        <tr class="bold">  
-                            <td style="border:1px solid #000;width:12.99%; height:25px;">Previous Balances<br/><b>{!Demand_Raised__c.Previous_pendings__c}</b></td>
-                            <td style="border:1px solid #000;;width:8%; height:25px;">Current Invoice <br/>{!Demand_Raised__c.Current_Demand_amount__c}</td>
-                            <td style="border:1px solid #000;;width:8%; height:25px;">Total due <br/><b>{!Demand_Raised__c.Grand_Total__c}</b></td>
-                            <td style="border:1px solid #000;;width:8%; height:25px;">Total Received Amount Till Now <br/><b>{!Demand_Raised__c.booking__r.Total_received_Amount__c}</b></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Interest Summary -->
-        <table style="width:75%; border-collapse:collapse; font-family:'Times New Roman', Times, serif; font-size:12px; margin-top:5px;">
-            <tr>
-                <td style="width:29%; border:none; vertical-align:middle; font-size:12px;">
-                    <b>Interest Summary</b>
-                </td>
-                <td style="width:100%; border:none; vertical-align:middle; font-size:12px;">
-                    <table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">
-                        <tr class="bold">
-                            <td style="border:1px solid #000;width:12.99%;">Total Interest<br/><b>{!Demand_Raised__c.Total_Interest__c}</b></td>
-                            <td style="border:1px solid #000;;width:8%;">Interest Paid<br/>{!Demand_Raised__c.Total_Interest_Paid__c}</td>
-                            <td style="border:1px solid #000;;width:8%;">Pending Interest <br/><b>{!Demand_Raised__c.Total_Interest__c - Demand_Raised__c.Total_Interest_Paid__c}</b></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Tax Table -->
-        <table style="width:87%; border-collapse:collapse; font-family:'Times New Roman', Times, serif; font-size:12px; text-align:center; margin-top:6px;">
-            <tr>
-                <th rowspan="2" style="border:1px solid #000; font-size:12px;">Sr. No.</th>
-                <th rowspan="2" style="border:1px solid #000; font-size:12px;width:15%;">Description of Services</th>
-                <th rowspan="2" style="border:1px solid #000; font-size:12px;width:13%;">SAC/HSN code</th>
-                <th rowspan="2" style="border:1px solid #000; font-size:12px;;width:13%;">Taxable Value</th>
-                <th colspan="2" style="border:1px solid #000; font-size:12px;">CGST</th>
-                <th colspan="2" style="border:1px solid #000; font-size:12px;">SGST</th>
-                <th style="border:1px solid #000; font-size:12px;">TOTAL</th>
-            </tr>
-            <tr>
-                <th style="border:1px solid #000; font-size:12px;">Rate</th>
-                <th style="border:1px solid #000; font-size:12px;">Amount</th>
-                <th style="border:1px solid #000; font-size:12px;">Rate</th>
-                <th style="border:1px solid #000; font-size:12px;">Amount</th>
-                <th style="border:1px solid #000; font-size:12px;">Amount</th>
-            </tr>
-            <tr>
-                <td style="border:1px solid #000; font-size:12px; height:25px;">1</td>
-                <td style="height:25px; font-size:12px; border:1px solid #000;">{!Demand_Raised__c.Payment_schedule__r.Name}</td>
-                <td style="border:1px solid #000; font-size:12px;">{!Demand_Raised__c.Booking__r.Project1__r.SAN_HSN_CODE__c}</td>
-                <td style="border:1px solid #000; font-size:12px;">{!taxableValue}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!Demand_Raised__c.GST__c/2}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!cgst}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!Demand_Raised__c.GST__c/2}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!sgst}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!Demand_Raised__c.Current_Demand_amount__c}</td>
-            </tr>
-            <tr>
-                <td style="border:1px solid #000; font-size:10px; height:25px;">2</td>
-                <td style="height:25px; font-size:10px;border:1px solid #000;">TDS</td>
-                <td style="border:1px solid #000; font-size:10px;">{!Demand_Raised__c.Booking__r.Project1__r.SAN_HSN_CODE__c}</td>
-                <td style="border:1px solid #000; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">{!TDSonePercentage}</td>
-            </tr>
+<apex:page standardController="Demand_Raised__c"
+           extensions="Demand_Note_send_Controller"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           cache="true"
+           readOnly="true">  
+    <head>
+        <style>
+            @page {
+            size: A4;
+            margin: 10mm;
+            border: 0.5px solid #000;
+            }
             
-            <tr>
-                <td style="border:1px solid #000; font-size:10px; height:25px;">3</td>
-                <td style="height:25px; font-size:10px;border:1px solid #000;">Previous Demand</td>
-                <td style="border:1px solid #000; font-size:10px;">{!Demand_Raised__c.Booking__r.Project1__r.SAN_HSN_CODE__c}</td>
-                <td style="border:1px solid #000; font-size:10px;">{!Demand_Raised__c.Previous_pendings__c}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">{!Demand_Raised__c.Previous_pendings__c}</td>
-            </tr>
+
+            .page-border {
+            padding: 20px;
+            }
             
-            <tr>
-                <td style="border:1px solid #000; font-size:10px; height:25px;">4</td>
-                <td style="height:25px; font-size:10px;border:1px solid #000;">Interest on Delay Payment</td>
-                <td style="border:1px solid #000; font-size:10px;">{!Demand_Raised__c.Booking__r.Project1__r.SAN_HSN_CODE__c}</td>
-                <td style="border:1px solid #000; font-size:10px;">{!Demand_Raised__c.Total_Interest__c-Demand_Raised__c.Total_Interest_Paid__c}</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:10px;">{!Demand_Raised__c.Total_Interest__c-Demand_Raised__c.Total_Interest_Paid__c}</td>
-            </tr>
-            <tr>
-                <td colspan="4" style="text-align:left; font-weight:bold; border:1px solid #000; font-size:12px;">Total</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;"></td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;"></td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">-</td>
-                <td style="border:1px solid #000; text-align:right; font-size:12px;">{!Demand_Raised__c.Grand_Total__c}</td>
-            </tr>
-        </table>
-        <br/>
-        <b style="font-size:12px">Invoice Value in words :-{!Demand_Raised__c.Grand_Total_in_Words__c}.</b>.
-        
-        <!-- Notes -->
-        <p style="font-size:12px">
-            You are requested to make the payment to us either by way of demand draft or account payee cheque favouring 
-            <b>"{!Demand_Raised__c.Booking__r.Project1__r.Name}"</b><br/> or by way of electronic fund (Such electronic fund transfer being done 
-            after prior intimation to us in writing within 15 days from the date of <br/>this demand letter. The detail of RTGS/NEFT IFSC are mentioned below.
-        </p>
-        <p style="font-size:12px">
-            In the event of your failing to make payment to us within the aforesaid 15 (Fifteen) days, we reserve the right to charge interest @12% p.a.<br/>
-            For any further clarification please feel free to contact at {!Demand_Raised__c.Booking__r.Owner_Phone__c}
-        </p>
-        <div class="section-title" style="font-size:12px; line-height: 1.5;">Bank Account details of the company<br/>
-            Bank : &nbsp;{!Demand_Raised__c.Booking__r.Bank_Name__c} <br/>          
-            Account No:&nbsp;000205037142<br/>
-            RTGS/IFSC: &nbsp;ICIC0000002<br/>
-            Address:&nbsp;Bangalore
-        </div>
-        <!-- Footer -->
-        <div class="footer-section">
-            <div style="text-align:right; display:inline-block; float:right; font-size:12px;">
-                <div style="text-align:center; font-size:12px; margin-right:20px;">
-                    <b>For: Zuari Infraworld India Limited</b>
-                </div><br/><br/><br/>
-                <div style="border-top: 1px solid #000; width: 180px; margin-right:10px; margin-left:auto;"></div>
-                <div style="text-align:center; font-size:12px;"><b>Authorised Signatories</b></div>
+            body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 9pt;
+            color: #000;
+            line-height: 1.2;
+            }
+            
+            .header {
+            text-align: center;
+            margin-bottom: 10px;
+            }
+            
+            .logo {
+            text-align: right;
+            margin-bottom: 5px;
+            }
+            
+            .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 8px 0;
+            }
+            
+            .company-address {
+            font-size: 9pt;
+            margin-bottom: 10px;
+            }
+            
+            .info-section {
+            margin: 10px 0;
+            }
+            
+            .info-row {
+            display: table;
+            width: 100%;
+            }
+            
+            .info-left {
+            display: table-cell;
+            width: 50%;
+            font-size: 9pt;
+            line-height: 1.3;
+            }
+            
+            .info-right {
+            display: table-cell;
+            width: 50%;
+            font-size: 9pt;
+            line-height: 1.3;
+            }
+            
+            .section-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-decoration: underline;
+            text-align: center;
+            margin: 12px 0 8px 0;
+            }
+            
+            .content-text {
+            text-align: justify;
+            margin: 8px 0;
+            font-size: 9pt;
+            }
+            
+            .milestone-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 8pt;
+            }
+            
+            .milestone-table th,
+            .milestone-table td {
+            border: 0.5px solid #000;
+            padding: 3px 4px;
+            text-align: center;
+            }
+            
+            .milestone-table th {
+            background-color: #fff;
+            font-weight: bold;
+            line-height: 1.2;
+            }
+            
+            .total-row {
+            font-weight: bold;
+            }
+            
+            .payment-request {
+            margin: 10px 0;
+            font-size: 9pt;
+            text-align: justify;
+            }
+            
+            .bank-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 9pt;
+            }
+            
+            .bank-details-table th {
+            background-color: #fff;
+            border: 0.5px solid #000;
+            padding: 3px;
+            text-align: center;
+            font-weight: bold;
+            }
+            
+            .bank-details-table td {
+            border: 0.5px solid #000;
+            padding: 3px 5px;
+            }
+            
+            .notes {
+            font-size: 8pt;
+            margin: 10px 0;
+            line-height: 1.4;
+            }
+            
+            .footer {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 9pt;
+            }
+            
+            .signature-section {
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 9pt;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div class="page-border">
+            <!-- Logo -->
+            <div class="logo">
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            style="height:55px; width:55px;"/>
+            </div>
+            
+            <!-- Header -->
+            <div class="header">
+                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                <div class="company-address">
+                    <strong> {!bookingInfo.companyAddress}
+                        {!bookingInfo.webAddress}</strong>
+                </div>
+            </div>
+            
+            <!-- Customer and Project Info -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-left">
+                        <strong>Customer ID:</strong>{!bookingInfo.webAddress}<br/>
+                        <strong>Customer Name:</strong> {!bookingInfo.customerName}
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+                        <strong>Unit No:</strong> {!bookingInfo.unitNo}<br/>
+                        <strong>Block:</strong> {!bookingInfo.block}
+                    </div>
+                    <div class="info-right">
+                        <strong>Dated:</strong>  
+                        <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!bookingInfo.demandDate}"/>
+                        </apex:outputText>
+                        <br/>
+                        <strong> {!bookingInfo.project}</strong><br/>
+                        {!bookingInfo.projectAddress}<br/>
+                        <strong>Email:</strong> {!bookingInfo.email}<br/>
+                        <strong>Contact No.</strong> {!bookingInfo.contactNo}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demand Note Title -->
+            <div class="section-title">DEMAND NOTE</div>
+            
+            <!-- Opening Text -->
+            <div class="content-text">
+                Dear Sir/Madam,
+            </div>
+            
+            <div class="content-text">
+                This is with reference to the Agreement executed for <strong> {!bookingInfo.project}, Unit No. {!bookingInfo.unitNo}</strong>. As per the agreed payment schedule, we hereby raised the demand note for the below- mentioned milestone/payment.
+            </div>
+            
+            <!-- Milestone Table -->
+            <table class="milestone-table">
+                <thead>
+                    <tr>
+                        <th>Milestone Demand Note</th>
+                        <th>Due Date</th>
+                        <th>Pending Dues excluding TDS Carried Forward</th>
+                        <th>Pending Payment TDS @ 1%</th>
+                        <th>Current Milestone Excluding the TDS</th>
+                        <th>Current TDS @ 1%</th>
+                        <th>Interest 12%</th>
+                        <th>Total Milestone Amount payable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{!currentCompletedStage}</td>
+                        <td> 
+                            <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!demandDueDate}"/>
+                            </apex:outputText>
+                        </td>
+                        <td>{!prevDueExcludingTDS}</td>
+                        <td>{!pendingPreviousTDS}</td>
+                        <td>{!currentDueExcludingTDS}</td>
+                        <td>{!currentPendingTDS}</td>
+                        <td>{!balanceInterest}</td>
+                        <td>{!totalAmountPayable}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3">Total Outstanding Amount (In Words)</td>
+                        <td colspan="5">{!milestoneAmountInWords}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Payment Request -->
+            <div class="payment-request">
+                You are requested to remit the total dues of <strong>Rs. {!totalAmountPayable}/- ({!milestoneAmountInWords})</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before 01 Feb 2026. Please make the payment in the below bank account details.
+            </div>
+            
+            <!-- Bank Details Table -->
+            <table class="bank-details-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">TRIFECTA PROJECTS PVT LTD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bank Name</strong></td>
+                        <td>{!bookingInfo.bankName}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Account Number</strong></td>
+                        <td>{!bookingInfo.accountNumber}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IFSC Code</strong></td>
+                        <td>{!bookingInfo.ifscCode}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type of Account</strong></td>
+                        <td>{!bookingInfo.typeOfAccount}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Branch</strong></td>
+                        <td>{!bookingInfo.branch}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Notes -->
+            <div class="notes">
+                1. TDS 1% is applicable, we request you to pay 1% TDS as applicable to authorities and share the challan of this payment along with the payment for 99% towards payment.<br/>
+                2. Please note that Form 26QB is mandatory for tax audit, till then these amounts will appear as un.<br/>
+                3. Kindly note that in case of non-receipt of due amount within stipulated time, interest @12 % p.a. shall be charged as per terms on the delayed payments.
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                TRIFECTA PROJECTS PVT LTD
+            </div>
+            
+            <!-- Signature -->
+            <div class="signature-section">
+                Authorized Signatory
             </div>
         </div>
-    </div>
+    </body>
 </apex:page>

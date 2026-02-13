@@ -95,7 +95,7 @@ public Without Sharing class  CreateQuoteController {
         // Step 1: Try to get block-wise schedule if blockId is present
         if (blockId != null) {
             Master = [ SELECT Id, Project__c, S_No__c, Name, Payment_Percent__c, Amount__c, Completed_Date__c, Due_Date__c, Status__c,
-                      Is_Land__c,Is_Construction__c,Block__r.Intrest_Percentage__c,Block__c FROM Master_payment_schedule__c
+                      Is_Land__c,Is_Construction__c,Block__r.Intrest_Percentage__c,Block__c,Include_Interest__c FROM Master_payment_schedule__c
                       WHERE Project__r.Project__c = :Project
                       AND Block__c = :blockId and Block__c!= null ORDER BY S_No__c ASC];
         }
@@ -107,7 +107,11 @@ public Without Sharing class  CreateQuoteController {
             ps.Name = mps.Name;
             ps.Interest_Percent__c = mps.Block__c !=null ? mps.Block__r.Intrest_Percentage__c : 0;
             ps.S_No__c = mps.S_No__c;
-            
+            ps.Include_Interest__c = mps.Include_Interest__c;
+            // Make only FIRST schedule Completed When welcome mail sent 1st payment schdule need to completed
+            if(mps.S_No__c == 1){
+                ps.Status__c = 'Completed';
+            }
             schdules.add(ps); 
         }
         
@@ -152,11 +156,15 @@ public Without Sharing class  CreateQuoteController {
                              Construction_Cost__c from Quote__c where id=:quoteid limit 1];
         System.debug(quoteid);
         Decimal grandTotal = quo[0].Grand_Total_Amount__c != null ? quo[0].Grand_Total_Amount__c : 0;
-        if(quo[0].Payment_Type__c=='Standard')
-        {
-     
+        if(quo != null && !quo.isEmpty()){
+            Decimal landTotal  = quo[0].Total_Land_Amount__c != null ? quo[0].Total_Land_Amount__c : 0;
+            Decimal constTotal = quo[0].Construction_Cost__c != null ? quo[0].Construction_Cost__c : 0;
+            
             for(Payment_schedule__c pay : payList){
+                
                 Payment_schedule__c ps = new Payment_schedule__c();
+                
+                // ----- COMMON FIELD MAPPING -----
                 ps.Name = pay.Name;
                 ps.Payment_Percent__c = pay.Payment_Percent__c;
                 ps.Payment_Due_Date__c = pay.Payment_Due_Date__c;
@@ -164,58 +172,36 @@ public Without Sharing class  CreateQuoteController {
                 ps.S_No__c = pay.S_No__c;
                 ps.Type__c = pay.Type__c;
                 ps.Interest_Percent__c = pay.Interest_Percent__c;
-                
-                if (pay.Payment_Percent__c != null && pay.Type__c == 'Land') {
-                    if (quo != null && !quo.isEmpty() && quo[0].Total_Land_Amount__c != null) {
-                        ps.Amount__c = (quo[0].Total_Land_Amount__c * pay.Payment_Percent__c) / 100;
-                    } else {
-                        ps.Amount__c = 0; 
-                    }
-                }
-                else if (pay.Payment_Percent__c != null && pay.Type__c == 'Construction') {
-                    if (quo != null && !quo.isEmpty() && quo[0].Construction_Cost__c != null) {
-                        ps.Amount__c = (quo[0].Construction_Cost__c * pay.Payment_Percent__c) / 100;
-                    } else {
-                        ps.Amount__c = 0;
-                    }
-                }
-                else {
-                    ps.Amount__c = (grandTotal != null && pay.Payment_Percent__c != null)  ? grandTotal * pay.Payment_Percent__c / 100 : 0;
-                }
-
+                ps.Include_Interest__c = pay.Include_Interest__c;
+                ps.Status__c = pay.Status__c;
                 ps.Quote__c = quoteid;
+                
+                Decimal percent = pay.Payment_Percent__c != null ? pay.Payment_Percent__c : 0;
+                
+                // ----- AMOUNT CALCULATION (SINGLE PLACE) -----
+                if(percent > 0){
+                    
+                    if(pay.Type__c == 'Land'){
+                        ps.Amount__c = (landTotal * percent) / 100;
+                    }
+                    else if(pay.Type__c == 'Construction'){
+                        ps.Amount__c = (constTotal * percent) / 100;
+                    }
+                    else{
+                        ps.Amount__c = (grandTotal != null) ? (grandTotal * percent / 100) : 0;
+                    }
+                    
+                } else {
+                    ps.Amount__c = 0;
+                }
+                
                 schduleList.add(ps);
             }
+            
+            System.debug('schduleList :' + schduleList);
+            
+            upsert schduleList;
         }
-        else if(quo[0].Payment_Type__c=='Custom'){
-            for(Payment_schedule__c pay : payList)
-            {
-                system.debug(pay);
-                Payment_schedule__c ps = new Payment_schedule__c();
-                ps = pay;
-                if (pay.Payment_Percent__c != null && pay.Type__c == 'Land') {
-                    if (quo != null && !quo.isEmpty() && quo[0].Total_Land_Amount__c != null) {
-                        ps.Amount__c = (quo[0].Total_Land_Amount__c * pay.Payment_Percent__c) / 100;
-                    } else {
-                        ps.Amount__c = 0; 
-                    }
-                }
-                else if (pay.Payment_Percent__c != null && pay.Type__c == 'Construction') {
-                    if (quo != null && !quo.isEmpty() && quo[0].Construction_Cost__c != null) {
-                        ps.Amount__c = (quo[0].Construction_Cost__c * pay.Payment_Percent__c) / 100;
-                    } else {
-                        ps.Amount__c = 0;
-                    }
-                }
-                else {
-                    ps.Amount__c = (grandTotal != null && pay.Payment_Percent__c != null)  ? grandTotal * pay.Payment_Percent__c / 100 : 0;
-                }
-                ps.quote__c = quoteid;
-                schduleList.add(ps);
-            }
-        }
-        system.debug( 'schduleList :'+ schduleList);
-        upsert schduleList;
         
         QuoteResponse resp = new QuoteResponse();
         resp.quoteId = oppPlot.Id;

@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <formula>Master_Payment_Schedule__r.Completed_Date__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Completed_Date</label>
+    <label>Master Payment Schedule Completed Date</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

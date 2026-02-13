@@ -117,6 +117,9 @@ public class BookingTriggerHandler {
             {
                 if (bk.CRM_executive__c != null) {
                     bk.OwnerId = bk.CRM_executive__c;
+                    bk.Booking_Moved_To_Booked_Stage_Time__c = system.today();
+                    bk.Stage_Status__c = 'In Progress';
+                    bk.Move_to_Next_Stage__c = false;
                 }
                 else
                 {

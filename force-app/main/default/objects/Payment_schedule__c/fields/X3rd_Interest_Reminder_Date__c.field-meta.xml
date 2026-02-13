@@ -2,9 +2,9 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>X3rd_Interest_Reminder_Date__c</fullName>
     <externalId>false</externalId>
-    <formula>Demanded_Date__c + 35</formula>
+    <formula>Demanded_Date__c + 10</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>3rd Interest Reminder Date</label>
+    <label>3rd Reminder Date</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

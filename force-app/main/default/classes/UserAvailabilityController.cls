@@ -1,4 +1,4 @@
-public class UserAvailabilityController {
+public without sharing class  UserAvailabilityController {
     
     @AuraEnabled
     public static List<User> getAllUsers(string profile){

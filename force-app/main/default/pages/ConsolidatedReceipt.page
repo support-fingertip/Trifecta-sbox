@@ -138,7 +138,9 @@
                 <div class="info-right">
                     
                     <div>
-                        <b>Date:</b> {!bookingInfo.receiptDate}
+                        <b>Date:</b>   <apex:outputText value="{0,date,dd-MM-yyyy}">
+                        <apex:param value="{!bookingInfo.receiptDate}"/>
+                        </apex:outputText> 
                     </div>
                     
                     <div>

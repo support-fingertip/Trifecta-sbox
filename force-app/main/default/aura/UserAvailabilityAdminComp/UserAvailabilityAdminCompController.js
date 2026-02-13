@@ -3,9 +3,13 @@
           const profile = component.get('v.CurrentUser')['Profile'].Name;
         if(profile == 'Recovery Head'){
             component.set('v.selProfileFilter','Recovery Presales');
-        }else{
-           component.set('v.selProfileFilter','Pre Sales'); 
         }
+        else if(profile == 'CRM Manager' || profile == 'CRM Head'){
+            component.set('v.selProfileFilter','CRM Executive');
+        }
+            else{
+                component.set('v.selProfileFilter','Pre Sales'); 
+            }
         
 		helper.getUsers(component);
         
@@ -63,6 +67,7 @@
             if(state==='SUCCESS'){
                 var userDetails = response.getReturnValue();
                 //alert(response.getReturnValue());
+                console.log('userDetails'+JSON.stringify(userDetails));
                 component.set("v.users",userDetails);
                  component.set("v.totalSize", component.get("v.users").length);
                 component.set("v.start",0);

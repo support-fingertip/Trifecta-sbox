@@ -156,7 +156,7 @@
                     <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
                         style="height:70px; width:70px;"/>
                 </div>
-                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                <div class="company-name"> {!receiptInfo.companyName}</div>
                 <div class="company-address">
                     {!receiptInfo.companyAddress}
                 </div>

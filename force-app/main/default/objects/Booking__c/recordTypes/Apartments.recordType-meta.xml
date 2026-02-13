@@ -419,6 +419,17 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>Stage_Status__c</picklist>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In Progress</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Stage__c</picklist>
         <values>
             <fullName>Agreement</fullName>

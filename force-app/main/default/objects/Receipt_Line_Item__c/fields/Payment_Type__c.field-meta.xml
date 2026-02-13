@@ -51,6 +51,11 @@
                 <default>false</default>
                 <label>Row House Amount</label>
             </value>
+            <value>
+                <fullName>Booking Amount</fullName>
+                <default>false</default>
+                <label>Booking Amount</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

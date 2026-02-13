@@ -1,4 +1,17 @@
 public class DemandRaisedSave {
+    /**
+    * Method Name  : getDemandRaised
+    * Description  : Entry method to generate Demand record for selected Payment Schedule milestone.
+    *
+    * Functionality:
+    * 1. Fetches Demand_Raised__c record based on recordId.
+    *
+    * Parameters:
+    * @param milestoneId - Id of Demand_Raised__c recordId record for which demand is raised.
+    * Used From:
+    * - LWC / Aura component when user clicks “Resend Demand” button from Demand and Component GenerateDemandNote.
+    * - Automated demand generation process.
+    */
     @AuraEnabled
     public static Demand_Raised__c getDemandRaised(id recordId){
         Demand_Raised__c demand = [SELECT 
@@ -7,7 +20,19 @@ public class DemandRaisedSave {
                                    FROM Demand_Raised__c WHERE id =: recordId LIMIT 1];
         return demand;
     }
-    
+    /**
+    * Method Name  : ResendRaiseDemand
+    * Description  : Entry method to generate Demand record for selected Payment Schedule milestone.
+    *
+    * Functionality:
+    * 1. Fetches Demand_Raised__c record based on list<Id> recordIds.
+    *
+    * Parameters:
+    * @param milestoneId - Id of Demand_Raised__c list<Id> recordIds.
+    * Used From:
+    * - LWC / Aura component when user clicks “Resend Demand” button from Demand and Component GenerateDemandNote.
+    * - Automated demand generation process.
+    */
     @AuraEnabled
     public static void ResendRaiseDemand(list<Id> recordIds){
         if(recordIds.size() > 0){
@@ -24,6 +49,291 @@ public class DemandRaisedSave {
             }
         }
     }
+    
+    /**
+    * Method Name  : raiseCustomDemand
+    * Description  : Entry method to generate Demand record for selected Payment Schedule milestone.
+    *
+    * Functionality:
+    * 1. Fetches Payment_Schedule__c record based on milestoneId.
+    * 2. Retrieves related Booking__c details required for demand calculations.
+    * 3. Passes fetched data to customScheduleCalculations method for:
+    *      - Previous due calculation
+    *      - Interest computation
+    *      - TDS handling
+    *      - Grand total preparation
+    * 4. Returns success or error message from calculation method.
+    *
+    * Parameters:
+    * @param milestoneId - Id of Payment_Schedule__c record for which demand is raised.
+    *
+    * Returns:
+    * @return String - Success/Error message after demand generation.
+    *
+    * Used From:
+    * - LWC / Aura component when user clicks “Raise Demand” button.
+    * - Automated demand generation process.
+    */
+    @AuraEnabled
+    public static String raiseCustomDemand(id milestoneId){
+        
+        Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
+                                        Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
+                                        FROM Payment_Schedule__c WHERE Id = :milestoneId];
+        
+        Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
+                           RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
+                           Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
+        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book);
+    }
+
+    /**
+    * Method Name  : customScheduleCalculations
+    * Description  : Core calculation engine to prepare Demand_Raised__c record data.
+    *
+    * Business Rules:
+    * - TDS is customer responsibility.
+    * - Grand Total = Sum of Pending + Interest.
+    * - Overpayments adjust previous dues.
+    *
+    * @param milestoneId - Current Payment Schedule Id.
+    * @param masterId    - Master Payment Schedule Id (optional).
+    * @param book        - Booking__c record.
+    *
+    * @return String - Success or error message.
+    */
+    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book) {
+        
+        /** ==================VARIABLE DECLARATIONS =========================**/
+        String totalAmountPayableInWords = '';
+        Decimal totalAmountPayable = 0;
+        
+        String currentCompletedStage = '';
+        String currentMilestoneNumber = '';
+        Date currentCompletedStageDate;
+        Decimal currentSNo = 0;
+        
+        Decimal balanceTotalInterest = 0;
+        Decimal previousbalanceInterest = 0;
+        Decimal milestonePaymentPercentResult = 0;
+        Decimal totalIntrestAmount = 0;
+        
+        
+        /** ==================GET TEMPLATE RECORD =========================**/
+        General_Settings__c temp = [
+            SELECT Template_Body__c, Type__c 
+            FROM General_Settings__c 
+            WHERE Project_Name1__c INCLUDES (:book.Project__c)
+            AND Type__c = 'Demand Note'
+            LIMIT 1
+        ];
+        
+        String template = temp.Template_Body__c;
+        
+        template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
+        template = template.replace('##PROJECT_NAME##', book.Project__c ?? '');
+        template = template.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
+        template = template.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
+        template = template.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
+        template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
+        
+        
+        /** ==================FETCH CURRENT PAYMENT SCHEDULE =========================**/
+        Payment_Schedule__c currentPS = [
+            SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c
+            FROM Payment_Schedule__c
+            WHERE Id = :milestoneId
+            LIMIT 1
+        ];
+        
+        Boolean hasMaster = (masterId != null);
+        
+        if (hasMaster) {
+            
+            Master_Payment_Schedule__c msRecord = [
+                SELECT Id, Name, S_No__c, Completed_Date__c
+                FROM Master_Payment_Schedule__c
+                WHERE Id = :masterId
+                LIMIT 1
+            ];
+            
+            currentCompletedStage = msRecord.Name;
+            currentCompletedStageDate = msRecord.Completed_Date__c;
+            currentSNo = msRecord.S_No__c;
+            
+        } 
+        else {
+            
+            currentCompletedStage = currentPS.Name;
+            currentCompletedStageDate = currentPS.Completed_Date__c;
+            currentSNo = currentPS.S_No__c;
+        }
+        
+        if (currentSNo != null) {
+            currentMilestoneNumber = getMilestoneLabel(currentSNo.intValue());
+        }
+        
+        
+        /** ==================PREVIOUS MILESTONE AGGREGATES =========================**/
+        AggregateResult[] aggregateResults = [
+            SELECT SUM(Pending_Amount__c) totalPendingAmount,
+            SUM(Interest_Up_to_Date__c) totalInterestAmount,
+            SUM(Interest_Paid__c) totalInterestPaid,
+            SUM(Payment_percent__c) paymentPercentageTill,
+            SUM(Total_TDS_Amount__c) tdsAmount
+            FROM Payment_Schedule__c
+            WHERE Status__c = 'Completed'
+            AND Booking__c = :book.Id
+            AND S_No__c < :currentSNo
+        ];
+        
+        Decimal balanceDueTillPrevMilestone = 0;
+        Decimal previousMileStoneInterest = 0;
+        Decimal previousTotalInterestPaid = 0;
+        Decimal previousMilestonePaymentPercent = 0;
+        Decimal previousTDS = 0;
+        
+
+        
+        if (!aggregateResults.isEmpty()) {
+            AggregateResult ar = aggregateResults[0];
+            balanceDueTillPrevMilestone = (Decimal)ar.get('totalPendingAmount') ?? 0;
+            previousMileStoneInterest = (Decimal)ar.get('totalInterestAmount') ?? 0;
+            previousTotalInterestPaid = (Decimal)ar.get('totalInterestPaid') ?? 0;
+            previousMilestonePaymentPercent = (Decimal)ar.get('paymentPercentageTill') ?? 0;
+            previousTDS = (Decimal)ar.get('tdsAmount') ?? 0;
+        }
+        previousbalanceInterest = previousMileStoneInterest - previousTotalInterestPaid;
+        
+        
+        /** ==================CURRENT MILESTONE DUE =========================**/
+        AggregateResult presentDueResult = [
+            SELECT SUM(Pending_Amount__c) Pending_Amount,
+            SUM(Interest_Up_to_Date__c) totalInterestAmount,
+            SUM(Interest_Paid__c) totalInterestPaid,
+            SUM(Payment_percent__c) paymentPercentage,
+            SUM(Total_TDS_Amount__c) tdsAmount
+            FROM Payment_Schedule__c
+            WHERE S_No__c = :currentSNo
+            AND Booking__c = :book.Id
+        ];
+        
+        Decimal presentDue = (Decimal)presentDueResult.get('Pending_Amount') ?? 0;
+        Decimal presentInterestAmount = (Decimal)presentDueResult.get('totalInterestAmount') ?? 0;
+        Decimal presentInterestAmountPaid = (Decimal)presentDueResult.get('totalInterestPaid') ?? 0;
+        Decimal presentMilestonePaymentPercent = (Decimal)presentDueResult.get('paymentPercentage') ?? 0;
+        Decimal currentTds = (Decimal)presentDueResult.get('tdsAmount') ?? 0;
+        
+        Decimal presentBalanceInterst = presentInterestAmount - presentInterestAmountPaid;
+        milestonePaymentPercentResult = presentMilestonePaymentPercent + previousMilestonePaymentPercent;
+      
+        
+        
+        /** ==================TOTAL RECEIVED INCLUDING CURRENT =========================**/
+        AggregateResult[] totalReceivedIncludingCurrent = [
+            SELECT SUM(Received_Amount1__c) totalReceivedAmountWithCurrent,
+            SUM(Interest_Paid__c) totalInterestPaid
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :book.Id
+        ];
+        
+        Decimal totalReceivedWithCurrent = 0;
+        Decimal totalInterstPaid = 0;
+        
+        if (!totalReceivedIncludingCurrent.isEmpty()) {
+            AggregateResult tr = totalReceivedIncludingCurrent[0];
+            
+            totalReceivedWithCurrent = (Decimal)tr.get('totalReceivedAmountWithCurrent') ?? 0;
+            totalInterstPaid = (Decimal)tr.get('totalInterestPaid') ?? 0;
+        }
+  
+        
+        /** ==================TDS CALCULATION =========================**/
+        Decimal paidTDS = 0;
+        Decimal pendingPreviousTDS = 0;
+        Decimal currentPendingTDS = 0;
+        Decimal prevDueExcludingTDS = 0;
+        Decimal currentDueExcludingTDS = 0;
+        
+        Decimal totalBookingAmount = book.Total_Amount__c ?? 0;
+
+        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS' AND Booking__c = :book.Id];
+        paidTDS = (Decimal)paidTDSAgg.get('amt') ?? 0;
+        
+        pendingPreviousTDS = previousTDS - paidTDS;
+        pendingPreviousTDS = pendingPreviousTDS < 0 ? 0 : pendingPreviousTDS;
+        
+        Decimal remaingTdPaidAmount = paidTDS - previousTDS;
+        currentPendingTDS = currentTds;
+        currentPendingTDS = remaingTdPaidAmount > 0 ? currentTds - remaingTdPaidAmount : currentPendingTDS;
+        currentPendingTDS = currentPendingTDS < 0 ? 0 : currentPendingTDS;
+        
+        /** ===================== EXCLUDING TDS ===================== **/
+        prevDueExcludingTDS = balanceDueTillPrevMilestone - previousTDS;
+        currentDueExcludingTDS = presentDue - currentTds;
+        currentDueExcludingTDS = currentDueExcludingTDS < 0 ? 0 : currentDueExcludingTDS;
+        
+        /** ==================GRAND TOTAL =========================**/
+        balanceTotalInterest = presentBalanceInterst + previousbalanceInterest;
+        totalIntrestAmount = previousMileStoneInterest + presentInterestAmount;
+        
+        Decimal grandTotal = presentDue + balanceDueTillPrevMilestone + balanceTotalInterest;
+        
+        NumberTOWordConvertion convert = new NumberTOWordConvertion();
+        totalAmountPayableInWords = convert.getNumberTOWordConvertion(grandTotal);
+        
+        
+        /** ==================PREPARE DEMAND RECORD =========================**/
+        Demand_Raised__c re = new Demand_Raised__c();
+        
+        re.Current_Demand_amount__c = presentDue;
+        re.Current_Milestone_Excluding_the_TDS__c = currentDueExcludingTDS;
+        re.Current_Milestone_TDS_1__c = currentTds;
+        re.Milestone_Percentage__c = presentMilestonePaymentPercent;
+            
+        re.Pending_Dues_excluding_TDS__c = prevDueExcludingTDS;
+        re.Previous_pendings__c = balanceDueTillPrevMilestone;
+        
+        re.Include_Interest__c = true;
+        re.Due_Date__c = system.today() + 15;
+    
+        
+        re.Amount_Demanded__c = grandTotal;
+        re.Grand_Total__c = grandTotal;
+        re.Total_Amount_Paid__c = totalReceivedWithCurrent;
+        re.Total_Percentage_till_Current_Milestone__c = milestonePaymentPercentResult;
+        
+        re.Interest_Till_Now__c = balanceTotalInterest;
+        re.Total_Interest_Paid__c = totalInterstPaid;
+        re.Total_Interest__c = totalIntrestAmount;
+        
+        re.Booking__c = book.Id;
+        re.Payment_schedule__c = milestoneId;
+        re.Demanded_Date__c = system.now();
+        re.Demand_Name__c = currentCompletedStage;
+        re.Demand_Email_Content__c = template;
+        re.Grand_Total_in_Words__c = totalAmountPayableInWords;
+        re.Disable_Demand_Mail__c = true;
+        
+        /** ==================SAVE RECORDS =========================**/
+        try {
+            currentPS.Is_Demanded__c = true;
+            currentPS.Demanded_Date__c = Date.today();
+            update currentPS;
+            insert re;
+            return 'Demand raised successfully.';
+            
+        } catch (DmlException e) {
+            return 'Error: ' + e.getMessage();
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
     
     @AuraEnabled
     public Static String RaiseDemand(List<Id> bookingIds, Map<Id,String> emailContents, map<Id,List<String>> contentIds ) {
@@ -200,7 +510,7 @@ public class DemandRaisedSave {
             
             // TDS Calculation - 1% of Agreement Value Before GST if > 50 lakhs
             Decimal totalSalesConsideration = bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c != null ? 
-                                              bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c : 0;
+                bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c : 0;
             Decimal TDSonePercentage = totalSalesConsideration > 5000000 ? (totalSalesConsideration * 0.01).setScale(0) : 0;
             
             String currentMilestone = bookingLatestPaymentSchedules.get(bookingId).Name;
@@ -265,14 +575,14 @@ public class DemandRaisedSave {
     }
     
     public static Map<Integer, String> daySuffixMap = new Map<Integer, String>{1 => 'st', 2 => 'nd', 3 => 'rd', 21 => 'st', 22 => 'nd', 23 => 'rd', 31 => 'st'};
-    
-    public static String getMilestoneLabel(Integer sNo) {
-        if (sNo == null) {
-            return 'Invalid milestone';
+        
+        public static String getMilestoneLabel(Integer sNo) {
+            if (sNo == null) {
+                return 'Invalid milestone';
+            }
+            String suffix = daySuffixMap.containsKey(sNo) ? daySuffixMap.get(sNo) : 'th';
+            return sNo + suffix;
         }
-        String suffix = daySuffixMap.containsKey(sNo) ? daySuffixMap.get(sNo) : 'th';
-        return sNo + suffix;
-    }
     
     @AuraEnabled
     public static BookingWrapper getBookingRecord(Id recordId) {
@@ -346,224 +656,6 @@ public class DemandRaisedSave {
         }
     }
     
-    @AuraEnabled
-    public static String raiseCustomDemand(id milestoneId){
-        
-        Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
-                                        Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
-                                        FROM Payment_Schedule__c WHERE Id = :milestoneId];
-        
-        Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
-                          RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c
-                          FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        
-        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book);
-    }
-    
-    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book) {
-        String totalAmountPayableInWords = '';
-        Decimal totalAmountPayable = 0;
-        Decimal paidTillPrevMilestone = 0;
-        String currentCompletedStage = '';
-        date demandDueDate;
-        Decimal currentMilestonePaymentPercent = 0;
-        String currentMilestoneNumber = '';
-        date currentCompletedStageDate;
-        Decimal totAmtDueTillPrevMilestone = 0;
-        Decimal interestPaidTillPrevious = 0;
-        Decimal interestDelayTillPrevious = 0;
-        Decimal balanceDueTillPrevMilestone = 0;
-        Decimal milestonePaymentPercentTill = 0;
-        Decimal presentDue = 0;
-        Decimal TDSonePercentage = 0;
-        Decimal balanceInterest = 0;
-        Decimal currentSNo = 0;
-        
-        // Get the Payment_Schedule__c record to access Last_Payment_Schedule__c and other fields
-        Payment_Schedule__c currentPS = [
-            SELECT Id, Last_Payment_Schedule__c, Name, S_No__c, Completed_Date__c, Payment_percent__c
-            FROM Payment_Schedule__c
-            WHERE Id = :milestoneId
-            LIMIT 1
-        ];
-        
-        // Check if Master Payment Schedule exists
-        Boolean hasMaster = (masterId != null);
-        
-        if (hasMaster) {
-            // Logic with Master Payment Schedule
-            list<Master_Payment_Schedule__c> msRecordList = [
-                SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c
-                FROM Master_Payment_Schedule__c
-                WHERE Id =:masterId Limit 1 
-            ];
-            
-            if (msRecordList.isEmpty()) {
-                System.debug('No Master milestone found for the booking.');
-                return 'ERROR: No Master milestone found for the booking';
-            }
-            
-            Master_Payment_Schedule__c msRecord = msRecordList[0];
-            currentCompletedStage = msRecord.Name;
-            currentCompletedStageDate = msRecord.Completed_Date__c;
-            currentMilestonePaymentPercent = msRecord.Payment_percent__c != null ? msRecord.Payment_percent__c.setScale(0) : 0;
-            currentSNo = msRecord.S_No__c;
-            
-        } else {
-            // Handle custom Payment Schedules without Master
-            currentCompletedStage = currentPS.Name;
-            currentCompletedStageDate = currentPS.Completed_Date__c;
-            currentMilestonePaymentPercent = currentPS.Payment_percent__c != null ? currentPS.Payment_percent__c.setScale(0) : 0;
-            currentSNo = currentPS.S_No__c;
-        }
-        
-        demandDueDate = System.today().addDays(7);
-        
-        if (currentSNo != null) {
-            currentMilestoneNumber = getMilestoneLabel(currentSNo.intValue());
-        }
-        
-        // Get previous milestones data (excluding current)
-        AggregateResult[] aggregateResults = [
-            SELECT SUM(Pending_Amount__c) totalPendingAmount, SUM(Interest_Up_to_Date__c) totalInterestAmount,
-            SUM(AmountB__c) totalPayableAmount,
-            SUM(Interest_Up_to_Date__c) totalInterestUplodate, SUM(Interest_Paid__c) totalInterestPaid,
-            SUM(Payment_percent__c) paymentPercentageTill, SUM(Received_Amount1__c) totalReceivedAmount
-            FROM Payment_Schedule__c
-            WHERE Booking__c = :book.Id AND S_No__c < :currentSNo
-        ];
-        
-        // Get total received INCLUDING current milestone
-        AggregateResult[] totalReceivedIncludingCurrent = [
-            SELECT SUM(Received_Amount1__c) totalReceivedAmountWithCurrent
-            FROM Payment_Schedule__c
-            WHERE Booking__c = :book.Id AND S_No__c <= :currentSNo
-        ];
-        
-        // Get total pending INCLUDING current milestone
-        AggregateResult[] totalPendingIncludingCurrent = [
-            SELECT SUM(Pending_Amount__c) totalPendingWithCurrent
-            FROM Payment_Schedule__c
-            WHERE Booking__c = :book.Id AND S_No__c <= :currentSNo
-        ];
-        
-        Decimal totalPendingAmount = 0;
-        Decimal totalInterestAmount = 0;
-        Decimal totalPayableAmount = 0;
-        Decimal totalReceivedAmount = 0;
-        Decimal totalInterestUplodateAmount = 0;
-        Decimal totalInterestPaid = 0;
-        Decimal milestonePaymentPercent = 0;
-        Decimal milestonePaymentPercentResult = 0;
-        Decimal totalReceivedWithCurrent = 0;
-        Decimal totalPendingWithCurrent = 0;
-        
-        if (!aggregateResults.isEmpty()) {
-            totalPendingAmount = (Decimal) aggregateResults[0].get('totalPendingAmount') != null ? (Decimal) aggregateResults[0].get('totalPendingAmount') : 0;
-            totalInterestAmount = (Decimal) aggregateResults[0].get('totalInterestAmount') != null ? (Decimal) aggregateResults[0].get('totalInterestAmount') : 0;
-            totalPayableAmount = (Decimal) aggregateResults[0].get('totalPayableAmount') != null ? (Decimal) aggregateResults[0].get('totalPayableAmount') : 0;
-            totalInterestUplodateAmount = (Decimal) aggregateResults[0].get('totalInterestUplodate') != null ? (Decimal) aggregateResults[0].get('totalInterestUplodate') : 0;
-            totalInterestPaid = (Decimal) aggregateResults[0].get('totalInterestPaid') != null ? (Decimal) aggregateResults[0].get('totalInterestPaid') : 0;
-            milestonePaymentPercent = aggregateResults[0].get('paymentPercentageTill') != null ? (Decimal) aggregateResults[0].get('paymentPercentageTill') : 0;
-            totalReceivedAmount = (Decimal) aggregateResults[0].get('totalReceivedAmount') != null ? (Decimal) aggregateResults[0].get('totalReceivedAmount') : 0;
-        }
-        
-        if (!totalReceivedIncludingCurrent.isEmpty()) {
-            totalReceivedWithCurrent = (Decimal) totalReceivedIncludingCurrent[0].get('totalReceivedAmountWithCurrent') != null ? 
-                                       (Decimal) totalReceivedIncludingCurrent[0].get('totalReceivedAmountWithCurrent') : 0;
-        }
-        
-        if (!totalPendingIncludingCurrent.isEmpty()) {
-            totalPendingWithCurrent = (Decimal) totalPendingIncludingCurrent[0].get('totalPendingWithCurrent') != null ? 
-                                      (Decimal) totalPendingIncludingCurrent[0].get('totalPendingWithCurrent') : 0;
-        }
-        
-        totAmtDueTillPrevMilestone = totalPayableAmount;
-        interestPaidTillPrevious = totalInterestPaid;
-        interestDelayTillPrevious = (totalInterestUplodateAmount > 0) ? (totalInterestUplodateAmount) : totalInterestAmount;
-        
-        double paidTotalAmount = totalReceivedAmount;
-        
-        // Get present due for current milestone
-        AggregateResult presentDueResult = [
-            SELECT SUM(AmountB__c) totalAmountB, SUM(Payment_percent__c) paymentPercentageTill
-            FROM Payment_Schedule__c
-            WHERE S_No__c = :currentSNo AND Booking__c = :book.Id
-        ];
-        
-        Decimal presentDueAmount = 0;
-        if (presentDueResult != null && presentDueResult.get('totalAmountB') != null) {
-            presentDueAmount = (Decimal) presentDueResult.get('totalAmountB');
-        }
-        if (presentDueResult != null && presentDueResult.get('paymentPercentageTill') != null) {
-            milestonePaymentPercentResult = milestonePaymentPercent + currentMilestonePaymentPercent;
-        }
-        
-        paidTillPrevMilestone = paidTotalAmount;
-        
-        // Calculate overpayment adjustment
-        Decimal previousPending = totalPayableAmount - paidTotalAmount;
-        
-        milestonePaymentPercentTill = milestonePaymentPercentResult.setScale(0);
-        presentDue = presentDueAmount;
-        
-        // TDS Calculation - 1% of Agreement Value Before GST if > 50 lakhs
-        Decimal totalSalesConsideration = book.Quote__r.Agreement_Value_Before_GST__c != null ? 
-                                         book.Quote__r.Agreement_Value_Before_GST__c : 0;
-        TDSonePercentage = totalSalesConsideration > 5000000 ? (totalSalesConsideration * 0.01).setScale(0) : 0;
-        
-        balanceInterest = interestDelayTillPrevious - interestPaidTillPrevious;
-        
-        // Grand Total = Sum of Pending_Amount__c from all milestones (previous + current)
-        Decimal grandTotal = totalPendingWithCurrent != null ? totalPendingWithCurrent : 0;
-        
-        NumberTOWordConvertion convert = new NumberTOWordConvertion();
-        totalAmountPayableInWords = convert.getNumberTOWordConvertion(grandTotal);
-        String totaCurrentMilestoneAmount = convert.getNumberTOWordConvertion(presentDue);
-        
-        String emailContent = ''
-            + '<div style="color: black;">'
-            + 'Dear <strong>' + book.First_Applicant_Name__c + '</strong>,'
-            + '</div><br/>'
-            + '<div>'
-            + '<strong>Greetings from Zuari !!</strong><br/><br/>'
-            + 'Hope this mail finds you in good health and spirit.<br/><br/>'
-            + '<strong>Sub: Requisition for release of instalment.</strong><br/>'
-            + '<strong>Ref: ' + book.Project1__r.Name + ', Apartment No. ' + book.Plot__r.Name + ' - ' + book.First_Applicant_Name__c + '</strong><br/><br/>'
-            + 'This is to remind you that an amount of <strong>INR '+grandTotal+'/-</strong> ('+totalAmountPayableInWords+') will be due against apartment No. '
-            + book.Plot__r.Name + ' at <strong>' + book.Project1__r.Name + '</strong>.<br/><br/>'
-            + 'Request you to kindly release the amount <br/><br/>'
-            + '</div>';
-        
-        Demand_Raised__c re = new Demand_Raised__c();
-        re.Current_Demand_amount__c = presentDue; // Always current milestone amount
-        re.Previous_pendings__c = totalPendingAmount; // Actual pending from Payment_Schedule__c.Pending_Amount__c
-        re.Amount_Demanded__c = grandTotal; // Total amount to pay (can be 0 if overpaid)
-        re.Include_Interest__c = true;
-        re.Due_Date__c = system.today() + 15;
-        re.Interest_Till_Now__c = balanceInterest;
-        re.Total_Interest__c = interestDelayTillPrevious;
-        re.Total_Interest_Paid__c = totalInterestPaid;
-        re.Grand_Total__c = grandTotal; // Total amount to pay
-        re.Demanded_Date__c = system.now();
-        re.Payment_schedule__c = milestoneId;
-        re.Demand_Name__c = currentCompletedStage;
-        re.Demand_Email_Content__c = emailContent;
-        re.Total_Percentage_till_Current_Milestone__c = milestonePaymentPercentResult;
-        re.Milestone_Percentage__c = currentMilestonePaymentPercent;
-        re.Booking__c = book.Id;
-        re.Total_Amount_Paid__c = totalReceivedWithCurrent; // FIXED: Now includes current milestone payment
-        re.Grand_Total_in_Words__c = totalAmountPayableInWords;
-        re.Disable_Demand_Mail__c = true;
-        
-        try {
-            insert re;
-            return 'Demand raised successfully.';
-        } catch (DmlException e) {
-            System.debug('Error inserting record: ' + e.getMessage());
-            return 'Error: ' + e.getMessage();
-        }
-    }
     
     @TestVisible
     public Static List<Demand_Raised__c> bulkAutoDemands ( Map<String,Decimal> bookingsWithPSNO) {
@@ -723,7 +815,7 @@ public class DemandRaisedSave {
             
             // TDS Calculation - 1% of Agreement Value Before GST if > 50 lakhs
             Decimal totalSalesConsideration = bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c != null ? 
-                                              bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c : 0;
+                bookingProjectMap.get(bookingId).Quote__r.Agreement_Value_Before_GST__c : 0;
             Decimal TDSonePercentage = totalSalesConsideration > 5000000 ? (totalSalesConsideration * 0.01).setScale(0) : 0;
             
             String currentMilestone = bookingLatestPaymentSchedules.get(bookingId).Name;

@@ -42,6 +42,7 @@ public class ReceiptVFPController {
         public String contactNo { get; set; }
         public String webAddress { get; set; }
         public String companyAddress { get; set; }
+        public String companyName { get; set; }
         
         // Constructor
         public ReceiptInfoWrapper() { }
@@ -76,7 +77,7 @@ public class ReceiptVFPController {
             Booking__r.Project1__r.Name,
             Booking__r.Project1__r.Company_Address__c,
             Booking__r.Unit_No__c, Booking__r.Block_Name__c,Booking__r.Block_Id__c,
-            CreatedDate,Booking__r.CRM_Executive_Contact_No__c
+            CreatedDate,Booking__r.CRM_Executive_Contact_No__c,Booking__r.Company_Name__c
             FROM Receipt__c
             WHERE Id = :receiptId
         ];
@@ -109,7 +110,8 @@ public class ReceiptVFPController {
         
         receiptInfo.companyAddress =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Project1__r.Company_Address__c != null)
             ? receiptRecord.Booking__r.Project1__r.Company_Address__c : ''; 
-        
+           receiptInfo.companyName =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Company_Name__c != null)
+            ? receiptRecord.Booking__r.Company_Name__c : ''; 
         
         
         // Initialize lists

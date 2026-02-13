@@ -26,7 +26,7 @@ public class ConsolidatedReceiptController {
         public String customerName { get; set; }
         public String unitNo { get; set; }
         public String block { get; set; }
-        public String receiptDate { get; set; }
+        public Date receiptDate { get; set; }
         public String project { get; set; }
 
         public String projectAddress { get; set; }
@@ -89,7 +89,7 @@ public class ConsolidatedReceiptController {
             booking.Block_Name__c != null
             ? booking.Block_Name__c : '';
 
-        bookingInfo.receiptDate = String.valueOf(System.today());
+        bookingInfo.receiptDate = System.today();
 
         bookingInfo.project =
             (booking.Project1__r != null)

@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <formula>( NOW() - Booking_Moved_To_Booked_Stage_Time__c ) * 24</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Passed Hour after Booked Stage</label>
+    <label>Hrs From Intimal CRM Executive Assign</label>
     <precision>18</precision>
     <required>false</required>
     <scale>2</scale>

@@ -262,13 +262,13 @@
                         <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
                             <b>{!v.bookingType} Total Received (INR):</b>
                             &nbsp;₹ {!v.totalrcvdAmount} <br/>
-                                <b>Total Interest Received (INR):</b>
-                            &nbsp;₹ {!v.interestReceived}
+                            <b>{!v.bookingType} Pending (INR):</b>
+                            &nbsp;₹ {!v.totalPending} <br/>
                         </div>
                         
                         <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
-                            <b>{!v.bookingType} Pending (INR):</b>
-                            &nbsp;₹ {!v.totalPending} <br/>
+                            <b>Total Interest Received (INR):</b>
+                            &nbsp;₹ {!v.interestReceived} <br/>
                             <b>Pending Interest (INR):</b>
                             &nbsp;₹ {!v.interestPending}
                         </div>

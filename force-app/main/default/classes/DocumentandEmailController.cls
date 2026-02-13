@@ -16,22 +16,6 @@ public class DocumentandEmailController {
         String customerNames = (String.isEmpty(booking.S__c) ? '' : booking.S__c) + ' ' +
             (String.isEmpty(booking.First_Applicant_Name__c) ? '' : booking.First_Applicant_Name__c);
         
-        
-        /* 
-String customerNames = (String.isEmpty(booking.S__c) ? '' : booking.S__c) + ' ' + 
-(String.isEmpty(booking.First_Applicant_Name__c) ? '' : booking.First_Applicant_Name__c);
-
-
-if (booking.Co_Applicant__r != null && !booking.Co_Applicant__r.isEmpty()) {
-for (Co_Applicant__c coApplicant : booking.Co_Applicant__r) {
-
-String salutation = (String.isEmpty(coApplicant.Salutation__c) ? '' : coApplicant.Salutation__c);
-String name = (String.isEmpty(coApplicant.Name) ? '' : coApplicant.Name);
-
-customerNames += ' & ' + salutation + ' ' + name;
-}
-}
-*/
         BookingDataWrapper wrapper = new BookingDataWrapper();
         wrapper.booking = booking;
         wrapper.customerNames =  customerNames;
@@ -110,20 +94,46 @@ customerNames += ' & ' + salutation + ' ' + name;
         }
         return returnMessage;
     }
-     @future(callout = true)
+    @future(callout = true)
     public static void sendEmailGenerateReceiptfromTrigger(Id receiptId) {
         System.debug('Called From Trigger');
         String returnMessage;
         try {
             // Retrieve the Receipt record
-            Receipt__c receipt = [SELECT Id, Booking__c, CreatedBy.Email FROM Receipt__c WHERE Id = :receiptId LIMIT 1];
+            Receipt__c receipt = [SELECT Id, Booking__c,Name, CreatedBy.Email,Receipt_Date__c,Total_Received_Amount__c
+                                  FROM Receipt__c WHERE Id = :receiptId LIMIT 1];
+            
+            List<Receipt_Line_Item__c> receiptItem = [SELECT Id, Name, Bank_Name__c, Mode_of_Payment__c FROM Receipt_Line_Item__c where Receipt__c =:receipt.Id ];
+            
+            Set<String> bankSet = new Set<String>();
+            Set<String> paymentModeSet = new Set<String>();
+            Set<String> paymentFor = new Set<String>();
+            
+            for (Receipt_Line_Item__c rectItem : receiptItem) {
+                if (String.isNotBlank(rectItem.Bank_Name__c)) {
+                    bankSet.add(rectItem.Bank_Name__c);
+                }
+                if (String.isNotBlank(rectItem.Mode_of_Payment__c)) {
+                    paymentModeSet.add(rectItem.Mode_of_Payment__c);
+                }
+                if (String.isNotBlank(rectItem.Name)) {
+                    paymentFor.add(rectItem.Name);
+                }
+            }
+            
+            // Convert to comma separated string
+            String BANK_NAME = String.join(new List<String>(bankSet), ', ');
+            String PAYMENT_MODE = String.join(new List<String>(paymentModeSet), ', ');
+            String PAYMENT_FOR = String.join(new List<String>(paymentFor), ', ');
+            
             System.debug(receipt);
             if (receipt == null || receipt.Booking__c == null) {
-               // return 'Receipt or associated Booking record not found.';
+                // return 'Receipt or associated Booking record not found.';
             }
             
             // Retrieve the related Booking record
-            Booking__c booking = [SELECT Id, Email__c,First_Applicant_Name__c,Email1__c,Owner.Email
+            Booking__c booking = [SELECT Id, Email__c,First_Applicant_Name__c,Email1__c,Owner.Email,Project__c,Block_Name__c,
+                                  Unit_No__c,Owner_Phone_Number__c,Company_Name__c
                                   FROM Booking__c WHERE Id = :receipt.Booking__c LIMIT 1];
             System.debug(booking);
             
@@ -158,22 +168,59 @@ customerNames += ' & ' + salutation + ' ' + name;
                 }
                 
                 email.setToAddresses(sendTo);
-                email.setSubject('Receipt for Your Payment');
-                email.setHtmlBody('Dear ' + booking.First_Applicant_Name__c + ',<br/><br/>Please find the attached receipt for your payment.<br/><br/>Thank you.');
+                
+                General_Settings__c temp = [SELECT Template_Body__c, Type__c,Subject__c  FROM General_Settings__c WHERE
+                                            Project_Name1__c INCLUDES (:booking.Project__c)
+                                            AND Type__c = 'Payment Receipt' LIMIT 1];
+                
+                String template = temp.Template_Body__c; 
+                String subject = temp.Subject__c; 
+                template = template.replace('##APPLICANT_NAME##', booking.First_Applicant_Name__c ?? '');
+                template = template.replace('##PROJECT_NAME##', booking.Project__c ?? '');
+                template = template.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
+                template = template.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
+                template = template.replace('##CRM_PHONE##', String.valueOf(booking.Owner_Phone_Number__c ?? ''));
+                template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
+                template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
+                
+                Decimal totalReceivedAmount = receipt.Total_Received_Amount__c;
+                NumberTOWordConvertion conversion = new NumberTOWordConvertion();
+                String amountInWords = totalReceivedAmount != null ?conversion.getNumberTOWordConvertion(totalReceivedAmount) : null;
+                template = template.replace('##AMOUNT_IN_WORDS##', amountInWords ?? '');
+                template = template.replace('##AMOUNT##', String.valueOf(receipt.Total_Received_Amount__c ?? 0));
+                template = template.replace('##TRANSACTION_DATE##', String.valueOf(receipt.Receipt_Date__c ?? null));
+                template = template.replace('##TRANSACTION_NO##', String.valueOf(receipt.Name ?? ''));
+                template = template.replace('##BANK_NAME##', BANK_NAME ?? '');
+                template = template.replace('##PAYMENT_MODE##', PAYMENT_MODE ?? '');
+                template = template.replace('##PAYMENT_FOR##', PAYMENT_FOR ?? '');
+                
+                subject = subject.replace('##PROJECT_NAME##', booking.Project__c ?? '');
+                subject = subject.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
+                subject = subject.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
+
+          
+               
+                String cleanHtml = template.unescapeHtml4();
+                cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+                cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+                String htmlBody =
+                    '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                    + cleanHtml +
+                    '</body></html>';
+                
+                email.setSubject(subject);
+                email.setHtmlBody(htmlBody);
                 
                 // Attach the PDF to the email
                 Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
                 attachment.setFileName('Receipt.pdf');
                 attachment.setBody(pdfBlob);
                 email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
-                
-                //email.setSaveAsActivity(true);
-                //email.setWhatId(receipt.Id);
-                
+
                 // Send the email
                 Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
                 
-               // returnMessage = 'Email sent successfully';
+                // returnMessage = 'Email sent successfully';
             } else {
                 returnMessage = 'Email address not specified in the Booking record.';
             }
@@ -182,7 +229,7 @@ customerNames += ' & ' + salutation + ' ' + name;
         }
         //return returnMessage;
     }
-  
+    
     
     @AuraEnabled
     public static String sendEmailGenerateSA(Id recId, String emailContent) {
@@ -231,42 +278,6 @@ customerNames += ' & ' + salutation + ' ' + name;
             attachment.setContentType('application/pdf');
             attachments.add(attachment);
             
-            // Add unt type foorbplan as attachment
-            /* if(cdList.size() >0){
-for(ContentDocumentLink c : cdList){
-conDocId.add(c.ContentDocumentId);
-}
-
-list<ContentVersion> cvList = [ SELECT Id, Title, VersionData, FileExtension  FROM ContentVersion   WHERE ContentDocumentId in :conDocId and IsLatest = true ORDER BY CreatedDate DESC ];
-system.debug(cvList);
-for(ContentVersion cv : cvList){
-
-if(cv.Title.contains('Plumbing Plan') || cv.Title.contains('Electrical Plan') || cv.Title.contains('Parking Plan') ||  cv.Title.contains('Floor Plan') || cv.Title.contains('Selected Parking Slots')){
-system.debug(cv);
-Messaging.EmailFileAttachment efa = new Messaging.EmailFileAttachment();
-efa.setFileName(cv.Title + '.' + cv.FileExtension);
-efa.setBody(cv.VersionData); // This is the actual file blob
-String contentType = 'application/octet-stream';
-if(cv.FileExtension != null){
-switch on cv.FileExtension.toLowerCase(){
-when 'pdf'       { contentType = 'application/pdf'; }
-when 'doc'       { contentType = 'application/msword'; }
-when 'docx'      { contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; }
-when 'xls'       { contentType = 'application/vnd.ms-excel'; }
-when 'xlsx'      { contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; }
-when 'png'       { contentType = 'image/png'; }
-when 'jpg','jpeg'{ contentType = 'image/jpeg'; }
-when 'txt'       { contentType = 'text/plain'; }
-when else        { contentType = 'application/octet-stream'; }
-}
-}
-efa.setContentType(contentType);
-attachments.add(efa);
-}
-}
-
-
-}*/
             email.setFileAttachments( attachments );
             
             // Send email
@@ -291,7 +302,7 @@ attachments.add(efa);
             // Fetch the Demand_Raised__c records for the given recIds
             List<Demand_Raised__c> demandRecords = [
                 SELECT Id, Demand_Email_Content__c,CreatedBy.Email, Booking__r.Email__c, Demand_Name__c,Project__c,
-                Booking__r.Owner.Email,Booking__r.Total__c, booking__r.CRM_Manager__r.Email,booking__r.Project1__r.Name,booking__r.CRM_Head_Manager_Email__c,
+                Booking__r.Owner.Email,Booking__r.Total__c,booking__c, booking__r.CRM_Manager__r.Email,booking__r.Project1__r.Name,booking__r.CRM_Head_Manager_Email__c,
                 (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks WHERE LinkedEntityId IN :recIds)
                 FROM Demand_Raised__c 
                 WHERE Id IN :recIds
@@ -305,11 +316,6 @@ attachments.add(efa);
             for (Demand_Raised__c demand : demandRecords) {
                 // Convert comma-separated string of content IDs to Set<Id>
                 List<String> contentDocumentIds = new List<String>();
-                /*if (!String.isBlank(demand.Demand_Content_Ids__c)) {
-contentDocumentIds.addAll(demand.Demand_Content_Ids__c.split(','));
-}*/
-                
-                //Boolean isCompletedOC = demand.Payment_schedule__r.Post_OC_Completion__c;
                 List<String> lstCCEmail = new List<String>();
                 Booking__c booking = demand.Booking__r;
                 
@@ -326,11 +332,25 @@ contentDocumentIds.addAll(demand.Demand_Content_Ids__c.split(','));
                     lstCCEmail.add(booking.Owner.Email);
                     if (booking.CRM_Head_Manager_Email__c != null) {
                         lstCCEmail.add(booking.CRM_Head_Manager_Email__c);
-                    }
-                                        
+                    }        
                     email.setToAddresses(sendTo);
                     email.setSubject('Demand Note for Completion of '+demand.Demand_Name__c +' In '+demand.Booking__r.Project1__r.name);
-                    email.setHtmlBody(demand.Demand_Email_Content__c);
+                    
+                    String cleanHtml = demand.Demand_Email_Content__c.unescapeHtml4();
+                    system.debug('cleanHtml'+cleanHtml);
+                    // Remove empty paragraphs like <p>&nbsp;</p> or <p> </p>
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+                    
+                    // Also normalize multiple <br>
+                    cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+                    
+                    String htmlBody =
+                        '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                        + cleanHtml +
+                        '</body></html>';
+                    
+                    email.setHtmlBody(htmlBody);
+                    
                     
                     // Retrieve Content Versions for attachments
                     List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
@@ -351,7 +371,7 @@ contentDocumentIds.addAll(demand.Demand_Content_Ids__c.split(','));
                     
                     // Attach the Demand PDF
                     Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-                    attachment.setFileName('Demand.pdf');
+                    attachment.setFileName('DemandNote.pdf');
                     attachment.setBody(pdfBlob);
                     emailAttachments.add(attachment);
                     
@@ -462,90 +482,90 @@ contentDocumentIds.addAll(demand.Demand_Content_Ids__c.split(','));
         }
         return returnMessage;
     }
-      @AuraEnabled
+    @AuraEnabled
     public static String sendHandoverEmail(Id bookingId) {
-
+        
         System.debug('Handover Email Triggered for Booking: ' + bookingId);
         String result;
-
+        
         try {
             // Fetch Booking + Owner Email
             Booking__c booking = [
                 SELECT Id, Email__c, First_Applicant_Name__c, Email1__c,
-                       Owner.Email
+                Owner.Email
                 FROM Booking__c
                 WHERE Id = :bookingId
                 LIMIT 1
             ];
-
+            
             if (booking == null || String.isBlank(booking.Email__c)) {
                 return 'Customer Email missing on Booking.';
             }
-
+            
             // Fetch Co-Applicants
             List<Co_Applicant__c> coApps = [
                 SELECT Id, Email__c, Name, Booking__c
                 FROM Co_Applicant__c
                 WHERE Booking__c = :booking.Id
             ];
-
+            
             // ===== 1. Generate PDF from VF Page =====
             PageReference pdfPage = Page.Key_Handover_Letter;
             pdfPage.getParameters().put('id', bookingId);
-
+            
             Blob pdfBlob = !Test.isRunningTest()
                 ? pdfPage.getContentAsPDF()
                 : Blob.valueOf('testblob');
-
+            
             // ===== 2. Prepare Email =====
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-
+            
             // TO Addresses
             List<String> sendTo = new List<String>();
             sendTo.add(booking.Email__c);
-
+            
             // Co-applicants
             for (Co_Applicant__c ca : coApps) {
                 if (!String.isBlank(ca.Email__c)) {
                     sendTo.add(ca.Email__c);
                 }
             }
-
+            
             // CC Addresses
             List<String> ccList = new List<String>();
             if (!String.isBlank(booking.Owner.Email)) {
                 ccList.add(booking.Owner.Email);
             }
-
+            
             email.setToAddresses(sendTo);
             if (!ccList.isEmpty()) {
                 email.setCcAddresses(ccList);
             }
-
+            
             email.setSubject('Key Handover Confirmation – Zuari Garden City');
-
+            
             // ===== 3. Email Body (HTML) =====
             String body = ''
-            + '<p>Dear ' + booking.First_Applicant_Name__c + ',</p>'
-            + '<p>We are delighted to inform you that the keys for your unit at '
-            + '<strong>Zuari Garden City</strong>, located at KRS Road, Hulikere, '
-            + 'Sreerangapatna Taluk, Mandya Dist-571606, have been handed over to you.</p>'
-
-            + '<p>Please find the attached letter for your reference.</p>'
-
-            + '<p>Kindly acknowledge receipt by signing the attached document, confirming that '
-            + 'you have inspected all the keys and verified their working condition prior to the handover.</p>'
-
-            + '<p>Thank you for choosing <strong>Zuari Infraworld India Limited</strong>. '
-            + 'We look forward to serving you.</p>'
-
-            + '<br/>'
-            + '<p>Best regards,<br/>'
-            + 'CRM Representative<br/>'
-            + 'Zuari Infraworld India Limited</p>';
-
+                + '<p>Dear ' + booking.First_Applicant_Name__c + ',</p>'
+                + '<p>We are delighted to inform you that the keys for your unit at '
+                + '<strong>Zuari Garden City</strong>, located at KRS Road, Hulikere, '
+                + 'Sreerangapatna Taluk, Mandya Dist-571606, have been handed over to you.</p>'
+                
+                + '<p>Please find the attached letter for your reference.</p>'
+                
+                + '<p>Kindly acknowledge receipt by signing the attached document, confirming that '
+                + 'you have inspected all the keys and verified their working condition prior to the handover.</p>'
+                
+                + '<p>Thank you for choosing <strong>Zuari Infraworld India Limited</strong>. '
+                + 'We look forward to serving you.</p>'
+                
+                + '<br/>'
+                + '<p>Best regards,<br/>'
+                + 'CRM Representative<br/>'
+                + 'Zuari Infraworld India Limited</p>';
+            
             email.setHtmlBody(body);
-
+            
             // ===== 4. Attach PDF =====
             Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
             attachment.setFileName('Handover-' + booking.Id + '.pdf');
@@ -553,17 +573,17 @@ contentDocumentIds.addAll(demand.Demand_Content_Ids__c.split(','));
             email.setFileAttachments(
                 new Messaging.EmailFileAttachment[] { attachment }
             );
-
+            
             // ===== 5. Send Email =====
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
-		
+            
             result = 'Handover email sent successfully.';
         }
         catch (Exception e) {
             System.debug('Error Sending Handover Email: ' + e.getMessage());
             result = 'Error: ' + e.getMessage();
         }
-
+        
         return result;
     }
 }

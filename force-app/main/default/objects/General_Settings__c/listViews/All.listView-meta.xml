@@ -3,7 +3,8 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Type__c</columns>
-    <columns>Project_Name__c</columns>
+    <columns>Project_Name1__c</columns>
+    <columns>Subject__c</columns>
     <columns>CREATED_DATE</columns>
     <columns>CREATEDBY_USER</columns>
     <filterScope>Everything</filterScope>

@@ -520,7 +520,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <aura:iteration items="{!v.paymentSchedules}" var="item" indexVar="index">
-                                                        <tr class="{! 'slds-hint-parent ' + (item.status__c == 'Completed' ? 'completed-row' : '')}">
+                                                        <tr class="{! 'slds-hint-parent ' + (item.status__c == 'Completed' ? '' : '')}">
                                                             <td><div class="slds-truncate" title="{!index+1}">{!index +1}</div></td>
                                                             <td><div class="slds-truncate" title="{!item.Name}">{!item.Name}</div></td>         
                                                             <td><div class="slds-truncate" title="{!item.Payment_percent__c}">{!item.Payment_percent__c}%</div></td>    

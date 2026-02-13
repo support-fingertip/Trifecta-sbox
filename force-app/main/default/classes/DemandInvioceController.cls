@@ -1,117 +1,198 @@
+/****************************************************************
+* Class Name   : DemandInvioceController
+* Company      : Fingertipplus
+* Created Date : 10-02-2026
+* @description : This Apex controller is used to generate Demand
+*                Invoice PDF for a Booking. It calculates:
+*                - Previous pending dues
+*                - Current milestone due
+*                - TDS @1% (if > 50 Lakhs)
+*                - Interest amount
+*                - Amount excluding TDS as per legal format
+*                Data is merged to Visualforce for invoice print.
+*
+* @author      : Durga Prasad
+*
+* Change Log:
+* -----------------------------------------------------------------
+* Ver | Author        | Date        | Description
+* -----------------------------------------------------------------
+* 1.0 | Durga Prasad | 10-02-2026  | Initial version
+* -----------------------------------------------------------------
+*****************************************************************/
 public class DemandInvioceController {
-    public Booking__c booking { get; set; }
-    public Decimal totalAmount { get; set; }
-    public String receiptAmountInWords { get; set; }
-    public List<Co_Applicant__c> coapplicants { get; set; }
-    public Co_Applicant__c firstCoApplicant { get; set; }
-    public bookingInfoWrapper bookingInfo { get; set; }
-    public String bookingId {get; set;}
-    
-    public String currentCompletedStage { get; set; }
-    public Decimal totalAmountPayable { get; set; }
-    public String totalAmountPayableInWords { get; set; }
-    public Date demandDueDate { get; set; }
-    
-    
-    
-    
-    
+
+    /** ===================== WRAPPER FOR HEADER INFO ===================== **/
     public class bookingInfoWrapper {
         public String customerId { get; set; }
         public String customerName { get; set; }
         public String unitNo { get; set; }
         public String block { get; set; }
         public String project { get; set; }
-        
+        public Date demandDate { get; set; }
         public String projectAddress { get; set; }
         public String email { get; set; }
         public String contactNo { get; set; }
         public String webAddress { get; set; }
         public String companyAddress { get; set; }
+
+        public String bankName { get; set; }
+        public String accountNumber { get; set; }
+        public String ifscCode { get; set; }
+        public String typeOfAccount { get; set; }
+        public String branch { get; set; }
     }
+
+    /** ===================== PUBLIC VARIABLES ===================== **/
+    public Booking__c booking { get; set; }
+    public List<Co_Applicant__c> coapplicants { get; set; }
+    public Co_Applicant__c firstCoApplicant { get; set; }
+    public bookingInfoWrapper bookingInfo { get; set; }
+    public String bookingId {get; set;}
+
+    public String currentCompletedStage { get; set; }
+    public Date demandDueDate { get; set; }
+
+    public Decimal balanceInterest {get;set;}
+    public Decimal balanceDueTillPrevMilestone {get;set;}
+
+    public Decimal presentDue {get;set;}
+
+    public Decimal paidTDS {get;set;}
+    public Decimal pendingPreviousTDS {get;set;}
+    public Decimal currentPendingTDS {get;set;}
+
+    public Decimal prevDueExcludingTDS {get; set;}
+    public Decimal currentDueExcludingTDS {get; set;}
+
+    public Decimal totalAmountPayable {get; set;}
+    public String milestoneAmountInWords {get; set;}
     
-    public static Map<Integer, String> daySuffixMap = new Map<Integer, String>{1 => 'st', 2 => 'nd', 3 => 'rd', 21 => 'st', 22 => 'nd', 23 => 'rd', 31 => 'st'};
-        
-    public DemandInvioceController(ApexPages.StandardController controller) {        
+
+ 	 /**
+    * @description Constructor to fetch Booking, Block, Payment Schedule,
+    *              calculate previous dues, current dues, TDS, interest
+    *              and prepare data for Demand Invoice PDF.
+    * @param controller StandardController instance from VF page
+    */
+    public DemandInvioceController(ApexPages.StandardController controller) {
+
+        /** ===================== GET BOOKING ID ===================== **/
         Id bookingRecordId = ApexPages.currentPage().getParameters().get('Id');
-        if (bookingRecordId == null) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Booking record Id is null.'));
-            return;
-        }
-        bookingId=bookingRecordId;
-        // ===================== BOOKING QUERY =====================
-        booking = [ SELECT Id,Name,Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,
-                   First_Applicant_Name__c, Unit_No__c, Block_Name__c,Project1__r.Name,
-                   Project1__r.Company_Address__c,CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId  LIMIT 1 ];
-        
-        // ===================== BLOCK QUERY =====================
-        Block__c block = null;
+        bookingId = bookingRecordId;
 
-        if (booking.Block_Id__c != null) {
-            block = [SELECT Id, Name, Email__c, Project_Address__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1 ];
-        }
+        /** ===================== BOOKING QUERY ===================== **/
+        booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,
+                   First_Applicant_Name__c, Unit_No__c, Block_Name__c, Project1__r.Name, Total_Amount__c,
+                   Project1__r.Company_Address__c, CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
 
-        // ===================== BOOKING INFO WRAPPER =====================
+        /** ===================== BLOCK DETAILS ===================== **/
+        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,
+                                                        Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
+                                                        Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
+
+        /** ===================== MAPPING HEADER INFO ===================== **/
         bookingInfo = new bookingInfoWrapper();
-        
-        bookingInfo.customerId = (booking.SLead__r != null && booking.SLead__r.Lead_ID__c != null) ? booking.SLead__r.Lead_ID__c : '';
-        
-        bookingInfo.customerName = booking.First_Applicant_Name__c != null ? booking.First_Applicant_Name__c : '';
-        
-        bookingInfo.unitNo = booking.Unit_No__c != null ? booking.Unit_No__c : '';
-        
-        bookingInfo.block = booking.Block_Name__c != null ? booking.Block_Name__c : '';
-        
-        bookingInfo.project = (booking.Project1__r != null) ? booking.Project1__r.Name : '';
-        
-        bookingInfo.email = (block != null && block.Email__c != null) ? block.Email__c : '';
-        
-        bookingInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
-        
-        bookingInfo.webAddress = 'www.trifectaprojects.com';
-        
-        bookingInfo.contactNo = booking.CRM_Executive_Contact_No__c != null ? booking.CRM_Executive_Contact_No__c : '';
-        
-        bookingInfo.companyAddress = (booking.Project1__r != null && booking.Project1__r.Company_Address__c != null) ? booking.Project1__r.Company_Address__c : '';
-        
-        
-        // ===================== CO APPLICANTS =====================
-        coapplicants = [
-            SELECT Name, Salutation__c
-            FROM Co_Applicant__c
-            WHERE Booking__c = :bookingId
-        ];
 
-        if (!coapplicants.isEmpty()) {
-            firstCoApplicant = coapplicants[0];
-        }
-              
-        List<Payment_Schedule__c> psRecordList = [
-            SELECT Id, Name, S_No__c, Completed_Date__c,
-            Payment_percent__c, Last_Payment_Schedule__c,
-            AmountB__c,Pending_Amount__c
-            FROM Payment_Schedule__c
-            WHERE Status__c = 'Completed'
-            AND Booking__c = :booking.Id
-            ORDER BY S_No__c DESC
-        ];
-        
+        bookingInfo.bankName = (block != null && block.Bank_Name__c != null) ? block.Bank_Name__c : '';
+        bookingInfo.accountNumber = (block != null && block.Account_Number__c != null) ? block.Account_Number__c : '';
+        bookingInfo.ifscCode = (block != null && block.IFSC_Code__c != null) ? block.IFSC_Code__c : '';
+        bookingInfo.typeOfAccount = (block != null && block.Type_of_Account__c != null) ? block.Type_of_Account__c : '';
+        bookingInfo.branch = (block != null && block.Branch__c != null) ? block.Branch__c : '';
+
+        bookingInfo.demandDate = System.today(); 
+        bookingInfo.customerId = (booking.SLead__r != null && booking.SLead__r.Lead_ID__c != null) ? booking.SLead__r.Lead_ID__c : '';
+        bookingInfo.customerName = booking.First_Applicant_Name__c != null ? booking.First_Applicant_Name__c : '';
+        bookingInfo.unitNo = booking.Unit_No__c != null ? booking.Unit_No__c : '';
+        bookingInfo.block = booking.Block_Name__c != null ? booking.Block_Name__c : '';
+        bookingInfo.project = (booking.Project1__r != null) ? booking.Project1__r.Name : '';
+        bookingInfo.email = (block != null && block.Email__c != null) ? block.Email__c : '';
+        bookingInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
+        bookingInfo.webAddress = 'www.trifectaprojects.com';
+        bookingInfo.contactNo = booking.CRM_Executive_Contact_No__c != null ? booking.CRM_Executive_Contact_No__c : '';
+        bookingInfo.companyAddress = (booking.Project1__r != null && booking.Project1__r.Company_Address__c != null) ? 
+            booking.Project1__r.Company_Address__c : '';
+
+        /** ===================== CO APPLICANTS ===================== **/
+        coapplicants = [SELECT Name, Salutation__c FROM Co_Applicant__c WHERE Booking__c = :bookingId];
+        firstCoApplicant = !coapplicants.isEmpty() ? coapplicants[0] : null;
+
+        /** ===================== GET LATEST COMPLETED MILESTONE ===================== **/
+        List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,
+                                                  Last_Payment_Schedule__c, AmountB__c, Pending_Amount__c, PaymentDueDate__c,Default_Due_Date_in_days__c
+                                                  FROM Payment_Schedule__c WHERE Status__c = 'Completed' 
+                                                  AND Booking__c = :booking.Id ORDER BY S_No__c DESC];
 
         if (psRecordList.isEmpty()) {
-            currentCompletedStage = 'No milestone completed';
             currentCompletedStage = '';
             demandDueDate = null;
-            totalAmountPayableInWords = 'Zero';
-            System.debug('No milestone completed for the booking.');
+            totalAmountPayable = 0;
             return;
         }
-        
-        Payment_Schedule__c psRecord = psRecordList[0]; 
-        
-        if (psRecord != null) {
-            currentCompletedStage = psRecord.Name;
+
+        Payment_Schedule__c psRecord = psRecordList[0];
+        currentCompletedStage = psRecord.Name;
+        if(psRecord.PaymentDueDate__c != null)
+        {
+            demandDueDate = psRecord.PaymentDueDate__c;
+        }
+        else
+        {
+            demandDueDate = Date.today().addDays((psRecord.Default_Due_Date_in_days__c ?? 0).intValue());
         }
         
-    }
+       
+        
 
+        /** ===================== PREVIOUS DUES ===================== **/
+        AggregateResult[] prevAgg = [SELECT SUM(Pending_Amount__c) totalPendingAmount, SUM(Interest_Up_to_Date__c)
+                                     totalInterestUplodate, SUM(Interest_Paid__c) totalInterestPaid,
+                                     SUM(Total_TDS_Amount__c) tdsAmount
+                                     FROM Payment_Schedule__c WHERE Status__c = 'Completed'
+                                     AND S_No__c < :psRecord.S_No__c AND Booking__c = :booking.Id];
+
+        Decimal totalPendingAmount = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('totalPendingAmount') ?? 0 : 0;
+        Decimal totalInterestUplodateAmount = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('totalInterestUplodate') ?? 0 : 0;
+        Decimal totalInterestPaid = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('totalInterestPaid') ?? 0 : 0;
+        Decimal previousTDS = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('tdsAmount') ?? 0 : 0; 
+        balanceDueTillPrevMilestone = totalPendingAmount;
+        balanceInterest = totalInterestUplodateAmount - totalInterestPaid;
+
+        /** ===================== CURRENT MILESTONE DUE ===================== **/
+        AggregateResult currentDue = [SELECT SUM(Pending_Amount__c) totalAmountB,  SUM(Total_TDS_Amount__c) tdsAmount FROM Payment_Schedule__c 
+                                      WHERE S_No__c = :psRecord.S_No__c AND Booking__c = :booking.Id];
+        presentDue = (Decimal)currentDue.get('totalAmountB') ?? 0;
+        Decimal currentTds = (Decimal)currentDue.get('tdsAmount') ?? 0;
+
+
+
+        /** ===================== PAID TDS ===================== **/
+        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS'
+                                      AND Booking__c = :booking.Id];
+
+        paidTDS = (Decimal)paidTDSAgg.get('amt') ?? 0;
+
+        pendingPreviousTDS = previousTDS - paidTDS;
+        pendingPreviousTDS = pendingPreviousTDS < 0 ? 0 : pendingPreviousTDS;
+
+        Decimal remaingTdPaidAmount = paidTDS - previousTDS;
+
+        currentPendingTDS = currentTds;
+        currentPendingTDS = remaingTdPaidAmount > 0 ? currentTds - remaingTdPaidAmount : currentPendingTDS;
+        currentPendingTDS = currentPendingTDS < 0 ? 0 : currentPendingTDS;
+
+        /** ===================== EXCLUDING TDS ===================== **/
+        prevDueExcludingTDS = balanceDueTillPrevMilestone - previousTDS;
+        currentDueExcludingTDS = presentDue - currentTds;
+        currentDueExcludingTDS = currentDueExcludingTDS < 0 ? 0 : currentDueExcludingTDS;
+
+        /** ===================== FINAL TOTAL ===================== **/
+        totalAmountPayable = prevDueExcludingTDS + pendingPreviousTDS + currentDueExcludingTDS + currentPendingTDS + balanceInterest;
+        NumberTOWordConvertion convert = new NumberTOWordConvertion();
+        if (totalAmountPayable != null && totalAmountPayable > -1) {
+            milestoneAmountInWords = convert.getNumberTOWordConvertion(totalAmountPayable);
+        }
+        
+        
+    }
 }

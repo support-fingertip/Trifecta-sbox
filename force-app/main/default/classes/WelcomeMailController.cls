@@ -60,13 +60,14 @@ public without sharing class WelcomeMailController {
         // 1. Get Booking Data
         Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,
                           Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,
-                          Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,
+                          Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,Company_Name__c,
                           Block_Name__c,Owner_Full_Name__c,Email__c FROM Booking__c WHERE Id = :recordId LIMIT 1];
         db.bookingRecord = bk;
         
         // 2. Get Template Record (project wise)
         General_Settings__c temp = [
-            SELECT Template_Body__c,Type__c FROM General_Settings__c WHERE Project_Name__c = :bk.Project__c AND
+            SELECT Template_Body__c,Type__c FROM General_Settings__c WHERE
+            Project_Name1__c INCLUDES (:bk.Project__c) AND
             Type__c ='Welcome Email Template' LIMIT 1
         ];
         
@@ -132,6 +133,10 @@ public without sharing class WelcomeMailController {
         template = template.replace(
             '##CRM_EMAIL##',
             bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : ''
+        );
+          template = template.replace(
+            '##COMAPANY_NAME##',
+            bk.Company_Name__c != null ? String.valueOf(bk.Company_Name__c) : ''
         );
         
         // Signature – controlled from system
@@ -339,7 +344,6 @@ public without sharing class WelcomeMailController {
             
             bk.Welcome_Mail_Sent_Time__c = system.now();
             bk.Welcome_Email_Sent_to_Customer__c = true;
-            bk.Sale_Agreement_Sent__c = true;
             bk.Booking_Form_Sent__c = true;
             update bk;
         }

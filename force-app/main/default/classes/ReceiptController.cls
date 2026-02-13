@@ -124,7 +124,7 @@ public without sharing class ReceiptController {
         for (Integer i = 0; i < polist.size(); i++) {
             if(polist[i].Payment_Type__c != 'Additional Charges' &&
                (polist[i].Payment_Type__c == 'Flat Amount' || polist[i].Payment_Type__c == 'Villa Amount' || 
-                polist[i].Payment_Type__c == 'Plot Amount' || polist[i].Payment_Type__c == 'TDS' ||
+                polist[i].Payment_Type__c == 'Plot Amount' || polist[i].Payment_Type__c == 'TDS' ||  polist[i].Payment_Type__c == 'Booking Amount' ||
                 polist[i].Payment_Type__c == 'Row House Amount'
                ))
             {

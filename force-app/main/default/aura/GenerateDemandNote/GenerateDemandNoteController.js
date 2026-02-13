@@ -9,9 +9,29 @@
                 var url = '';
                 component.set("v.demandRaisedRecord",a.getReturnValue());
                 var demandRaisedValue = a.getReturnValue();
-                url = baseUrl+'/apex/Demand_Note_Send?Id='+component.get("v.recordId");
+                url = baseUrl+'/apex/Demand_Note_Send?Id='+demandRaisedValue.Id;
                 if(demandRaisedValue.Demand_Email_Content__c && demandRaisedValue.Demand_Email_Content__c != ''){
-                    component.set("v.emailContent", demandRaisedValue.Demand_Email_Content__c);
+                    
+                    var raw = demandRaisedValue.Demand_Email_Content__c;
+                    
+                    // 1. Decode HTML entities first
+                    var decoded = raw
+                    .replace(/&lt;/g, "<")
+                    .replace(/&gt;/g, ">")
+                    .replace(/&amp;/g, "&");
+                    
+                    // 2. Remove extra span wrappers added by RTE
+                    decoded = decoded.replace(/<span[^>]*>/g, "");
+                    decoded = decoded.replace(/<\/span>/g, "");
+                    
+                    // 3. Remove empty paragraphs created by editor
+                    decoded = decoded.replace(/<p><br><\/p>/g, "");
+                    
+                    // 4. Set to Rich Text
+                    var richText = component.find("emailContent");
+                    richText.set("v.value", decoded);
+                    
+                 
                 }
                 component.set("v.vfPageUrl", url);
             } else if (state === 'ERROR') {

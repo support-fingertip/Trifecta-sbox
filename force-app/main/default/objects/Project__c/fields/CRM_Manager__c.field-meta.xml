@@ -3,7 +3,7 @@
     <fullName>CRM_Manager__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>CRM Manager</label>
+    <label>Not in Use</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Projects6</relationshipName>
     <required>false</required>

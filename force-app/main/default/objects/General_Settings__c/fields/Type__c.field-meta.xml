@@ -16,6 +16,31 @@
                 <default>false</default>
                 <label>Welcome Email Template</label>
             </value>
+            <value>
+                <fullName>Demand Note</fullName>
+                <default>false</default>
+                <label>Demand Note</label>
+            </value>
+            <value>
+                <fullName>Payment Receipt</fullName>
+                <default>false</default>
+                <label>Payment Receipt</label>
+            </value>
+            <value>
+                <fullName>Demand_3RD_REMINDER</fullName>
+                <default>false</default>
+                <label>Demand_3RD_REMINDER</label>
+            </value>
+            <value>
+                <fullName>Demand_2ND_REMINDER</fullName>
+                <default>false</default>
+                <label>Demand_2ND_REMINDER</label>
+            </value>
+            <value>
+                <fullName>Demand_1ST_REMINDER</fullName>
+                <default>false</default>
+                <label>Demand_1ST_REMINDER</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

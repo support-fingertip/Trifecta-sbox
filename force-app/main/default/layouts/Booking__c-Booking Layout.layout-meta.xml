@@ -66,6 +66,14 @@
                 <behavior>Readonly</behavior>
                 <field>Bescom_Charges__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Booking_Summary__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Move_to_Next_Stage__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

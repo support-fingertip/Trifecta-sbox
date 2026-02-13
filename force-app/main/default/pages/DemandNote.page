@@ -185,7 +185,10 @@
                         <strong>Block:</strong> {!bookingInfo.block}
                     </div>
                     <div class="info-right">
-                        <strong>Dated:</strong>  {!bookingInfo.receiptDate}<br/>
+                        <strong>Dated:</strong>  
+                        <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!bookingInfo.demandDate}"/>
+                        </apex:outputText>
+                        <br/>
                         <strong> {!bookingInfo.project}</strong><br/>
                         {!bookingInfo.projectAddress}<br/>
                         <strong>Email:</strong> {!bookingInfo.email}<br/>
@@ -222,25 +225,28 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>On Completion of Foundation (Sample)</td>
-                        <td>25/01/2026</td>
-                        <td>100000</td>
-                        <td>100000</td>
-                        <td>100000</td>
-                        <td>999000</td>
-                        <td>11000</td>
-                        <td>1100000</td>
+                        <td>{!currentCompletedStage}</td>
+                        <td> 
+                            <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!demandDueDate}"/>
+                            </apex:outputText>
+                        </td>
+                        <td>{!prevDueExcludingTDS}</td>
+                        <td>{!pendingPreviousTDS}</td>
+                        <td>{!currentDueExcludingTDS}</td>
+                        <td>{!currentPendingTDS}</td>
+                        <td>{!balanceInterest}</td>
+                        <td>{!totalAmountPayable}</td>
                     </tr>
                     <tr class="total-row">
-                        <td colspan="5">Total Outstanding Amount (In Words)</td>
-                        <td>Rupees Ten Lakhs Only</td>
+                        <td colspan="3">Total Outstanding Amount (In Words)</td>
+                        <td colspan="5">{!milestoneAmountInWords}</td>
                     </tr>
                 </tbody>
             </table>
             
             <!-- Payment Request -->
             <div class="payment-request">
-                You are requested to remit the total dues of <strong>Rs. 11,00,000/- (Rupees Eleven Lakhs Only)</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before 01 Feb 2026. Please make the payment in the below bank account details.
+                You are requested to remit the total dues of <strong>Rs. {!totalAmountPayable}/- ({!milestoneAmountInWords})</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before 01 Feb 2026. Please make the payment in the below bank account details.
             </div>
             
             <!-- Bank Details Table -->
@@ -253,23 +259,23 @@
                 <tbody>
                     <tr>
                         <td><strong>Bank Name</strong></td>
-                        <td>HDFC BANK</td>
+                        <td>{!bookingInfo.bankName}</td>
                     </tr>
                     <tr>
                         <td><strong>Account Number</strong></td>
-                        <td>31500021761783</td>
+                        <td>{!bookingInfo.accountNumber}</td>
                     </tr>
                     <tr>
                         <td><strong>IFSC Code</strong></td>
-                        <td>HDFC01211045</td>
+                        <td>{!bookingInfo.ifscCode}</td>
                     </tr>
                     <tr>
                         <td><strong>Type of Account</strong></td>
-                        <td>Current Account</td>
+                        <td>{!bookingInfo.typeOfAccount}</td>
                     </tr>
                     <tr>
                         <td><strong>Branch</strong></td>
-                        <td>Mahadevapura, Bangalore.</td>
+                        <td>{!bookingInfo.branch}</td>
                     </tr>
                 </tbody>
             </table>

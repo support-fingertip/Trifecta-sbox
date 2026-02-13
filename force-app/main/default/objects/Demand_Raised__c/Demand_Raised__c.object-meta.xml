@@ -162,7 +162,7 @@
     <label>Demand Raised</label>
     <nameField>
         <displayFormat>DR-{0000}</displayFormat>
-        <label>Demand Raised Name</label>
+        <label>Demand Raised Code</label>
         <trackHistory>false</trackHistory>
         <type>AutoNumber</type>
     </nameField>

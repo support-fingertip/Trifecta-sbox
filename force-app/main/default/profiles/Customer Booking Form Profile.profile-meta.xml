@@ -49,6 +49,14 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingStageController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>BookingSummaryController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingTriggerHandler</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -174,10 +182,6 @@
     </classAccesses>
     <classAccesses>
         <apexClass>DemandInvioceController</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>DemandNoteController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -366,6 +370,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>MakeCallController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>MarkBookingStageCompletedController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -729,6 +737,14 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>WelcomeCallReminderBatch</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>WelcomeCallReminderScheduler</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>WelcomeMailController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -938,6 +954,26 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Block__c.CRM_Head__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.CRM_Manager__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Company_Address__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Company_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Block__c.Email__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -949,6 +985,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Block__c.Project_Address__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.RERA_NO__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1184,6 +1225,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Booking_Moved_To_Booked_Stage_Time__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Booking_Summary__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1703,6 +1749,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Move_to_Next_Stage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Nationality1__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2104,6 +2155,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Stage1__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Stage_Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2868,6 +2924,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Demand_Raised__c.Current_Milestone_Excluding_the_TDS__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Demand_Raised__c.Current_Milestone_TDS_1__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Demand_Raised__c.Demand_Email_Content__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2934,6 +3000,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Demand_Raised__c.Payment_schedule__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Demand_Raised__c.Pending_Dues_excluding_TDS__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Demand_Raised__c.Pending_Payment_TDS_1__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3219,6 +3295,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>ForecastingItem__hd.RawRollup__hst</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>General_Settings__c.Project_Name1__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5283,6 +5364,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Default_Due_Date_in_days__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Demand_Uploaded__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -5429,6 +5515,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.Total_Payable_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Total_TDS_Amount__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

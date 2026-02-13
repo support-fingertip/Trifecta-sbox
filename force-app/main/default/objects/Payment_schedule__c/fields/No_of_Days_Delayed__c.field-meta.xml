@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>No_of_Days_Delayed__c</fullName>
     <externalId>false</externalId>
-    <formula>TODAY() - PaymentDueDate__c</formula>
+    <formula>IF(TODAY() - PaymentDueDate__c &gt; 0 ,TODAY() - PaymentDueDate__c, 0)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>No of Days Delayed</label>
     <precision>18</precision>

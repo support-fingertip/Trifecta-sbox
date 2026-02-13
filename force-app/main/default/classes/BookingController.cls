@@ -74,11 +74,13 @@ public without sharing class BookingController {
         Quote__c qt = [SELECT Id,Name,SLead__c,SLead__r.Email,Approval_status__c,Quote_status__c,
                        Maintenance_Charge__c,Corpus_Fund__c,Built_up_area__c,Payment_Type__c,
                        Infrastructure_Charges_per_sqft__c,Project__c,Property_Type__c,Unit__c,
-                       SLead__r.Secondary_Email__c,SLead__r.Name,Plot_Type__c,Plot_Land_Area__c,
+                       SLead__r.Secondary_Email__c,SLead__r.Name,Plot_Type__c,Plot_Land_Area__c,Block_Lookup__c,
                        Quote_date__c,Floor_Rise_Charges_Rate__c,Clubhouse_Charges__c,Unit__r.Status__c,
                        Unit__r.Name, Legal_Documentation_Charges__c,Unit__r.Block_Lookup__r.CRM_Executive__c FROM Quote__c WHERE Id=:recId];
         Project__c pro = [select id,name,CRM_executive__c,Project_Type__c,Finance_User__c,Project_Sales_Head__c,CRM_Manager__c,
                           CRM_Head__c from Project__c where Project__c =: qt.Project__c];
+        Block__c block = [select Id,CRM_Manager__c,CRM_Head__c,CRM_Executive__c from Block__c where Id =: qt.Block_Lookup__c];
+        
         if(qt.Unit__r.Status__c == 'Sold' || qt.Unit__r.Status__c == 'Booked'){
             return 'Unit not available';
         }
@@ -101,9 +103,13 @@ public without sharing class BookingController {
             bk.Sales_User__c = UserInfo.getUserId();
             
             //CRM Team
-            bk.CRM_Manager__c = pro.CRM_Manager__c;
-            bk.CRM_Executive__c = (qt?.Unit__r?.Block_Lookup__r?.CRM_Executive__c != null)? qt.Unit__r.Block_Lookup__r.CRM_Executive__c : null;
-            bk.CRM_Head__c = pro.CRM_Head__c;
+            if(block != null)
+            {
+                bk.CRM_Manager__c = block.CRM_Manager__c != null ? block.CRM_Manager__c : null ;
+                bk.CRM_Executive__c = block.CRM_Executive__c != null ? block.CRM_Executive__c : null ;
+                bk.CRM_Head__c = block.CRM_Head__c != null ? block.CRM_Head__c : null ;
+            }
+
             insert bk;
             
             List<Co_Applicant__c> applicantListToInsert = new List<Co_Applicant__c>();
@@ -136,7 +142,7 @@ public without sharing class BookingController {
             if( bk.Booking_Amount__c != null && bk.Booking_Amount__c != 0){
                 List<Receipt_Line_Item__c> replineItems = new List<Receipt_Line_Item__c>();
                 Receipt_Line_Item__c repItem = new Receipt_Line_Item__c();
-                repItem.Payment_Type__c = 'Plot Amount';
+                repItem.Payment_Type__c = 'Booking Amount';
                 repItem.Bank_Name__c = bk.Bank_Name__c;
                 repItem.Mode_of_Payment__c = bk.Mode_Of_Payment__c;
                 repItem.Received_Amount__c = bk.Booking_Amount__c;
