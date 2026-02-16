@@ -2,7 +2,7 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Copy_1_of_Copy_1_of_Copy_2_of_Send_Notification</name>
-        <label>Copy 1 of Copy 1 of Copy 2 of Send Notification</label>
+        <label>Villa Submitted for customer approval</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -42,7 +42,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_1_of_Copy_1_of_Send_Notification</name>
-        <label>Copy 1 of Copy 1 of Send Notification</label>
+        <label>Villa plot Customer Rejected</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -82,7 +82,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_1_of_Copy_2_of_Send_Notification</name>
-        <label>Copy 1 of Copy 2 of Send Notification</label>
+        <label>Apartment Submitted for Customer Approval</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -122,7 +122,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_1_of_Send_Notification</name>
-        <label>Copy 1 of Send Notification</label>
+        <label>Apparent Customer Rejected</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -162,7 +162,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_2_of_Copy_1_of_Copy_2_of_Send_Notification</name>
-        <label>Copy 2 of Copy 1 of Copy 2 of Send Notification</label>
+        <label>Villa Constrction Submitted for approval</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -202,7 +202,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_2_of_Copy_1_of_Send_Notification</name>
-        <label>Copy 2 of Copy 1 of Send Notification</label>
+        <label>Villa Constriction Rejected</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -242,7 +242,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_2_of_Copy_2_of_Send_Notification</name>
-        <label>Copy 2 of Copy 2 of Send Notification</label>
+        <label>Vila plot Customer Approved</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -282,7 +282,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_2_of_Send_Notification</name>
-        <label>Copy 2 of Send Notification</label>
+        <label>Apartment Customer approved</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
@@ -322,7 +322,7 @@
     </actionCalls>
     <actionCalls>
         <name>Copy_3_of_Copy_2_of_Send_Notification</name>
-        <label>Copy 3 of Copy 2 of Send Notification</label>
+        <label>Vila Constriction Approved</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>

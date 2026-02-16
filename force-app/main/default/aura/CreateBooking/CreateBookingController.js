@@ -38,6 +38,7 @@
                 book.Plot_Land_Cost__c =  qt.Land_Cost__c; 
                 book.Extra_Land_Amount__c =  qt.Extra_Land_Amount__c;
                 book.Carpet_Area__c =  qt.Carpet_Area__c;
+                book.Payment_Remarks__c = '';
                 
                 
                 /*book.Aadhaar_Uploaded__c = true;
@@ -124,8 +125,28 @@
         component.set("v.applicantList", aitems);
     },
     addRow: function(component, event, helper) { 
+        var applicantList = component.get("v.applicantList");
+        
+        // Check if there is already an applicant in the list
+        if (applicantList.length > 0) {
+            // Get the last applicant added to the list
+            var lastApplicant = applicantList[applicantList.length - 1];
+            
+            // Define which fields must be filled before adding a new row
+            // You can add or remove fields from this list based on your needs
+            if (!lastApplicant.Name || !lastApplicant.Age__c || !lastApplicant.Primary_Phone__c) {
+                helper.showToast('Error', 'Wait!', "Please fill in the details for the current Co-Applicant before adding another one.");
+                return; // Stop execution here
+            }
+        }
+        
+        // If list is empty or last row is valid, proceed to add row
         helper.addAppliacantRecord(component, event, helper);
     },
+
+    // addRow: function(component, event, helper) { 
+    //    helper.addAppliacantRecord(component, event, helper);
+   // },
     
     closeModel: function(component, event, helper) {
         component.set("v.isModalOpen", false);

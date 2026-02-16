@@ -7,6 +7,7 @@
     <aura:attribute name="files" type="List" />
     <aura:attribute name="filesIDS" type="List" />
     <aura:attribute name="isSending" type="Boolean" default="false" />
+    <aura:attribute name="isAggementDateExisted" type="Boolean" default="false" />
     <aura:handler name="fileUploadEvent" event="c:fileUploadEvent" action="{!c.handleFileUpload}" />
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     

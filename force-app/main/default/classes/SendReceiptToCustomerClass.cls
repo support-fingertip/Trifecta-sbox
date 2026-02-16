@@ -84,7 +84,7 @@ public without sharing class SendReceiptToCustomerClass {
         }
         
         body += ''
-            + '<b>Flat Number:</b> ' + bookingRecord.Unit_No__c + '<br/><br/>'
+            + '<b>Unit Number:</b> ' + bookingRecord.Unit_No__c + '<br/><br/>'
             + 'Thank you for your timely payment and continued trust in us. Please find the consolidated receipt attached for your reference.<br/><br/>'
             + 'Should you have any queries, feel free to contact us anytime.<br/><br/>'
             + 'Thank you once again for choosing Trifecta!<br/><br/>';

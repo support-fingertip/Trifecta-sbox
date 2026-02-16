@@ -133,15 +133,11 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Approved by CRM Head%2C Pending from Sales Head</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Pending</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Submitted For Cancellation</fullName>
             <default>false</default>
         </values>
     </picklistValues>

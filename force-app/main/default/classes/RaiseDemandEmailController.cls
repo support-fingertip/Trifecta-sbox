@@ -1,7 +1,13 @@
 public without sharing class RaiseDemandEmailController {
     
+    
+    public class dataBox {
+        @AuraEnabled public string emailContent;
+        @AuraEnabled public boolean isDemandRaised;
+    }
     @AuraEnabled
-    public static Boolean checkDemandedRaised(Id bookingId) {
+    public static dataBox getData(Id bookingId) {
+        dataBox dt = new dataBox();
         // Query the latest completed Payment_Schedule__c record based on S_No__c
         Payment_Schedule__c lastCompletedPaymentSchedule = [
             SELECT Id, Is_Demanded__c
@@ -10,13 +16,76 @@ public without sharing class RaiseDemandEmailController {
             ORDER BY S_No__c DESC
             LIMIT 1
         ];
-        
+        Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,
+                          Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,
+                          Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,Company_Name__c,
+                          Block_Name__c,Owner_Full_Name__c,Email__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
+        boolean isDemandRaised = false;
         // Check if the Is_Demanded__c flag is true for the last completed payment schedule
         if (lastCompletedPaymentSchedule != null && lastCompletedPaymentSchedule.Is_Demanded__c) {
-            return false; // Return true if Is_Demanded__c is true
+            isDemandRaised =  false; // Return true if Is_Demanded__c is true
         } else {
-            return true; // Return false if Is_Demanded__c is false or no record found
+            isDemandRaised =  true; // Return false if Is_Demanded__c is false or no record found
         }
+        dt.isDemandRaised = isDemandRaised;
+        
+        
+         // 2. Get Template Record (project wise)
+        General_Settings__c temp = [
+            SELECT Template_Body__c,Type__c FROM General_Settings__c WHERE
+            Project_Name1__c INCLUDES (:bk.Project__c) AND
+            Type__c ='Demand Note' LIMIT 1
+        ];
+        
+        
+        String template = temp.Template_Body__c;
+        
+        // ================= MERGE LOGIC =================
+        
+        // Applicant
+        template = template.replace(
+            '##APPLICANT_NAME##',
+            bk.First_Applicant_Name__c != null ? bk.First_Applicant_Name__c : ''
+        );
+        
+        // Project
+        template = template.replace(
+            '##PROJECT_NAME##',
+            bk.Project__c != null ? bk.Project__c : ''
+        );
+        
+        // -------- UNIT DETAILS (YOU CAN CHANGE THIS LINE ANYTIME) --------
+        // BLOCK_NAME
+        template = template.replace(
+            '##BLOCK_NAME##',
+            bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : ''
+        );
+        
+        // BLOCK_NAME
+        template = template.replace(
+            '##UNIT_NUMBER##',
+            bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : ''
+        );
+        
+        template = template.replace(
+            '##CRM_PHONE##',
+             bk.Owner_Phone_Number__c != null ? String.valueOf(bk.Owner_Phone_Number__c) : ''
+        );
+        
+        template = template.replace(
+            '##CRM_EMAIL##',
+            bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : ''
+        );
+          template = template.replace(
+            '##COMAPANY_NAME##',
+            bk.Company_Name__c != null ? String.valueOf(bk.Company_Name__c) : ''
+        );
+        
+        dt.emailContent = template;
+        
+        return dt;
+        
+        
     } 
     
     @AuraEnabled
@@ -42,15 +111,6 @@ public without sharing class RaiseDemandEmailController {
             
             PageReference pdfPage;
             pdfPage = Page.Demand_Invoice; 
-            /*
-if(typeOfDemand == 'Flat'){
-pdfPage = Page.Demand_Invoice; 
-}
-else if(typeOfDemand == 'AD'){
-pdfPage = Page.Demand_letterAdditional; 
-}
-
-*/
             pdfPage.getParameters().put('id', recId);
             //pdfPage.getParameters().put('includeInterest', intrest);
             DemandRaisedSave demandRaisedSave = new DemandRaisedSave();
@@ -97,56 +157,15 @@ pdfPage = Page.Demand_letterAdditional;
                               'EIPL Pvt Ltd');
             
             Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-            //saveAttachmentToFiles(recId, 'Demand.pdf', pdfBlob, contentVersions1, contentDocumentLinks);
             attachment.setFileName('DemandLetter.pdf'); 
             attachment.setBody(pdfBlob);
             email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
             
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
-            /*  if (!contentVersions1.isEmpty()) {
-insert contentVersions1;
-
-Set<Id> contentDocumentIdSet = new Set<Id>();
-
-for(ContentVersion cv:[SELECT Id,ContentDocumentId,FirstPublishLocationId FROM ContentVersion WHERE Id IN : contentVersions1])
-{
-if(cv.ContentDocumentId != null)
-{
-contentDocumentIdSet.add(cv.ContentDocumentId);
-}
-}
-
-List<ContentDocumentLink> lstContentDocumentlink = [SELECT ContentDocumentId, LINKEDENTITYID 
-FROM ContentDocumentLink WHERE ContentDocumentId IN:contentDocumentIdSet];
-set<Id> conIds = new set<Id>();
-
-for(ContentDocumentLink cn : lstContentDocumentlink){
-conIds.add(cn.ContentDocumentId);
-}
-for (ContentVersion cv : [SELECT Id,ContentDocumentId,FirstPublishLocationId FROM ContentVersion WHERE Id IN : contentVersions1]) {
-if(cv.ContentDocumentId != null && !conIds.contains(cv.ContentDocumentId))
-{
-ContentDocumentLink cdl = new ContentDocumentLink();
-cdl.ContentDocumentId = cv.ContentDocumentId;
-cdl.LinkedEntityId = cv.FirstPublishLocationId;
-system.debug('forloop book ir   '+cv.FirstPublishLocationId);
-cdl.ShareType = 'V';
-cdl.Visibility = 'AllUsers';
-contentDocumentLinks.add(cdl);
-}
-}
-if (!contentDocumentLinks.isEmpty()) {
-insert contentDocumentLinks;
-}
-
-}*/
             if(typeOfDemand == 'Flat'){
                 booking.Demand_Raised__c = true;
                 update booking;
             }
-            //  insert dem;
-            
-            // returnmessage = 'Demand Letter Sent Successfully.';
             returnmessage = 'Demand raise email sent Successfully';
         } else {
             returnmessage = 'Email address not specified in the Booking record.';
@@ -160,7 +179,6 @@ insert contentDocumentLinks;
         Id recId = (Id) recordId;
         List<payment_schedule__c> payList = new List<payment_schedule__c>();
         Booking__c book = [select id,name from Booking__c where Id=: recId];
-        // if(book.Property_Type_For__c == 'Apartments'){
         payList = [
             SELECT Id, S_No__c, Name,Pending_Amount__c,Payment_Due_Date__c,Received_Amount1__c,Is_Demanded__c, Payment_percent__c, AmountB__c,
             Master_Payment_Schedule__r.Completed_date__c, Booking__c
@@ -168,18 +186,7 @@ insert contentDocumentLinks;
             WHERE Master_Payment_Schedule__r.Status__c = 'Completed' and Pending_Amount__c != 0
             AND Booking__c = :recId
         ];
-        //}
-        /*else if(book.Property_Type_For__c == 'Villas'){
-payList = [
-SELECT Id, S_No__c, Name,Pending_Amount__c,Payment_Due_Date__c,Received_Amount1__c,Is_Demanded__c, Payment_percent__c, AmountB__c,
-Master_Payment_Schedule__r.Completed_date__c, Booking__c
-FROM Payment_Schedule__c
-WHERE Status__c = 'Completed' and Pending_Amount__c != 0
-AND Booking__c = :recId ];
-}*/
-        
-        system.debug('payList   '+payList);
-        system.debug('payIds   '+recId);
+
         List<payment_schedule__c> toUpdate = new List<payment_schedule__c>();
         for(payment_schedule__c p : payList){
             p.Is_Demanded__c = true;
@@ -195,7 +202,7 @@ AND Booking__c = :recId ];
     }
     
     @AuraEnabled
-    public Static String RaiseDemand(List<Id> bookingIds, Map<Id,String> emailContents, map<Id,List<String>> contentIds ) {
-        return DemandRaisedSave.RaiseDemand(bookingIds,emailContents,contentIds);
+    public Static String RaiseDemand(String bookingId, String emailContent) {
+        return DemandRaisedSave.raiseNewCustomDemand(bookingId,emailContent);
     }
 }

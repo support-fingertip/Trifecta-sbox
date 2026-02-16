@@ -3,7 +3,7 @@
     <fullName>Finance_Lead__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>Finance Lead</label>
+    <label>Finance User</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Bookings3</relationshipName>
     <required>false</required>

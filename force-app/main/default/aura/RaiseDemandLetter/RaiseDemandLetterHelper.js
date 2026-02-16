@@ -1,8 +1,8 @@
 ({
-    checkDemandStatus: function(component, event, helper) {
+    getData: function(component, event, helper) {
         var bookingId = component.get("v.recordId");
         
-        var action = component.get("c.checkDemandedRaised");
+        var action = component.get("c.getData");
         action.setParams({
             bookingId: bookingId
         });
@@ -10,8 +10,25 @@
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (state === "SUCCESS") {
-                var isDemanded = response.getReturnValue();
-                component.set("v.canRaiseDemand", isDemanded);
+                var returnData = response.getReturnValue();
+                component.set("v.canRaiseDemand", returnData.isDemandRaised);
+                
+                
+                var raw = returnData.emailContent;
+                // 1. Decode HTML entities first
+                var decoded = raw
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&amp;/g, "&");
+                
+                // 2. Remove extra span wrappers added by RTE
+                decoded = decoded.replace(/<span[^>]*>/g, "");
+                decoded = decoded.replace(/<\/span>/g, "");
+                // 3. Remove empty paragraphs created by editor
+                decoded = decoded.replace(/<p><br><\/p>/g, "");
+                // 4. Set to Rich Text
+                var richText = component.find("emailContent");
+                richText.set("v.value", decoded);
             } else if (state === "ERROR") {
                 var errors = response.getError();
                 if (errors && errors[0] && errors[0].message) {

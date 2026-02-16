@@ -19,6 +19,7 @@ public without sharing class WelcomeMailController {
     public class DataBox {
         @auraEnabled public Booking__c bookingRecord;
         @auraEnabled public String emailTemplate;
+        @auraEnabled public boolean isAggementDateExisted;
     }
     /**
      * Method Name  : getRecordData
@@ -304,7 +305,7 @@ public without sharing class WelcomeMailController {
             
             // 2. Get Template Record (project wise)
             General_Settings__c temp = [
-                SELECT Subject__c,Type__c FROM General_Settings__c WHERE Project_Name__c = :bk.Project__c AND
+                SELECT Subject__c,Type__c FROM General_Settings__c WHERE    Project_Name1__c INCLUDES (:bk.Project__c)  AND
                 Type__c ='Welcome Email Template' LIMIT 1
             ];
             String subject = temp.Subject__c;
@@ -314,7 +315,7 @@ public without sharing class WelcomeMailController {
                 bk.Project__c != null ? bk.Project__c : ''
             );
             
-            // -------- UNIT DETAILS (YOU CAN CHANGE THIS LINE ANYTIME) --------
+            // -------- UNIT DETAILS--------
             // BLOCK_NAME
             subject = subject.replace(
                 '##BLOCK_NAME##',

@@ -41,6 +41,11 @@
                 <default>false</default>
                 <label>Demand_1ST_REMINDER</label>
             </value>
+            <value>
+                <fullName>Terms and Conditions</fullName>
+                <default>false</default>
+                <label>Terms and Conditions</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

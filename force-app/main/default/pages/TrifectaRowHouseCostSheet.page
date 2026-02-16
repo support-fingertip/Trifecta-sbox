@@ -111,6 +111,9 @@
             <!-- Row House Details -->
             <table>
                 <tr>
+                    <td colspan="3"><b>RERA - {!qout.RERA__c}</b></td>
+                </tr>
+                <tr>
                     <td colspan="2" style="width: 60%;"><b>Unit No:</b></td>
                     <td colspan="2" class="right" style="width: 40%;">{!qout.Unit__r.Name}</td>
                 </tr>
@@ -270,22 +273,17 @@
             
             
             <!-- Terms and Conditions -->
-            <h5>Terms and Conditions:</h5>
-            <table>
-                <tr><td>1. Cost sheet is valid till December -2025 subject to change without notice.</td></tr>
-                <tr><td>2. GST to be paid on actuals as applicable.</td></tr>
-                <tr><td>3. Any introduction of new taxes, levies, Cess and increase or decrease in the taxes would be to the customer’s account.</td></tr>
-                <tr><td>4. Above Cost does not include BWSSB Deposits &amp; BWSSB Cost,which should be borne by the customers as and when applicable.</td></tr>
-                <tr><td>5. Agreements of sale is to be executed within 20 days from the date of booking.</td></tr>
-                <tr><td>6.Cancellation charges of Rs.25,000/- (Rupees Twenty Thousand Only) is applicable up to 21 days from the date of booking, "Booking form" norms applicable post 21 days.</td></tr>
-                <tr><td>7. All refunds will be processed within 90 days from the date of cancellation without any interest.</td></tr>
-                <tr><td>8. Stamp duty, registration charges and incidental expenses to be borne by the customer and to
-                    be paid at the time of registration.Stamp Paper Franking Charges @0.1% of Agreement value is
-                    payable at the time of signing the Agreement and is adjustable against overall stamp duty at the
-                    time of registration,subject to prevailing norms.</td></tr>
-                <tr><td>9. Maintenance from the date of Registration to be paid in advance to Association/Builder/Respective Agency Separately on actuals.</td></tr>
-                <tr><td>11. Errors and omissions are excepted (E&amp;OE).</td></tr>
-                <tr><td>12.Rs.100/sft PLC Applicable on all East and Corner Units.</td></tr>
+                       <table class="terms" style="width: 100%; font-size: 12px; border-collapse: collapse;margin-top: 10px;">
+                <tr>
+                    <th style="text-align: left; padding: 2px 4px;">
+                        <h3 style="margin: 10px; font-size: 14px; font-weight: bold;">Terms and Conditions:</h3>
+                    </th>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px;">
+                        <apex:outputText value="{!templateBody}" escape="false" />
+                    </td>
+                </tr>
             </table>
         </body>
     </html>

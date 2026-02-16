@@ -12,7 +12,12 @@
                 var result = response.getReturnValue();
                 var result = response.getReturnValue();
                 component.set("v.record", result.bookingRecord);
-                console.log(result.emailTemplate);
+                if(result.bookingRecord.Agreement_Expected_Date__c == null || result.bookingRecord.Agreement_Expected_Date__c == undefined)
+                {
+                    helper.showToast('Error', 'Error!', "Please update the Expected Agreement Date before sending the Welcome Mail.");
+                    var dismissActionPanel = $A.get("e.force:closeQuickAction");
+                    dismissActionPanel.fire();
+                }
                 
                 var raw = result.emailTemplate;
                 

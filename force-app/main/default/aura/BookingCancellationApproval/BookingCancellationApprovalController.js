@@ -45,5 +45,9 @@
             }
         });
         $A.enqueueAction(action);
+    },
+    // ADD THIS FUNCTION TO MAKE CANCEL WORK
+    handleCancel : function(component, event, helper) {
+        $A.get("e.force:closeQuickAction").fire();
     }
 })

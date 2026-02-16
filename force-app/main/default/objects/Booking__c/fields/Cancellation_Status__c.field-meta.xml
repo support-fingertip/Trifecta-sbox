@@ -12,14 +12,9 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Pending</fullName>
+                <fullName>Submitted For Cancellation</fullName>
                 <default>false</default>
-                <label>Pending From CRM Head</label>
-            </value>
-            <value>
-                <fullName>Approved by CRM Head, Pending from Sales Head</fullName>
-                <default>false</default>
-                <label>Approved by CRM Head, Pending from Sales Head</label>
+                <label>Submitted For Cancellation</label>
             </value>
             <value>
                 <fullName>Approved</fullName>
@@ -30,6 +25,18 @@
                 <fullName>Rejected</fullName>
                 <default>false</default>
                 <label>Rejected</label>
+            </value>
+            <value>
+                <fullName>Approved by CRM Head, Pending from Sales Head</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Approved by CRM Head, Pending from Sales Head</label>
+            </value>
+            <value>
+                <fullName>Pending</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Pending From CRM Head</label>
             </value>
         </valueSetDefinition>
     </valueSet>

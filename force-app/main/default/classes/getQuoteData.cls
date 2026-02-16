@@ -18,6 +18,8 @@ public class getQuoteData {
     public Decimal grandtotalAmount { get; set; }
     public Decimal biscomStp { get; set; }
     public string projectName { get; set; }
+    
+    public String templateBody { get; set; }
 
     // Separate lists for Payment Schedules
     public List<Payment_Schedule__c> landSchedules { get; set; }
@@ -30,7 +32,7 @@ public class getQuoteData {
         //  Fetch Quote and child payment schedules
         qout = [
             SELECT Id, RERA__c, Unit__r.Unit_Facing_Direction__c, Unit__r.Floor__c,Project__c,
-                   Carpet_Area__c, Balcony_Area_Sq_ft__c, Super_Built_UpArea__c, Rate_sq_Ft_Discount__c,
+                   Carpet_Area__c, Balcony_Area_Sq_ft__c, Super_Built_UpArea__c, Rate_sq_Ft_Discount__c,Block_Lookup__c,
                    Base_Value__c, PLC__c, Floor_Rise_Charges_Rate__c, Total_Car_Parking_Charges__c,
                    amenities_charges__c, Legal_Documentation_Charges__c, GST__c, Grand_Total_Before_GST__c,
                     Grand_Total_Amount__c, Bescom__c, Generator_Charges__c,Unit__r.Name,
@@ -46,8 +48,21 @@ public class getQuoteData {
         ];
         
         projectName = qout.Project__c != null ? qout.Project__c : '';
-
-   
+      
+       if (qout.Project__c != null && qout.Block_Lookup__c != null) {
+            List<General_Settings__c> settings = [
+                SELECT Id, Template_Body__c 
+                FROM General_Settings__c 
+                WHERE Project_Name1__c INCLUDES (:qout.Project__c) 
+                AND Block__c = :qout.Block_Lookup__c AND Type__c='Terms and Conditions'
+                LIMIT 1
+            ];
+            
+            if (!settings.isEmpty()) {
+                this.templateBody = settings[0].Template_Body__c;
+            }
+        }
+        
         subTotalA = nvl(qout.Base_Value__c) + nvl(qout.Floor_Rise_Charge__c)
                     + nvl(qout.Total_Car_Parking_Charges__c) + nvl(qout.PLC_Amount__c);
         subtotalVillaA = nvl(qout.Base_Value__c) + nvl(qout.Extra_Land_Amount__c) + nvl(qout.PLC_Amount__c);

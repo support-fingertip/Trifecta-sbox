@@ -6,7 +6,7 @@
                 /* ---------- Global Font Setup ---------- */
                 body{
                 font-family:font-family:Arial Unicode MS !important;
-                font-size: 13px;
+                font-size: 12px;
                 }
                 
                 /* ---------- Container ---------- */
@@ -21,7 +21,7 @@
                 
                 .outer-box td {
                 
-                padding: 10px;
+                padding: 7px;
                 }
                 
                 
@@ -34,7 +34,7 @@
                 
                 th, td {
                 border: 0.5px solid #000;
-                padding: 6px 8px;
+                padding: 5px 7px;
                 vertical-align: middle;
                 }
                 
@@ -365,18 +365,17 @@
                         </table>
                         
                         <!-- Terms and Conditions -->
-                        
-                        <table class="terms">
-                            <tr><td><h4>Terms and Conditions:</h4></td></tr>
-                            <tr><td>1. Cost sheet is valid till Oct - 2025 subject to change without notice.</td></tr>
-                            <tr><td>2. Agreement of sale to be executed within 16 days from the date of booking.</td></tr>
-                            <tr><td>3. Cheque should be drawn in favour of "M/s. Trifecta Projects Pvt Ltd".</td></tr>
-                            <tr><td>4. Stamp duty, registration and incidental expenses to be borne by the customer.</td></tr>
-                            <tr><td>5. Maintenance ₹3.5 per Sq.ft from date of registration.</td></tr>
-                            <tr><td>6. Floor rise charges ₹25/Floor per sq.ft starts from 4th Floor.</td></tr>
-                            <tr><td>7. Any new taxes, levies, cess will be to the customer's account.</td></tr>
-                            <tr><td>8. Above cost does not include BWSSB Deposits &amp; BWSSB Cost, which should be borne by the customer.</td></tr>
-                            <tr><td>9. All refunds processed within 90 days of cancellation without any interest.</td></tr>
+                        <table class="terms" style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <tr>
+                                <th style="text-align: left; padding: 2px 4px;">
+                                    <h3 style="margin: 10px; font-size: 14px; font-weight: bold;">Terms and Conditions:</h3>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 8px;">
+                                    <apex:outputText value="{!templateBody}" escape="false" />
+                                </td>
+                            </tr>
                         </table>
                     </td>
                 </tr>

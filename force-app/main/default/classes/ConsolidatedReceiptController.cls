@@ -34,25 +34,28 @@ public class ConsolidatedReceiptController {
         public String contactNo { get; set; }
         public String webAddress { get; set; }
         public String companyAddress { get; set; }
+        public String companyName { get; set; }
     }
 
     public ConsolidatedReceiptController(ApexPages.StandardController stdController) {
 
         Id bookingId = (Id) stdController.getId();
-
+        String typeVal = ApexPages.currentPage().getParameters().get('type');
+        
         // ===================== BOOKING QUERY =====================
         booking = [
             SELECT Id,
-                   Name,
-                   Total_received_Amount__c,
-                   SLead__r.Lead_ID__c,
-                   Block_Id__c,
-                   First_Applicant_Name__c,
-                   Unit_No__c,
-                   Block_Name__c,
-                   Project1__r.Name,
-                   Project1__r.Company_Address__c,
-                   CRM_Executive_Contact_No__c
+            Name,
+            Total_received_Amount__c,
+            SLead__r.Lead_ID__c,
+            Block_Id__c,
+            First_Applicant_Name__c,
+            Unit_No__c,
+            Project_Type__c,
+            Block_Name__c,
+            Project1__r.Name,
+            Project1__r.Company_Address__c,
+            CRM_Executive_Contact_No__c
             FROM Booking__c
             WHERE Id = :bookingId
             LIMIT 1
@@ -63,7 +66,8 @@ public class ConsolidatedReceiptController {
 
         if (booking.Block_Id__c != null) {
             block = [
-                SELECT Id, Name, Email__c, Project_Address__c
+                SELECT Id, Name, Email__c,Project_Address__c,
+                Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c
                 FROM Block__c
                 WHERE Id = :booking.Block_Id__c
                 LIMIT 1
@@ -113,7 +117,26 @@ public class ConsolidatedReceiptController {
             (booking.Project1__r != null &&
              booking.Project1__r.Company_Address__c != null)
             ? booking.Project1__r.Company_Address__c : '';
-
+        
+        if(booking.Project_Type__c == 'Villas')
+        {
+            bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
+            if(typeVal =='Land')
+            {
+                bookingInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            }
+            else if(typeVal =='Construction')
+            {
+                bookingInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+            }
+            
+        }
+        else
+        {
+            bookingInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        }
+        
+        
         // ===================== CO APPLICANTS =====================
         coapplicants = [
             SELECT Name, Salutation__c
@@ -127,25 +150,51 @@ public class ConsolidatedReceiptController {
 
         // ===================== RECEIPT LINE ITEMS =====================
         totalAmount = 0;
-
-        List<Receipt_Line_Item__c> repLst = [
-            SELECT Id,
-            Name,
-            Amount__c,
-            Received_Amount__c,
-            Payment_schedule__r.Name,
-            Mode_of_Payment__c,
-            Cheque_no_Transaction_Number__c,
-            Cheque_Date__c,
-            Bank_Name__c,
-            Receipt__r.Name,
-            Receipt__r.Receipt_Date__c,
-            Booking__c
-            FROM Receipt_Line_Item__c
-            WHERE Booking__c = :bookingId
-            AND Approval_Status__c = 'Approved'
-            AND Payment_Type__c != 'TDS'
-        ];
+        List<Receipt_Line_Item__c> repLst = new List<Receipt_Line_Item__c>();
+		if(typeVal =='Construction' || typeVal =='Land')
+        {
+            repLst = [
+                SELECT Id,
+                Name,
+                Amount__c,
+                Received_Amount__c,
+                Payment_schedule__r.Name,
+                Mode_of_Payment__c,
+                Cheque_no_Transaction_Number__c,
+                Cheque_Date__c,
+                Bank_Name__c,
+                Receipt__r.Name,
+                Receipt__r.Receipt_Date__c,
+                Booking__c
+                FROM Receipt_Line_Item__c
+                WHERE Booking__c = :bookingId
+                AND Approval_Status__c = 'Approved'
+                AND Payment_Type__c != 'TDS'
+ 				AND Payment_schedule__r.Type__c = :typeVal
+            ];
+        }
+        else
+        {
+            repLst = [
+                SELECT Id,
+                Name,
+                Amount__c,
+                Received_Amount__c,
+                Payment_schedule__r.Name,
+                Mode_of_Payment__c,
+                Cheque_no_Transaction_Number__c,
+                Cheque_Date__c,
+                Bank_Name__c,
+                Receipt__r.Name,
+                Receipt__r.Receipt_Date__c,
+                Booking__c
+                FROM Receipt_Line_Item__c
+                WHERE Booking__c = :bookingId
+                AND Approval_Status__c = 'Approved'
+                AND Payment_Type__c != 'TDS'
+            ];
+        }
+       
 
         List<ReceiptWrapper> reppList = new List<ReceiptWrapper>();
 

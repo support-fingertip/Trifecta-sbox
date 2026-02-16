@@ -84,7 +84,7 @@ public class DemandRaisedSave {
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book);
+        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book,'',false);
     }
 
     /**
@@ -102,7 +102,7 @@ public class DemandRaisedSave {
     *
     * @return String - Success or error message.
     */
-    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book) {
+    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book,String emailContent,boolean sendEmail) {
         
         /** ==================VARIABLE DECLARATIONS =========================**/
         String totalAmountPayableInWords = '';
@@ -120,23 +120,29 @@ public class DemandRaisedSave {
         
         
         /** ==================GET TEMPLATE RECORD =========================**/
-        General_Settings__c temp = [
-            SELECT Template_Body__c, Type__c 
-            FROM General_Settings__c 
-            WHERE Project_Name1__c INCLUDES (:book.Project__c)
-            AND Type__c = 'Demand Note'
-            LIMIT 1
-        ];
-        
-        String template = temp.Template_Body__c;
-        
-        template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
-        template = template.replace('##PROJECT_NAME##', book.Project__c ?? '');
-        template = template.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
-        template = template.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
-        template = template.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
-        template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
-        
+        String template = '';
+        if(emailContent =='')
+        {
+            
+            General_Settings__c temp = [
+                SELECT Template_Body__c, Type__c 
+                FROM General_Settings__c 
+                WHERE Project_Name1__c INCLUDES (:book.Project__c)
+                AND Type__c = 'Demand Note'
+                LIMIT 1
+            ];
+            
+            template = temp.Template_Body__c;
+            
+            template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
+            template = template.replace('##PROJECT_NAME##', book.Project__c ?? '');
+            template = template.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
+            template = template.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
+            template = template.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
+            template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
+            
+        }
+        template = emailContent;
         
         /** ==================FETCH CURRENT PAYMENT SCHEDULE =========================**/
         Payment_Schedule__c currentPS = [
@@ -321,6 +327,11 @@ public class DemandRaisedSave {
             currentPS.Demanded_Date__c = Date.today();
             update currentPS;
             insert re;
+            if(sendEmail && re != null)
+            {
+                sendDemandEmail(new List<Id>{re.Id});
+            }
+            
             return 'Demand raised successfully.';
             
         } catch (DmlException e) {
@@ -328,7 +339,23 @@ public class DemandRaisedSave {
         }
     }
     
+    @future(callout=true)
+    public static void sendDemandEmail(List<Id> demandIds) {
+        DocumentandEmailController.sendEmailGenerateDemand(demandIds);
+    }
     
+    /**Raise New Demand **/
+    @AuraEnabled
+    public static String raiseNewCustomDemand(String bookingId,String emailContent){ 
+        Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
+                                        Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
+                                        FROM Payment_Schedule__c WHERE Status__c = 'Completed'  AND Booking__c = :bookingId ORDER BY S_No__c DESC];
+        
+        Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
+                           RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
+                           Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
+        return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true);
+    }
     
     
     
@@ -573,6 +600,10 @@ public class DemandRaisedSave {
         }
         return demands;
     }
+    
+    
+    
+    
     
     public static Map<Integer, String> daySuffixMap = new Map<Integer, String>{1 => 'st', 2 => 'nd', 3 => 'rd', 21 => 'st', 22 => 'nd', 23 => 'rd', 31 => 'st'};
         

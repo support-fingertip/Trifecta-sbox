@@ -202,6 +202,20 @@
         {
             for (let index = 0; index < applicantList.length; index++) {
                 let applicant = applicantList[index];
+            
+                let values = Object.values(applicant).filter(val => val != null && val !== '');
+                
+                if (values.length === 0) {
+                    isValid = false;
+                    this.showToast(
+                        'Error',
+                        'Error!',
+                        'Co-Applicant ' + (index + 1) + ' is empty. Please enter details or remove the row.'
+                    );
+                    return isValid;
+                }
+                
+                
                 // Find which mandatory fields are missing
                 let missingFields = mandatoryCoFields.filter(function(field) {
                     return !applicant[field];
@@ -269,35 +283,13 @@
                 }
                 
             }  
-        
-            
-        // File upload validation
-       /* var first = component.get("v.fileName");
-        var second = component.get("v.file2ndName");
-        var third = component.get("v.file3rdName");
-        var fourth = component.get("v.file4thName");
-        
-        if (first === 'Upload Government issued photo identity proof..') {
-            this.showToast('Error', 'Error!', "Please upload Government issued photo identity proof.");
+        else
+        {
             isValid = false;
+            this.showToast('Error', 'Error!', "Please add at least one co-applicant.");
             return isValid;
         }
-        if (second === 'Upload PAN Photo..') {
-            this.showToast('Error', 'Error!', "Please upload PAN Photo.");
-            isValid = false;
-            return isValid;
-        }
-        if (third === 'Upload Applicant Photo..') {
-            this.showToast('Error', 'Error!', "Please upload Applicant Photo.");
-            isValid = false;
-            return isValid;
-        }
-        if (fourth === 'Upload Proof of Address..') {
-            this.showToast('Error', 'Error!', "Please upload Proof of Address.");
-            isValid = false;
-            return isValid;
-        }*/
-        
+
         return isValid;
     },
 

@@ -94,7 +94,7 @@
                             style="height:70px; width:70px;"/>
                 
                 <div class="company-name">
-                    TRIFECTA PROJECTS PVT LTD
+                    {!bookingInfo.companyName}
                 </div>
                 
                 <div class="company-address">

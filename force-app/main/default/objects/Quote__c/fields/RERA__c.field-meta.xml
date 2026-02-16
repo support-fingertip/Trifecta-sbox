@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>RERA__c</fullName>
     <externalId>false</externalId>
-    <formula>Unit__r.Project__r.RERA_NO__c</formula>
+    <formula>Unit__r.Block_Lookup__r.RERA_NO__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>RERA</label>
     <required>false</required>
