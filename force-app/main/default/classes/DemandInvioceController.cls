@@ -25,6 +25,7 @@ public class DemandInvioceController {
     /** ===================== WRAPPER FOR HEADER INFO ===================== **/
     public class bookingInfoWrapper {
         public String customerId { get; set; }
+        public String reminderType { get; set; }
         public String customerName { get; set; }
         public String unitNo { get; set; }
         public String block { get; set; }
@@ -35,7 +36,8 @@ public class DemandInvioceController {
         public String contactNo { get; set; }
         public String webAddress { get; set; }
         public String companyAddress { get; set; }
-
+        public String companyName { get; set; }
+        
         public String bankName { get; set; }
         public String accountNumber { get; set; }
         public String ifscCode { get; set; }
@@ -79,20 +81,40 @@ public class DemandInvioceController {
 
         /** ===================== GET BOOKING ID ===================== **/
         Id bookingRecordId = ApexPages.currentPage().getParameters().get('Id');
+        string reminderType = ApexPages.currentPage().getParameters().get('reminderType');
         bookingId = bookingRecordId;
+        bookingInfo = new bookingInfoWrapper();
+        bookingInfo.reminderType = 'DEMAND NOTE';
+        if(reminderType != null && reminderType!= '')
+        {
+            if(reminderType == 'Demand_1ST_REMINDER')
+            {
+                bookingInfo.reminderType = 'REMINDER-1';
+            }
+            else if(reminderType == 'Demand_2ND_REMINDER')
+            {
+                bookingInfo.reminderType = 'REMINDER-2';
+            }
+            else if(reminderType == 'Demand_3RD_REMINDER')
+            {
+                bookingInfo.reminderType = 'REMINDER-3';
+            }
+        }
+      
 
         /** ===================== BOOKING QUERY ===================== **/
-        booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,
+        booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,Project_Type__c,
                    First_Applicant_Name__c, Unit_No__c, Block_Name__c, Project1__r.Name, Total_Amount__c,
                    Project1__r.Company_Address__c, CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
 
         /** ===================== BLOCK DETAILS ===================== **/
-        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,
+        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,
+                                                        Construction_Company_Name__c,Land_Company_Name__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                         Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
 
         /** ===================== MAPPING HEADER INFO ===================== **/
-        bookingInfo = new bookingInfoWrapper();
+       
 
         bookingInfo.bankName = (block != null && block.Bank_Name__c != null) ? block.Bank_Name__c : '';
         bookingInfo.accountNumber = (block != null && block.Account_Number__c != null) ? block.Account_Number__c : '';
@@ -118,7 +140,7 @@ public class DemandInvioceController {
         firstCoApplicant = !coapplicants.isEmpty() ? coapplicants[0] : null;
 
         /** ===================== GET LATEST COMPLETED MILESTONE ===================== **/
-        List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,
+        List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,Type__c,
                                                   Last_Payment_Schedule__c, AmountB__c, Pending_Amount__c, PaymentDueDate__c,Default_Due_Date_in_days__c
                                                   FROM Payment_Schedule__c WHERE Status__c = 'Completed' 
                                                   AND Booking__c = :booking.Id ORDER BY S_No__c DESC];
@@ -141,9 +163,23 @@ public class DemandInvioceController {
             demandDueDate = Date.today().addDays((psRecord.Default_Due_Date_in_days__c ?? 0).intValue());
         }
         
-       
+        bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if(booking.Project_Type__c == 'Villas')
+        {
+            if(psRecord.Type__c =='Land')
+            {
+                bookingInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            }
+            else if(psRecord.Type__c =='Construction')
+            {
+                bookingInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+            }
+        }
+        else
+        {
+            bookingInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        }
         
-
         /** ===================== PREVIOUS DUES ===================== **/
         AggregateResult[] prevAgg = [SELECT SUM(Pending_Amount__c) totalPendingAmount, SUM(Interest_Up_to_Date__c)
                                      totalInterestUplodate, SUM(Interest_Paid__c) totalInterestPaid,
@@ -182,7 +218,7 @@ public class DemandInvioceController {
         currentPendingTDS = currentPendingTDS < 0 ? 0 : currentPendingTDS;
 
         /** ===================== EXCLUDING TDS ===================== **/
-        prevDueExcludingTDS = balanceDueTillPrevMilestone - previousTDS;
+        prevDueExcludingTDS = balanceDueTillPrevMilestone - pendingPreviousTDS;
         currentDueExcludingTDS = presentDue - currentTds;
         currentDueExcludingTDS = currentDueExcludingTDS < 0 ? 0 : currentDueExcludingTDS;
 

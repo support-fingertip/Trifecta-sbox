@@ -164,7 +164,7 @@
             
             <!-- Header -->
             <div class="header">
-                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                <div class="company-name">{!bookingInfo.companyName }</div>
                 <div class="company-address">
                     <strong> {!bookingInfo.companyAddress}
                         {!bookingInfo.webAddress}</strong>
@@ -198,7 +198,7 @@
             </div>
             
             <!-- Demand Note Title -->
-            <div class="section-title">DEMAND NOTE</div>
+            <div class="section-title">{!bookingInfo.reminderType}</div>
             
             <!-- Opening Text -->
             <div class="content-text">
@@ -253,7 +253,7 @@
             <table class="bank-details-table">
                 <thead>
                     <tr>
-                        <th colspan="2">TRIFECTA PROJECTS PVT LTD</th>
+                        <th colspan="2">{!bookingInfo.companyName}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -289,7 +289,7 @@
             
             <!-- Footer -->
             <div class="footer">
-                TRIFECTA PROJECTS PVT LTD
+                {!bookingInfo.companyName}
             </div>
             
             <!-- Signature -->

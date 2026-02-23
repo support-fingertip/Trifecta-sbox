@@ -90,6 +90,12 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.fileName", fileName);
+        if(fileName != 'Upload Government issued photo identity proof..' )
+        {
+            var book = component.get("v.book");
+            book.Aadhaar_Uploaded__c = true;
+        }
+      
         
     },
     handleFilesChange2ndPhoto: function(component, event, helper) {
@@ -98,6 +104,11 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file2ndName", fileName);
+        if(fileName != 'Upload PAN Photo..' )
+        {
+            var book = component.get("v.book");
+            book.Pan_Uploaded__c = true;
+        }
         
     },
     handleFilesChange3rdPhoto: function(component, event, helper) {
@@ -106,6 +117,11 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file3rdName", fileName);
+        if(fileName != 'Upload Applicant Photo..' )
+        {
+            var book = component.get("v.book");
+            book.Applicant_Photo_Uploaded__c = true;
+        }
         
     },
     handleFilesChange4thPhoto: function(component, event, helper) {
@@ -114,7 +130,11 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file4thName", fileName);
-        
+        if(fileName != 'Upload Proof of Address..' )
+        {
+            var book = component.get("v.book");
+            book.Proof_of_Address_Uploaded__c = true;
+        }
     },
     
     removeRow : function(component, event, helper) {

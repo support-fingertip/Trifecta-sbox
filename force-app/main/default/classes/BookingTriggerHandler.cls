@@ -170,6 +170,22 @@ public class BookingTriggerHandler {
                     notificationTypeId
                 );
             }
+            else if(oldBk.Stage__c != bk.Stage__c && bk.Stage__c != null)
+            {
+                String title = bk.Lead_Name__c + ' booking moved to stage ' + bk.Stage__c + '.';
+                String body = 'Booking: ' + bk.Name + '\n'
+                    + 'Stage: ' + bk.Stage__c + '\n'
+                    + 'Customer Name: ' + bk.Lead_Name__c + '\n'
+                    + 'Please proceed with the next steps.';
+                
+                CustomNotificationService.notificationSend(
+                    title,
+                    bk.Id,
+                    body,
+                    new Set<String>{bk.OwnerId},
+                    notificationTypeId
+                );
+            }
         }
         syncChildOwner(bookingToOwnerMap);
     }

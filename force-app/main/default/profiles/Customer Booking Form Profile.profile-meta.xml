@@ -553,6 +553,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>RequestForAgreementExtensionController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RoleHeirarchyUtility</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -689,6 +693,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>UpdateTimeExtensionDateController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>UserAvailabilityController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -790,6 +798,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>contactFormatterTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>executeBatchcmpController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -7433,6 +7445,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt__c.Type__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Refund__c.Bank__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9263,6 +9280,10 @@
     </recordTypeVisibilities>
     <tabVisibilities>
         <tab>Apex_Log__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>Batch_Executor</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

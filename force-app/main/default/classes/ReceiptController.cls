@@ -93,28 +93,24 @@ public without sharing class ReceiptController {
     @AuraEnabled
     public static Id insertReceiptLineItems(List<Receipt_Line_Item__c> polist,string remark,string poc, string recid, Decimal paidAmount, Decimal interestAmount)
     {
-        Booking__c bk = [SELECT Id, Name,Finance_Lead__c, Project__c FROM Booking__c WHERE Id = :recid LIMIT 1];
-        Receipt__c rc = new Receipt__c();
-        rc.Remarks__c = remark;
-        rc.Receipt_date__c = Date.valueOf(poc);
-        rc.Booking__c = recid;
-        rc.Finance_User__c = bk.Finance_Lead__c;
-        //Status Auto Approved
-        rc.Approval_status__c = 'Approved';
-        insert rc;
+        Booking__c bk = [SELECT Id, Name,Finance_Lead__c, Project__c,Project_Type__c FROM Booking__c WHERE Id = :recid LIMIT 1];
+
         List<Payment_Schedule__c> payList = [SELECT Id, Amount1__c,Is_Demanded__c,Interest_Pending_Amount__c,
-                                             Villa_Flat_Amount_Pending__c, Pending_Amount__c,
+                                             Villa_Flat_Amount_Pending__c, Pending_Amount__c,Type__c,
                                              S_No__c FROM Payment_Schedule__c WHERE Pending_Amount__c > 0 
                                              and Booking__c = :bk.Id ORDER BY S_No__c ASC];
+        
+
         //Debug 
-        system.debug('Receipt Record'+rc);
         system.debug('Payment Scdule'+payList);
         system.debug('Receipt Item from Js'+polist);
         
         Set<Id> payIds = new Set<Id>();
         Map<Id,Decimal> paymentScheduleToPendingAmount = new Map<Id,Decimal>();
+        Map<Id, Payment_Schedule__c> paymentScheduleMap = new Map<Id, Payment_Schedule__c>();
         for(Payment_Schedule__c pay : payList){
             paymentScheduleToPendingAmount.put(pay.Id,pay.Pending_Amount__c);
+            paymentScheduleMap.put(pay.Id, pay);
         }
         
         // -------------------------------
@@ -141,7 +137,6 @@ public without sharing class ReceiptController {
                         Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
                         rece.Booking__c = bk.Id;
                         rece.Name = receiptLineItemMap.get(inte).Payment_Type__c;
-                        rece.Receipt__c = rc.Id;
                         rece.Payment_Schedule__c = payIt.Id;
                         rece.Received_Amount__c = amountToReceive;
                         rece.Amount__c = amountToReceive;
@@ -188,7 +183,6 @@ public without sharing class ReceiptController {
                 rece.Booking__c = bk.Id;
                 rece.Name = 'Against Interest';
                 rece.Payment_Type__c = 'Interest';
-                rece.Receipt__c = rc.Id;
                 rece.Payment_Schedule__c = paymentSchedule.Id;
                 rece.Received_Amount__c = amountToReceive;
                 rece.Amount__c = amountToReceive;
@@ -226,7 +220,6 @@ public without sharing class ReceiptController {
             rece.Booking__c = bk.Id;
             rece.Name = 'Against Interest';
             rece.Payment_Type__c = 'Interest';
-            rece.Receipt__c = rc.Id;
             rece.Payment_Schedule__c = payList[PaymentScheduleSize-1].Id;
             rece.Received_Amount__c = interestAmount;
             rece.Amount__c = interestAmount;
@@ -241,13 +234,83 @@ public without sharing class ReceiptController {
         }
         
         
-        // Insert all Receipt Line Items
-        if (!receiptsToCreate.isEmpty()) {
-            insert receiptsToCreate;
+        // ---------------------------------------
+        // SPLIT RECEIPTS BASED ON TYPE (VILLAS)
+        // ---------------------------------------
+        Map<String, List<Receipt_Line_Item__c>> typeToLinesMap =
+            new Map<String, List<Receipt_Line_Item__c>>();
+        
+        for(Receipt_Line_Item__c line : receiptsToCreate){
+            
+            String typeKey = paymentScheduleMap.get(line.Payment_Schedule__c).Type__c;
+            
+            if(String.isBlank(typeKey)){
+                typeKey = 'COMMON';
+            }
+            
+            if(!typeToLinesMap.containsKey(typeKey)){
+                typeToLinesMap.put(typeKey, new List<Receipt_Line_Item__c>());
+            }
+            
+            typeToLinesMap.get(typeKey).add(line);
         }
         
-
+        List<Receipt__c> receiptsToInsert = new List<Receipt__c>();
+        Map<String, Receipt__c> typeToReceiptMap = new Map<String, Receipt__c>();
         
-        return rc.Id;
+        // Villas → Split
+        if(bk.Project_Type__c == 'Villas'){
+            
+            for(String typeKey : typeToLinesMap.keySet()){
+                
+                Receipt__c receipt = new Receipt__c();
+                receipt.Remarks__c = remark;
+                receipt.Receipt_date__c = Date.valueOf(poc);
+                receipt.Booking__c = recid;
+                receipt.Finance_User__c = bk.Finance_Lead__c;
+                receipt.Approval_status__c = 'Approved';
+                receipt.Type__c = typeKey;
+                
+                receiptsToInsert.add(receipt);
+                typeToReceiptMap.put(typeKey, receipt);
+            }
+        }
+        else{
+            // Apartments → Single Receipt
+            Receipt__c receipt = new Receipt__c();
+            receipt.Remarks__c = remark;
+            receipt.Receipt_date__c = Date.valueOf(poc);
+            receipt.Booking__c = recid;
+            receipt.Finance_User__c = bk.Finance_Lead__c;
+            receipt.Approval_status__c = 'Approved';
+            receipt.Type__c = bk.Project_Type__c;
+            
+            receiptsToInsert.add(receipt);
+            typeToReceiptMap.put('COMMON', receipt);
+        }
+        
+        // Insert Receipts
+        insert receiptsToInsert;
+        
+        // Assign Receipt Id to Line Items
+        for(String typeKey : typeToLinesMap.keySet()){
+            
+            Receipt__c createdReceipt;
+            
+            if(bk.Project_Type__c == 'Villas'){
+                createdReceipt = typeToReceiptMap.get(typeKey);
+            }else{
+                createdReceipt = typeToReceiptMap.get('COMMON');
+            }
+            
+            for(Receipt_Line_Item__c line : typeToLinesMap.get(typeKey)){
+                line.Receipt__c = createdReceipt.Id;
+            }
+        }
+        
+        // Insert Line Items
+        insert receiptsToCreate;
+        
+        return bk.Id;
     }
 }

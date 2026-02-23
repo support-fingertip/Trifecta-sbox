@@ -10,7 +10,7 @@ public without sharing class RaiseDemandEmailController {
         dataBox dt = new dataBox();
         // Query the latest completed Payment_Schedule__c record based on S_No__c
         Payment_Schedule__c lastCompletedPaymentSchedule = [
-            SELECT Id, Is_Demanded__c
+            SELECT Id, Is_Demanded__c,Type__c
             FROM Payment_Schedule__c
             WHERE Booking__c = :bookingId AND Status__c = 'Completed'
             ORDER BY S_No__c DESC
@@ -19,7 +19,12 @@ public without sharing class RaiseDemandEmailController {
         Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,
                           Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,
                           Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,Company_Name__c,
-                          Block_Name__c,Owner_Full_Name__c,Email__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
+                          Block_Name__c,Owner_Full_Name__c,Email__c,Project_Type__c,Block_Id__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
+        
+        Block__c block = bk.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,
+                                                        Construction_Company_Name__c,Land_Company_Name__c,
+                                                        Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
+                                                        Bank_Name__c FROM Block__c WHERE Id = :bk.Block_Id__c LIMIT 1] : null;
         boolean isDemandRaised = false;
         // Check if the Is_Demanded__c flag is true for the last completed payment schedule
         if (lastCompletedPaymentSchedule != null && lastCompletedPaymentSchedule.Is_Demanded__c) {
@@ -28,6 +33,26 @@ public without sharing class RaiseDemandEmailController {
             isDemandRaised =  true; // Return false if Is_Demanded__c is false or no record found
         }
         dt.isDemandRaised = isDemandRaised;
+        
+        
+        String companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if(bk.Project_Type__c == 'Villas')
+        {
+            if(lastCompletedPaymentSchedule.Type__c =='Land')
+            {
+                companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            }
+            else if(lastCompletedPaymentSchedule.Type__c =='Construction')
+            {
+                companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+            }
+        }
+        else
+        {
+            companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        }
+        
+        
         
         
          // 2. Get Template Record (project wise)
@@ -77,8 +102,7 @@ public without sharing class RaiseDemandEmailController {
             bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : ''
         );
           template = template.replace(
-            '##COMAPANY_NAME##',
-            bk.Company_Name__c != null ? String.valueOf(bk.Company_Name__c) : ''
+            '##COMAPANY_NAME##', companyName != null ? String.valueOf(companyName) : ''
         );
         
         dt.emailContent = template;

@@ -553,6 +553,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>RequestForAgreementExtensionController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RoleHeirarchyUtility</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -689,6 +693,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>UpdateTimeExtensionDateController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>UserAvailabilityController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -791,6 +799,10 @@
     <classAccesses>
         <apexClass>contactFormatterTest</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>executeBatchcmpController</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>followUpController</apexClass>
@@ -5411,9 +5423,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Payment_schedule__c.Demanded_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -5488,7 +5500,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.PaymentDueDate__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -5583,7 +5595,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X1st_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -5593,12 +5605,12 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X2nd_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X3rd_Interest_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -7433,6 +7445,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Receipt__c.Total_Received_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Receipt__c.Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -9427,6 +9444,10 @@
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>
+        <tab>Batch_Executor</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
         <tab>Block__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
@@ -9561,7 +9582,15 @@
     </userPermissions>
     <userPermissions>
         <enabled>true</enabled>
+        <name>ManageApiNamedQueries</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
         <name>RunReports</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ViewApiNamedQueries</name>
     </userPermissions>
     <userPermissions>
         <enabled>true</enabled>

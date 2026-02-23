@@ -97,7 +97,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             new Map<Id, List<Payment_Schedule__c>>();
 
         for (Payment_Schedule__c ps : scope) {
-
+			system.debug('ps==>'+ps);
             if (ps.Booking__c == null) continue;
 
             if (!bookingToSchedules.containsKey(ps.Booking__c)) {
@@ -118,7 +118,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
 
             List<Payment_Schedule__c> schedules =
                 bookingToSchedules.get(bookingId);
-
+            system.debug('schedules==>'+schedules);
             if (schedules.isEmpty()) continue;
 
             Booking__c booking = schedules[0].Booking__r;
@@ -185,7 +185,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
 
             // ========== CUSTOMER EMAIL ==========
             if (!String.isBlank(booking.Email__c)) {
-
+                system.debug('booking.Email__c'+booking.Email__c);
                 Messaging.SingleEmailMessage mail =
                     new Messaging.SingleEmailMessage();
 
@@ -195,6 +195,25 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
                 mail.setSubject(subject);
                 mail.setHtmlBody(body);
                 mail.setSaveAsActivity(false);
+                
+                // ===== Generate PDF =====
+                PageReference pdfPage = Page.DemandNote;
+                pdfPage.getParameters().put('Id', booking.Id);
+                pdfPage.getParameters().put('reminderType', reminderType);
+                
+                Blob pdfBlob = pdfPage.getContentAsPDF();
+                
+                Messaging.EmailFileAttachment attachment =
+                    new Messaging.EmailFileAttachment();
+                
+                attachment.setFileName('DemandNote.pdf');
+                attachment.setBody(pdfBlob);
+                attachment.setContentType('application/pdf');
+                
+                mail.setFileAttachments( new Messaging.EmailFileAttachment[] { attachment });
+                
+                
+                
 
                 emails.add(mail);
                 batchCustomerEmails++;
@@ -203,9 +222,20 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
         }
 
         if (!emails.isEmpty()) {
-
-            Messaging.sendEmail(emails);
-
+            System.debug('Entered to Mails');
+            
+            Messaging.SendEmailResult[] results = Messaging.sendEmail(emails);
+            
+            for (Messaging.SendEmailResult r : results) {
+                if (!r.isSuccess()) {
+                    for (Messaging.SendEmailError e : r.getErrors()) {
+                        System.debug('Email Error: ' + e.getMessage());
+                    }
+                } else {
+                    System.debug('Email Sent Successfully');
+                }
+            }
+            
             totalEmailsSent += emails.size();
             customerEmailsSent += batchCustomerEmails;
             internalEmailsSent += batchInternalEmails;
@@ -254,7 +284,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
         
         // Get admin email from custom settings or organization-wide email
         // For now, using a placeholder - replace with actual admin email retrieval
-        String adminEmail = 'admin@zuari.com'; // TODO: Replace with actual admin email
+        String adminEmail = 'durgaprasad@fingertipplus.com'; // TODO: Replace with actual admin email
         
         System.debug('Admin Email: ' + adminEmail);
         

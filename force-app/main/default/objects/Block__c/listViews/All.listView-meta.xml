@@ -6,6 +6,8 @@
     <columns>Project__c</columns>
     <columns>Intrest_Percentage__c</columns>
     <columns>CRM_Executive__c</columns>
+    <columns>CRM_Head__c</columns>
+    <columns>CRM_Manager__c</columns>
     <columns>CREATED_DATE</columns>
     <columns>CREATEDBY_USER</columns>
     <filterScope>Everything</filterScope>

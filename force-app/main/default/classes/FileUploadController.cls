@@ -12,6 +12,12 @@ public with sharing class FileUploadController {
                 throw new AuraHandledException('Parent Record ID is required.');
             }
             
+                    // Extract main document name (before underscore)
+            String mainDocName = documentName;
+            if(documentName != null && documentName.contains('_')){
+                mainDocName = documentName.substringBefore('_');
+            }
+            
             // Step 1: Check if the file already exists
             List<ContentDocument> existingDocs = [ SELECT Id FROM ContentDocument  WHERE Title = :documentName  ORDER BY LatestPublishedVersionId DESC  LIMIT 1 ];
             
@@ -41,7 +47,7 @@ public with sharing class FileUploadController {
                 newLink.LinkedEntityId = parentId;
                 newLink.ShareType = 'V';
                 newLink.ContentDocumentId = newDocId;
-                   newLink.Visibility = 'AllUsers';
+                newLink.Visibility = 'AllUsers';
                 insert newLink;
                 System.debug('**ContentDocumentLink Created: ' + newLink.Id + '**');
             } catch (DmlException linkEx) {
@@ -49,6 +55,25 @@ public with sharing class FileUploadController {
             }
             
             System.debug('**File Successfully Uploaded and Linked**');
+            Booking__c bk = new Booking__c();
+            bk.Id = parentId;
+            if(mainDocName == 'Government Photo Identity')
+            {
+                bk.Aadhaar_Uploaded__c = true;  
+            }
+            else if(mainDocName == 'Pan Card')
+            {
+                bk.Pan_Uploaded__c = true;  
+            }
+            else if(mainDocName == 'Applicant Photo')
+            {
+                bk.Applicant_Photo_Uploaded__c = true;  
+            }
+            else if(mainDocName == 'Address Proof')
+            {
+                bk.Proof_of_Address_Uploaded__c = true;  
+            }
+            update bk;
             return newDocId;
             
         } catch (Exception ex) {
@@ -109,6 +134,12 @@ public with sharing class FileUploadController {
             // Confirm that the file is available in ContentDocument
             ContentDocument verifyDoc = [SELECT Id, Title FROM ContentDocument WHERE Id = :newDocId LIMIT 1];
             System.debug('**File Verified: ' + verifyDoc.Title + '**');
+            
+            
+   
+
+                
+            
             
             return newDocId;
             

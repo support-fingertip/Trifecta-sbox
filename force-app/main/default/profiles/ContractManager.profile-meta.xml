@@ -553,6 +553,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>RequestForAgreementExtensionController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RoleHeirarchyUtility</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -689,6 +693,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>UpdateTimeExtensionDateController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>UserAvailabilityController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -790,6 +798,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>contactFormatterTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>executeBatchcmpController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -5411,9 +5423,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Payment_schedule__c.Demanded_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -5488,7 +5500,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.PaymentDueDate__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -5583,7 +5595,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X1st_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -5593,12 +5605,12 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X2nd_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X3rd_Interest_Reminder_Date__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -7436,6 +7448,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Receipt__c.Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Refund__c.Bank__c</field>
         <readable>false</readable>
@@ -9240,6 +9257,10 @@
     </recordTypeVisibilities>
     <tabVisibilities>
         <tab>Apex_Log__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>Batch_Executor</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

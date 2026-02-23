@@ -102,129 +102,141 @@ public class DocumentandEmailController {
             // Retrieve the Receipt record
             Receipt__c receipt = [SELECT Id, Booking__c,Name, CreatedBy.Email,Receipt_Date__c,Total_Received_Amount__c
                                   FROM Receipt__c WHERE Id = :receiptId LIMIT 1];
-            
-            List<Receipt_Line_Item__c> receiptItem = [SELECT Id, Name, Bank_Name__c, Mode_of_Payment__c FROM Receipt_Line_Item__c where Receipt__c =:receipt.Id ];
-            
-            Set<String> bankSet = new Set<String>();
-            Set<String> paymentModeSet = new Set<String>();
-            Set<String> paymentFor = new Set<String>();
-            
-            for (Receipt_Line_Item__c rectItem : receiptItem) {
-                if (String.isNotBlank(rectItem.Bank_Name__c)) {
-                    bankSet.add(rectItem.Bank_Name__c);
-                }
-                if (String.isNotBlank(rectItem.Mode_of_Payment__c)) {
-                    paymentModeSet.add(rectItem.Mode_of_Payment__c);
-                }
-                if (String.isNotBlank(rectItem.Name)) {
-                    paymentFor.add(rectItem.Name);
-                }
-            }
-            
-            // Convert to comma separated string
-            String BANK_NAME = String.join(new List<String>(bankSet), ', ');
-            String PAYMENT_MODE = String.join(new List<String>(paymentModeSet), ', ');
-            String PAYMENT_FOR = String.join(new List<String>(paymentFor), ', ');
-            
-            System.debug(receipt);
-            if (receipt == null || receipt.Booking__c == null) {
-                // return 'Receipt or associated Booking record not found.';
-            }
-            
-            // Retrieve the related Booking record
-            Booking__c booking = [SELECT Id, Email__c,First_Applicant_Name__c,Email1__c,Owner.Email,Project__c,Block_Name__c,
-                                  Unit_No__c,Owner_Phone_Number__c,Company_Name__c
-                                  FROM Booking__c WHERE Id = :receipt.Booking__c LIMIT 1];
-            System.debug(booking);
-            
-            if (booking != null && !String.isBlank(booking.Email__c)) {
-                List<String> lstCCEmail = new List<String>();
-                
-                // Retrieve co-applicants associated with the Booking
-                List<Co_Applicant__c> coApps = [SELECT Id, Name, Email__c, Booking__c FROM Co_Applicant__c WHERE Booking__c = :booking.Id];
-                
-                PageReference receiptPage;
-                receiptPage = Page.Receipt;
-                // Generate the PDF for the receipt
-                receiptPage.getParameters().put('id', receiptId);
-                Blob pdfBlob = !Test.isRunningTest() ? receiptPage.getContentAsPDF() : Blob.valueOf('testblob');
-                
-                // Prepare email details
-                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-                List<String> sendTo = new List<String>();
-                sendTo.add(booking.Email__c);
-                System.debug(booking.Email__c);
-                // Include Co-Applicant emails
-                for (Co_Applicant__c ca : coApps) {
-                    if (ca.Email__c != null) {
-                        sendTo.add(ca.Email__c);
+            decimal totalAmount = 0;
+            List<Receipt_Line_Item__c> receiptItem = [SELECT Id, Name, Bank_Name__c, Mode_of_Payment__c,Received_Amount__c FROM Receipt_Line_Item__c
+                                                      where Receipt__c =:receipt.Id AND Payment_Type__c != 'TDS'];
+            if(!receiptItem.isEmpty())
+            {
+                for(Receipt_Line_Item__c rec : receiptItem)
+                {
+                    if(rec.Received_Amount__c != null)
+                    {
+                        totalAmount += rec.Received_Amount__c;
                     }
                 }
                 
-                // Include CC addresses
-                lstCCEmail.add(booking.Owner.Email);
-                if (!lstCCEmail.isEmpty()) {
-                    email.setCcAddresses(lstCCEmail);
+                Set<String> bankSet = new Set<String>();
+                Set<String> paymentModeSet = new Set<String>();
+                Set<String> paymentFor = new Set<String>();
+                
+                for (Receipt_Line_Item__c rectItem : receiptItem) {
+                    if (String.isNotBlank(rectItem.Bank_Name__c)) {
+                        bankSet.add(rectItem.Bank_Name__c);
+                    }
+                    if (String.isNotBlank(rectItem.Mode_of_Payment__c)) {
+                        paymentModeSet.add(rectItem.Mode_of_Payment__c);
+                    }
+                    if (String.isNotBlank(rectItem.Name)) {
+                        paymentFor.add(rectItem.Name);
+                    }
                 }
                 
-                email.setToAddresses(sendTo);
+                // Convert to comma separated string
+                String BANK_NAME = String.join(new List<String>(bankSet), ', ');
+                String PAYMENT_MODE = String.join(new List<String>(paymentModeSet), ', ');
+                String PAYMENT_FOR = String.join(new List<String>(paymentFor), ', ');
                 
-                General_Settings__c temp = [SELECT Template_Body__c, Type__c,Subject__c  FROM General_Settings__c WHERE
-                                            Project_Name1__c INCLUDES (:booking.Project__c)
-                                            AND Type__c = 'Payment Receipt' LIMIT 1];
+                System.debug(receipt);
+                if (receipt == null || receipt.Booking__c == null) {
+                    // return 'Receipt or associated Booking record not found.';
+                }
                 
-                String template = temp.Template_Body__c; 
-                String subject = temp.Subject__c; 
-                template = template.replace('##APPLICANT_NAME##', booking.First_Applicant_Name__c ?? '');
-                template = template.replace('##PROJECT_NAME##', booking.Project__c ?? '');
-                template = template.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
-                template = template.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
-                template = template.replace('##CRM_PHONE##', String.valueOf(booking.Owner_Phone_Number__c ?? ''));
-                template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
-                template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
+                // Retrieve the related Booking record
+                Booking__c booking = [SELECT Id, Email__c,First_Applicant_Name__c,Email1__c,Owner.Email,Project__c,Block_Name__c,
+                                      Unit_No__c,Owner_Phone_Number__c,Company_Name__c
+                                      FROM Booking__c WHERE Id = :receipt.Booking__c LIMIT 1];
+                System.debug(booking);
                 
-                Decimal totalReceivedAmount = receipt.Total_Received_Amount__c;
-                NumberTOWordConvertion conversion = new NumberTOWordConvertion();
-                String amountInWords = totalReceivedAmount != null ?conversion.getNumberTOWordConvertion(totalReceivedAmount) : null;
-                template = template.replace('##AMOUNT_IN_WORDS##', amountInWords ?? '');
-                template = template.replace('##AMOUNT##', String.valueOf(receipt.Total_Received_Amount__c ?? 0));
-                template = template.replace('##TRANSACTION_DATE##', String.valueOf(receipt.Receipt_Date__c ?? null));
-                template = template.replace('##TRANSACTION_NO##', String.valueOf(receipt.Name ?? ''));
-                template = template.replace('##BANK_NAME##', BANK_NAME ?? '');
-                template = template.replace('##PAYMENT_MODE##', PAYMENT_MODE ?? '');
-                template = template.replace('##PAYMENT_FOR##', PAYMENT_FOR ?? '');
-                
-                subject = subject.replace('##PROJECT_NAME##', booking.Project__c ?? '');
-                subject = subject.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
-                subject = subject.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
-
+                if (booking != null && !String.isBlank(booking.Email__c)) {
+                    List<String> lstCCEmail = new List<String>();
+                    
+                    // Retrieve co-applicants associated with the Booking
+                    List<Co_Applicant__c> coApps = [SELECT Id, Name, Email__c, Booking__c FROM Co_Applicant__c WHERE Booking__c = :booking.Id];
+                    
+                    PageReference receiptPage;
+                    receiptPage = Page.Receipt;
+                    // Generate the PDF for the receipt
+                    receiptPage.getParameters().put('id', receiptId);
+                    Blob pdfBlob = !Test.isRunningTest() ? receiptPage.getContentAsPDF() : Blob.valueOf('testblob');
+                    
+                    // Prepare email details
+                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                    List<String> sendTo = new List<String>();
+                    sendTo.add(booking.Email__c);
+                    System.debug(booking.Email__c);
+                    // Include Co-Applicant emails
+                    for (Co_Applicant__c ca : coApps) {
+                        if (ca.Email__c != null) {
+                            sendTo.add(ca.Email__c);
+                        }
+                    }
+                    
+                    // Include CC addresses
+                    lstCCEmail.add(booking.Owner.Email);
+                    if (!lstCCEmail.isEmpty()) {
+                        email.setCcAddresses(lstCCEmail);
+                    }
+                    
+                    email.setToAddresses(sendTo);
+                    
+                    General_Settings__c temp = [SELECT Template_Body__c, Type__c,Subject__c  FROM General_Settings__c WHERE
+                                                Project_Name1__c INCLUDES (:booking.Project__c)
+                                                AND Type__c = 'Payment Receipt' LIMIT 1];
+                    
+                    String template = temp.Template_Body__c; 
+                    String subject = temp.Subject__c; 
+                    template = template.replace('##APPLICANT_NAME##', booking.First_Applicant_Name__c ?? '');
+                    template = template.replace('##PROJECT_NAME##', booking.Project__c ?? '');
+                    template = template.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
+                    template = template.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
+                    template = template.replace('##CRM_PHONE##', String.valueOf(booking.Owner_Phone_Number__c ?? ''));
+                    template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
+                    template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
+                    
           
-               
-                String cleanHtml = template.unescapeHtml4();
-                cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
-                cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
-                String htmlBody =
-                    '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                    + cleanHtml +
-                    '</body></html>';
-                
-                email.setSubject(subject);
-                email.setHtmlBody(htmlBody);
-                
-                // Attach the PDF to the email
-                Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-                attachment.setFileName('Receipt.pdf');
-                attachment.setBody(pdfBlob);
-                email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
-
-                // Send the email
-                Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
-                
+                    NumberTOWordConvertion conversion = new NumberTOWordConvertion();
+                    String amountInWords = totalAmount != null ?conversion.getNumberTOWordConvertion(totalAmount) : null;
+                    template = template.replace('##AMOUNT_IN_WORDS##', amountInWords ?? '');
+                    template = template.replace('##AMOUNT##', String.valueOf(totalAmount ?? 0));
+                    template = template.replace('##TRANSACTION_DATE##', String.valueOf(receipt.Receipt_Date__c ?? null));
+                    template = template.replace('##TRANSACTION_NO##', String.valueOf(receipt.Name ?? ''));
+                    template = template.replace('##BANK_NAME##', BANK_NAME ?? '');
+                    template = template.replace('##PAYMENT_MODE##', PAYMENT_MODE ?? '');
+                    template = template.replace('##PAYMENT_FOR##', PAYMENT_FOR ?? '');
+                    
+                    subject = subject.replace('##PROJECT_NAME##', booking.Project__c ?? '');
+                    subject = subject.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
+                    subject = subject.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
+    
+              
+                   
+                    String cleanHtml = template.unescapeHtml4();
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+                    cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+                    String htmlBody =
+                        '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                        + cleanHtml +
+                        '</body></html>';
+                    
+                    email.setSubject(subject);
+                    email.setHtmlBody(htmlBody);
+                    
+                    // Attach the PDF to the email
+                    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+                    attachment.setFileName('Receipt.pdf');
+                    attachment.setBody(pdfBlob);
+                    email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+    
+                    // Send the email
+                    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+                 }
+                else {
+                    returnMessage = 'Email address not specified in the Booking record.';
+                }
                 // returnMessage = 'Email sent successfully';
-            } else {
-                returnMessage = 'Email address not specified in the Booking record.';
             }
         } catch (Exception e) {
+            system.debug('error'+e.getMessage());
             returnMessage = 'Error sending email: ' + e.getMessage();
         }
         //return returnMessage;

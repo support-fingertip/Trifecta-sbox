@@ -66,7 +66,7 @@ public class ConsolidatedReceiptController {
 
         if (booking.Block_Id__c != null) {
             block = [
-                SELECT Id, Name, Email__c,Project_Address__c,
+                SELECT Id, Name, Email__c,Project_Address__c,Company_Address__c,
                 Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c
                 FROM Block__c
                 WHERE Id = :booking.Block_Id__c
@@ -113,14 +113,10 @@ public class ConsolidatedReceiptController {
             booking.CRM_Executive_Contact_No__c != null
             ? booking.CRM_Executive_Contact_No__c : '';
 
-        bookingInfo.companyAddress =
-            (booking.Project1__r != null &&
-             booking.Project1__r.Company_Address__c != null)
-            ? booking.Project1__r.Company_Address__c : '';
-        
+        bookingInfo.companyAddress = (block != null && block.Company_Address__c != null) ? block.Company_Address__c : '';
+        bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
         if(booking.Project_Type__c == 'Villas')
         {
-            bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
             if(typeVal =='Land')
             {
                 bookingInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';

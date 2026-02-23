@@ -553,6 +553,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>RequestForAgreementExtensionController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RoleHeirarchyUtility</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -689,6 +693,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>UpdateTimeExtensionDateController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>UserAvailabilityController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -790,6 +798,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>contactFormatterTest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>executeBatchcmpController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -7437,6 +7449,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Receipt__c.Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Refund__c.Bank__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -9595,6 +9612,10 @@
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>
+        <tab>Batch_Executor</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
         <tab>Block__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
@@ -10045,6 +10066,10 @@
     </userPermissions>
     <userPermissions>
         <enabled>true</enabled>
+        <name>ManageApiNamedQueries</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
         <name>ManageAuthProviders</name>
     </userPermissions>
     <userPermissions>
@@ -10446,6 +10471,10 @@
     <userPermissions>
         <enabled>true</enabled>
         <name>ViewAllUsers</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ViewApiNamedQueries</name>
     </userPermissions>
     <userPermissions>
         <enabled>true</enabled>

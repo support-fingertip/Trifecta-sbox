@@ -142,7 +142,11 @@ public class DemandRaisedSave {
             template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
             
         }
-        template = emailContent;
+        else
+        {
+            template = emailContent;
+        }
+        
         
         /** ==================FETCH CURRENT PAYMENT SCHEDULE =========================**/
         Payment_Schedule__c currentPS = [
@@ -275,7 +279,7 @@ public class DemandRaisedSave {
         currentPendingTDS = currentPendingTDS < 0 ? 0 : currentPendingTDS;
         
         /** ===================== EXCLUDING TDS ===================== **/
-        prevDueExcludingTDS = balanceDueTillPrevMilestone - previousTDS;
+        prevDueExcludingTDS = balanceDueTillPrevMilestone - pendingPreviousTDS;
         currentDueExcludingTDS = presentDue - currentTds;
         currentDueExcludingTDS = currentDueExcludingTDS < 0 ? 0 : currentDueExcludingTDS;
         
@@ -302,7 +306,7 @@ public class DemandRaisedSave {
         
         re.Include_Interest__c = true;
         re.Due_Date__c = system.today() + 15;
-    
+    	re.Demand_Email_Send__c = true;
         
         re.Amount_Demanded__c = grandTotal;
         re.Grand_Total__c = grandTotal;
@@ -349,13 +353,15 @@ public class DemandRaisedSave {
     public static String raiseNewCustomDemand(String bookingId,String emailContent){ 
         Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
                                         Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
-                                        FROM Payment_Schedule__c WHERE Status__c = 'Completed'  AND Booking__c = :bookingId ORDER BY S_No__c DESC];
+                                        FROM Payment_Schedule__c WHERE Status__c = 'Completed'  AND Booking__c = :bookingId ORDER BY S_No__c DESC limit 1];
         
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
         return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true);
     }
+    
+    
     
     
     
@@ -601,13 +607,9 @@ public class DemandRaisedSave {
         return demands;
     }
     
-    
-    
-    
-    
     public static Map<Integer, String> daySuffixMap = new Map<Integer, String>{1 => 'st', 2 => 'nd', 3 => 'rd', 21 => 'st', 22 => 'nd', 23 => 'rd', 31 => 'st'};
         
-        public static String getMilestoneLabel(Integer sNo) {
+    public static String getMilestoneLabel(Integer sNo) {
             if (sNo == null) {
                 return 'Invalid milestone';
             }
@@ -686,8 +688,7 @@ public class DemandRaisedSave {
             return e.getMessage();
         }
     }
-    
-    
+
     @TestVisible
     public Static List<Demand_Raised__c> bulkAutoDemands ( Map<String,Decimal> bookingsWithPSNO) {
         System.debug(bookingsWithPSNO);

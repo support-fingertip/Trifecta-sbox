@@ -26,7 +26,7 @@
                                          aura:id="fileUpload"
                                          label="File Upload" 
                                          name="file" 
-                                         multiple="true" 
+                                         multiple="false" 
                                          onchange="{!c.filesChangeHandler}"/>
                         <aura:if isTrue="{!v.fileName.length > 0}">
                             <aura:iteration items="{!v.fileName}" var="val">

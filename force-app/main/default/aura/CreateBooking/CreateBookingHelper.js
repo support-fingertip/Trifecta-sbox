@@ -359,6 +359,10 @@
                     }
                 }
             }
+            else
+            {
+                component.set("v.isLoadingNew", false);
+            }
         });
         $A.enqueueAction(action);
     },

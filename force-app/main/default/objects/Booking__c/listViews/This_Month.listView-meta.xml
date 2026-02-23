@@ -13,9 +13,9 @@
     <columns>CREATED_DATE</columns>
     <filterScope>Mine</filterScope>
     <filters>
-        <field>Booking_Date__c</field>
+        <field>CREATED_DATE</field>
         <operation>equals</operation>
-        <value>THIS_MONTH</value>
+        <value>TODAY</value>
     </filters>
     <label>This Month</label>
 </ListView>

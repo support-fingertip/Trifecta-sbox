@@ -48,21 +48,16 @@
         });
         component.set("v.fileName",fileName);
     },
-     uploadFiles: function(component, event, helper){
+    uploadFiles: function(component, event, helper){
         $A.util.removeClass(component.find("mySpinner"),"slds-hide"); 
         var files = component.find("fileUpload").get("v.files");
-         if(!$A.util.isEmpty(files) && !$A.util.isUndefinedOrNull(files)){
-             if(files.length > 0){
-                 helper.uploadFiles(component, event, helper, files);
-             }
-             else{
-                 $A.util.addClass(component.find("mySpinner"),"slds-hide"); 
-                  helper.showToast(component, 'error', 'Please Select File to Upload')
-             }
-         }
-         else{
-             $A.util.addClass(component.find("mySpinner"),"slds-hide"); 
-             helper.showToast(component, 'error', 'Please Select File to Upload');         
-         }
-     },        
+        var fileNames = component.get("v.fileName");
+        if(files && files.length > 0 && fileNames && fileNames.length > 0){
+            helper.uploadFileshelper(component, event, helper, files);
+        } else {
+            $A.util.addClass(component.find("mySpinner"),"slds-hide"); 
+            helper.showToast(component, 'error', 'Please Select File to Upload');
+        }
+    }      
+     
 })

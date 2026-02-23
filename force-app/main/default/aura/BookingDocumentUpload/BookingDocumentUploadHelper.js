@@ -12,7 +12,7 @@
             'Cancellation Agreement'
         ]);
     },
-
+    
     setupColumns : function(component) {
         component.set("v.columns", [
             {
@@ -34,35 +34,35 @@
             }
         ]);
     },
-
+    
     fetchDocuments : function(component) {
-
+        
         let action = component.get("c.getDocuments");
         action.setParams({
             recordId: component.get("v.recordId"),
             docNames: component.get("v.docTypes")
         });
-
+        
         action.setCallback(this, function(response) {
             if (response.getState() === "SUCCESS") {
-
+                
                 let rows = [];
                 let data = response.getReturnValue();
-
+                
                 data.forEach(function(d) {
-
+                    
                     if (d.uploaded) {
-
+                        
                         let docId = d.documentId;
                         let fileName = d.fileName.toLowerCase();
-
+                        
                         let isImage = (
                             fileName.endsWith('.jpg') ||
                             fileName.endsWith('.jpeg') ||
                             fileName.endsWith('.png') ||
                             fileName.endsWith('.gif')
                         );
-
+                        
                         rows.push({
                             id: docId,
                             fileName: d.fileName,
@@ -73,11 +73,11 @@
                         });
                     }
                 });
-
+                
                 component.set("v.uploadedDocs", rows);
             }
         });
-
+        
         $A.enqueueAction(action);
     }
 });

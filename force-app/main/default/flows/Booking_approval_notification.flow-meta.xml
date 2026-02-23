@@ -130,7 +130,7 @@
             <assignToReference>OwnerId</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>$Record.OwnerId</elementReference>
+                <elementReference>$Record.CreatedById</elementReference>
             </value>
         </assignmentItems>
         <connector>

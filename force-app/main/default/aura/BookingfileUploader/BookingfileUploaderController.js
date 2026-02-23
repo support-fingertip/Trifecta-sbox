@@ -1,6 +1,6 @@
 ({
    doInit: function(cmp) {
-    var xyz = cmp.get("v.recordId");
-    cmp.set("v.myRecordID",xyz);
+    var recordId = cmp.get("v.recordId");
+    cmp.set("v.myRecordID",recordId);
    }
 })

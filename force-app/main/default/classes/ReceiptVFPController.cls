@@ -75,7 +75,8 @@ public class ReceiptVFPController {
             Booking__r.Plot__r.Name,
             Booking__r.First_Applicant_Name__c, Booking__r.SLead__r.Lead_ID__c,
             Booking__r.Project1__r.Name,
-            Booking__r.Project1__r.Company_Address__c,
+            Booking__r.Project_Type__c,
+            Booking__r.Project1__r.Company_Address__c,Type__c,
             Booking__r.Unit_No__c, Booking__r.Block_Name__c,Booking__r.Block_Id__c,
             CreatedDate,Booking__r.CRM_Executive_Contact_No__c,Booking__r.Company_Name__c
             FROM Receipt__c
@@ -83,7 +84,8 @@ public class ReceiptVFPController {
         ];
         
         //Block 
-        Block__c block = [select Id,Name,Email__c,Project_Address__c from Block__c where Id =: receiptRecord.Booking__r.Block_Id__c];
+        Block__c block = [select Id,Name,Email__c,Project_Address__c,Construction_Company_Name__c,Land_Company_Name__c,
+                          Company_Name__c,Company_Address__c from Block__c where Id =: receiptRecord.Booking__r.Block_Id__c];
         
         // Convert number to words – safe check
         NumberTOWordConvertion conversion = new NumberTOWordConvertion();
@@ -108,10 +110,26 @@ public class ReceiptVFPController {
         receiptInfo.contactNo =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.CRM_Executive_Contact_No__c != null)
             ? receiptRecord.Booking__r.CRM_Executive_Contact_No__c : '';
         
-        receiptInfo.companyAddress =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Project1__r.Company_Address__c != null)
-            ? receiptRecord.Booking__r.Project1__r.Company_Address__c : ''; 
-           receiptInfo.companyName =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Company_Name__c != null)
-            ? receiptRecord.Booking__r.Company_Name__c : ''; 
+        receiptInfo.companyAddress =  (block.Company_Address__c != null)   ? block.Company_Address__c : ''; 
+        
+        
+        receiptInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if(receiptRecord.Booking__r.Project_Type__c == 'Villas')
+        {
+            if(receiptRecord.Type__c =='Land')
+            {
+                receiptInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            }
+            else if(receiptRecord.Type__c =='Construction')
+            {
+                receiptInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+            }
+            
+        }
+        else
+        {
+            receiptInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        }
         
         
         // Initialize lists
