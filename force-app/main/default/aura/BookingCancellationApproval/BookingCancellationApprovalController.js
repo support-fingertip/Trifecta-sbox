@@ -1,4 +1,25 @@
 ({
+    doInit: function(component, event, helper) {
+        var recordId = component.get("v.recordId");
+        var action = component.get("c.getRecordData");
+        action.setParams({
+            "recordId": recordId
+        });
+        
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                var result = response.getReturnValue();
+                component.set("v.isAfterPostAggrement", result.isAfterPostAggrement);
+                component.set("v.cancellationCharges", result.cancellationAmount);
+            }
+            else {
+                console.error("Error retrieving record data");
+            }
+        });
+        
+        $A.enqueueAction(action);
+    },
     saveCancellationDetails : function(component, event, helper) {
         var isValid = true;
 
@@ -29,7 +50,8 @@
             'recId': component.get('v.recordId'),
             'cancellationReason' : component.get('v.cancellationReason'),
             'cancellationRemarks' : component.get('v.cancellationRemarks'),
-            'cancellationCharges' : component.get('v.cancellationCharges')
+            'cancellationCharges' : component.get('v.cancellationCharges'),
+            'isAfterPostAggrement' : component.get('v.isAfterPostAggrement'),
         });
         action.setCallback(this,function(response){
             if(response.getState()=="SUCCESS"){ 

@@ -20,6 +20,10 @@
     <aura:attribute name="contentDocumentIdsMap" type="Map" />
     <aura:attribute name="buttonstate" type="Boolean" default="false"/>
     <aura:attribute name="emailContent" type="String" />
+
+    <aura:attribute name="filesIDS" type="List" />
+    <aura:attribute name="lastPymtSchedule" type="boolean" default="false" />
+    <aura:handler name="fileUploadEvent" event="c:fileUploadEvent" action="{!c.handleFileUpload}" />
     
     <aura:html tag="style">
         .panel.slds-modal > .modal-container {
@@ -54,6 +58,8 @@
                         <lightning:inputRichText class="custom-textarea" aura:id="emailContent"
                                                  placeholder="Review and edit email content"
                                                  value="{!v.emailContent}" />
+                        
+                        <c:photoUploadComponent recordId="{!v.recordId}" filesIds="{!v.filesIDS}" />
                     </aura:if>
                     
                     <!-- Show Document when viewMode is 'document' -->
@@ -62,6 +68,7 @@
                     </aura:if>
                 </div>
             </div>
+            
         </div>
         
         

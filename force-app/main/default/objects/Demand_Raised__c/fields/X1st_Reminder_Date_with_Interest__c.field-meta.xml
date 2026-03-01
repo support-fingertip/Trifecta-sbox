@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>X1st_Reminder_Date_with_Interest__c</fullName>
     <externalId>false</externalId>
-    <label>1st Reminder Date with Interest</label>
+    <label>Not in Use</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

@@ -37,7 +37,7 @@ public class DemandRaisedSave {
     public static void ResendRaiseDemand(list<Id> recordIds){
         if(recordIds.size() > 0){
             try {
-                DocumentandEmailController.sendEmailGenerateDemand(recordIds);
+                DocumentandEmailController.sendEmailGenerateDemand(recordIds,new List<id>());
                 List<Demand_Raised__c> recordsToUpdate = [SELECT Id, Demand_Email_Send__c FROM Demand_Raised__c WHERE Id IN :recordIds];
                 for (Demand_Raised__c record : recordsToUpdate) {
                     record.Demand_Email_Send__c = true;
@@ -84,7 +84,7 @@ public class DemandRaisedSave {
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book,'',false);
+        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book,'',false,new List<id>());
     }
 
     /**
@@ -102,7 +102,7 @@ public class DemandRaisedSave {
     *
     * @return String - Success or error message.
     */
-    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book,String emailContent,boolean sendEmail) {
+    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book,String emailContent,boolean sendEmail,List<Id> contentIds) {
         
         /** ==================VARIABLE DECLARATIONS =========================**/
         String totalAmountPayableInWords = '';
@@ -333,7 +333,7 @@ public class DemandRaisedSave {
             insert re;
             if(sendEmail && re != null)
             {
-                sendDemandEmail(new List<Id>{re.Id});
+                sendDemandEmail(new List<Id>{re.Id},contentIds);
             }
             
             return 'Demand raised successfully.';
@@ -344,13 +344,13 @@ public class DemandRaisedSave {
     }
     
     @future(callout=true)
-    public static void sendDemandEmail(List<Id> demandIds) {
-        DocumentandEmailController.sendEmailGenerateDemand(demandIds);
+    public static void sendDemandEmail(List<Id> demandIds,List<Id> contentIds) {
+        DocumentandEmailController.sendEmailGenerateDemand(demandIds,contentIds);
     }
     
     /**Raise New Demand **/
     @AuraEnabled
-    public static String raiseNewCustomDemand(String bookingId,String emailContent){ 
+    public static String raiseNewCustomDemand(String bookingId,String emailContent,List<Id> contentIds){ 
         Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
                                         Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
                                         FROM Payment_Schedule__c WHERE Status__c = 'Completed'  AND Booking__c = :bookingId ORDER BY S_No__c DESC limit 1];
@@ -358,7 +358,7 @@ public class DemandRaisedSave {
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true);
+        return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds);
     }
     
     

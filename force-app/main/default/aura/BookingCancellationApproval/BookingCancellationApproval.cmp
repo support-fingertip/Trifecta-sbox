@@ -4,9 +4,11 @@
     
     <aura:attribute name="recordId" type="Id" />
     <aura:attribute name="cancellationReason" type="String" />
+    <aura:attribute name="isAfterPostAggrement" type="boolean" />
     <aura:attribute name="cancellationRemarks" type="String" />
     <aura:attribute name="cancellationCharges" type="Decimal" />
-     
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
     <div class="slds-modal__header">
         <h2 class="slds-text-heading_medium slds-hyphenate">Request For Booking Cancellation</h2>
     </div>

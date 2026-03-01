@@ -73,6 +73,10 @@ public with sharing class FileUploadController {
             {
                 bk.Proof_of_Address_Uploaded__c = true;  
             }
+            else if(mainDocName == 'Cancellation Agreement')
+            {
+                bk.Cancellation_Agreement_Uploaded__c = true;
+            }
             update bk;
             return newDocId;
             

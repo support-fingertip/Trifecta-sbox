@@ -97,7 +97,7 @@
         <inputParameters>
             <name>recipientIds</name>
             <value>
-                <elementReference>RecepientIds</elementReference>
+                <elementReference>OwnerId_CRM_Manager</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -130,11 +130,34 @@
             <assignToReference>RecepientIds</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>$Record.CreatedById</elementReference>
+                <elementReference>$Record.CRM_Manager__r.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
             <targetReference>custom_notification_type</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>OwnerId_CRM_ManagerId</name>
+        <label>OwnerId_CRM_ManagerId</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>OwnerId_CRM_Manager</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.CRM_Manager__r.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>OwnerId_CRM_Manager</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decision</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -218,7 +241,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Decision</targetReference>
+            <targetReference>OwnerId_CRM_ManagerId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -257,6 +280,13 @@
         <text>Booking Id  :  {!$Record.Name}
 Customer Name  :  {!$Record.First_Applicant_Name__c}</text>
     </textTemplates>
+    <variables>
+        <name>OwnerId_CRM_Manager</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
     <variables>
         <name>RecepientIds</name>
         <dataType>String</dataType>

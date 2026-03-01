@@ -4,15 +4,24 @@ public without sharing class RaiseDemandEmailController {
     public class dataBox {
         @AuraEnabled public string emailContent;
         @AuraEnabled public boolean isDemandRaised;
+         @AuraEnabled public boolean lastPymtSchedule;
     }
     @AuraEnabled
     public static dataBox getData(Id bookingId) {
         dataBox dt = new dataBox();
+         boolean lastPymtSchedule =false;
         // Query the latest completed Payment_Schedule__c record based on S_No__c
         Payment_Schedule__c lastCompletedPaymentSchedule = [
-            SELECT Id, Is_Demanded__c,Type__c
+            SELECT Id, Is_Demanded__c,Type__c,S_No__c
             FROM Payment_Schedule__c
             WHERE Booking__c = :bookingId AND Status__c = 'Completed'
+            ORDER BY S_No__c DESC
+            LIMIT 1
+        ];
+         Payment_Schedule__c LastPaymentschedule = [
+            SELECT Id, Is_Demanded__c,Type__c,S_No__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :bookingId
             ORDER BY S_No__c DESC
             LIMIT 1
         ];
@@ -25,6 +34,10 @@ public without sharing class RaiseDemandEmailController {
                                                         Construction_Company_Name__c,Land_Company_Name__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                         Bank_Name__c FROM Block__c WHERE Id = :bk.Block_Id__c LIMIT 1] : null;
+        
+        if(lastCompletedPaymentSchedule.S_No__c == LastPaymentschedule.S_No__c){
+            lastPymtSchedule =true;
+        }
         boolean isDemandRaised = false;
         // Check if the Is_Demanded__c flag is true for the last completed payment schedule
         if (lastCompletedPaymentSchedule != null && lastCompletedPaymentSchedule.Is_Demanded__c) {
@@ -33,6 +46,7 @@ public without sharing class RaiseDemandEmailController {
             isDemandRaised =  true; // Return false if Is_Demanded__c is false or no record found
         }
         dt.isDemandRaised = isDemandRaised;
+         dt.lastPymtSchedule = lastPymtSchedule;
         
         
         String companyName = 'TRIFECTA PROJECTS PVT LTD';
@@ -226,7 +240,7 @@ public without sharing class RaiseDemandEmailController {
     }
     
     @AuraEnabled
-    public Static String RaiseDemand(String bookingId, String emailContent) {
-        return DemandRaisedSave.raiseNewCustomDemand(bookingId,emailContent);
+    public Static String RaiseDemand(String bookingId, String emailContent,List<Id> contentIds) {
+        return DemandRaisedSave.raiseNewCustomDemand(bookingId,emailContent,contentIds);
     }
 }

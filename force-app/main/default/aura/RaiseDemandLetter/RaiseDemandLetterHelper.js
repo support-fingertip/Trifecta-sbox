@@ -12,6 +12,7 @@
             if (state === "SUCCESS") {
                 var returnData = response.getReturnValue();
                 component.set("v.canRaiseDemand", returnData.isDemandRaised);
+                component.set("v.lastPymtSchedule", returnData.lastPymtSchedule);
                 
                 
                 var raw = returnData.emailContent;
@@ -28,6 +29,7 @@
                 decoded = decoded.replace(/<p><br><\/p>/g, "");
                 // 4. Set to Rich Text
                 var richText = component.find("emailContent");
+                console.log("richText" , richText);
                 richText.set("v.value", decoded);
             } else if (state === "ERROR") {
                 var errors = response.getError();

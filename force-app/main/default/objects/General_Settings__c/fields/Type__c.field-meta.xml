@@ -46,6 +46,16 @@
                 <default>false</default>
                 <label>Terms and Conditions</label>
             </value>
+            <value>
+                <fullName>Agreement Remainder</fullName>
+                <default>false</default>
+                <label>Agreement Remainder</label>
+            </value>
+            <value>
+                <fullName>Cancellation Mail Template</fullName>
+                <default>false</default>
+                <label>Cancellation Mail Template</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

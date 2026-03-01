@@ -306,8 +306,8 @@ public class DocumentandEmailController {
         return returnMessage;
     }
     
-    @InvocableMethod
-    public static void sendEmailGenerateDemand(List<Id> recIds) {
+    //@InvocableMethod
+    public static void sendEmailGenerateDemand(List<Id> recIds,List<Id> contentIds) {
         try {
             
             List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
@@ -323,8 +323,8 @@ public class DocumentandEmailController {
             if (demandRecords.isEmpty()) {
                 return;
             }
-            
-            
+            system.debug('contentIds'+ contentIds);
+           
             for (Demand_Raised__c demand : demandRecords) {
                 // Convert comma-separated string of content IDs to Set<Id>
                 List<String> contentDocumentIds = new List<String>();
@@ -380,7 +380,26 @@ public class DocumentandEmailController {
                             emailAttachments.add(contentAttach);
                         }
                     }
-                    
+                    system.debug('contentIds'+ contentIds);
+                    system.debug('contentIds Entered ===================>');
+                    // Query attachments once
+                    List<ContentVersion> contentVersionsMain  = new List<ContentVersion>();
+                    if (contentIds != null && !contentIds.isEmpty()) {
+                        contentVersionsMain  = [
+                            SELECT Title, FileExtension, VersionData
+                            FROM ContentVersion
+                            WHERE ContentDocumentId IN :contentIds
+                            AND IsLatest = true
+                        ];
+
+						 for (ContentVersion cv : contentVersionsMain) {
+                            Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
+                            contentAttach.setFileName(cv.Title + '.' + cv.FileExtension);
+                            contentAttach.setBody(cv.VersionData);
+                            emailAttachments.add(contentAttach);
+                        }
+                    }
+                    system.debug('contentIds completed ===================>');
                     // Attach the Demand PDF
                     Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
                     attachment.setFileName('DemandNote.pdf');

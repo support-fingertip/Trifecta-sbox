@@ -14,15 +14,42 @@
         }
         
     },
-    
+    handleFileUpload: function(component, event, helper) {
+        var files = event.getParam("files");
+        var getFiles = component.get("v.filesIDS");
+        getFiles.push(...files);
+        component.set('v.filesIDS',getFiles);
+        
+        var afercomit = component.get('v.filesIDS');
+    },
     sendEmail: function (component, event, helper) {
+        
+        var isLastPayment = component.get("v.lastPymtSchedule");
+        var files = component.get("v.filesIDS");
+        
+        //  Validation
+        if (isLastPayment && (!files || files.length === 0)) {
+            
+            var toastEvent = $A.get("e.force:showToast");
+            toastEvent.setParams({
+                type: "error",
+                title: "Error",
+                message: "File upload mandatory as this is the last payment schedule",
+                duration: 3000
+            });
+            toastEvent.fire();
+            
+            return; // STOP execution
+        }
         console.log('here sendEmail'); 
         var action = component.get("c.RaiseDemand");
         var recId = component.get("v.recordId");
+        var contentDocumentIds = component.get("v.filesIDS");
 
         action.setParams({
             "bookingId": recId,
-            "emailContent": component.get("v.emailContent")
+            "emailContent": component.get("v.emailContent"),
+            "contentIds": contentDocumentIds  
         });
         console.log('here 1');        
         // Set the callback function to handle the response from Apex

@@ -135,7 +135,7 @@ public without sharing class WelcomeMailController {
             '##CRM_EMAIL##',
             bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : ''
         );
-          template = template.replace(
+        template = template.replace(
             '##COMAPANY_NAME##',
             bk.Company_Name__c != null ? String.valueOf(bk.Company_Name__c) : ''
         );

@@ -35,7 +35,7 @@
                         <valueListItems>
                             <value>Booking__c.Mark_Stage_as_Completed</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage_Status__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -50,6 +50,11 @@
                                     <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -108,10 +113,16 @@
                         <valueListItems>
                             <value>Booking__c.Create_Receipt</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Pending_Amount__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>0</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -133,6 +144,22 @@
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Sales</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Raise_Demand</value>
+                            <visibilityRule>
+                                <booleanFilter>1 OR 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Agreement</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Demands &amp; Progressive Collections</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -167,9 +194,30 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Booking__c.Send_Cancellation_Mail</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Cancellation_Email_Sent__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Cancellation</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>CRM Manager</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Booking__c.Request_For_Booking_Cancellation</value>
                             <visibilityRule>
-                                <booleanFilter>(1 OR 3 ) AND 2 AND 4</booleanFilter>
+                                <booleanFilter>(1 OR 3 ) AND 2 AND 4 AND 5</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>EQUAL</operator>
@@ -190,31 +238,26 @@
                                     <operator>NE</operator>
                                     <rightValue>Submitted For Cancellation</rightValue>
                                 </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Booking__c.Raise_Demand</value>
-                            <visibilityRule>
-                                <booleanFilter>1 OR 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Agreement</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Stage__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Demands &amp; Progressive Collections</rightValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Time_Extension_Approval_Status__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Pending</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -848,8 +891,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Agreement_Execution_Amount1__c</fieldItem>
-                <identifier>RecordAgreement_Execution_Amount1_cField</identifier>
+                <fieldItem>Record.Agreement_Reminder_Date__c</fieldItem>
+                <identifier>RecordAgreement_Reminder_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-0a935c13-4759-438d-bd1f-bcdd4430a355</name>
@@ -1812,6 +1855,16 @@
                 <identifier>RecordCancellation_Status_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Cancellation_Email_Sent__c</fieldItem>
+                <identifier>RecordCancellation_Email_Sent_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-34382561-8197-40b3-ae10-70a2c711659b</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -1844,6 +1897,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Cancellation_Agreement_Uploaded__c</fieldItem>
                 <identifier>RecordCancellation_Agreement_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Cancellation_Email_Sent_Time__c</fieldItem>
+                <identifier>RecordCancellation_Email_Sent_Time_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-618dd2dc-b8ca-424f-a872-f6ab3da24af6</name>
@@ -2765,6 +2828,12 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>PSRQuickActionButton</componentName>
+                <identifier>c_PSRQuickActionButton</identifier>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
