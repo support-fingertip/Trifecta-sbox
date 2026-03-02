@@ -1,11 +1,11 @@
 ({
     doInit: function (component, event, helper) {
+        component.set("v.isLoading", true);
         var masterPaymentScheduleId = component.get("v.recordId");
         var gotList = component.get('v.bookingRecords');
         if(gotList.length === 0 ){
             var action = component.get("c.getBookingRecords");
             action.setParams({ "masterPaymentScheduleId": masterPaymentScheduleId });
-            
             action.setCallback(this, function (response) {
                 var state = response.getState();
                 if (state === "SUCCESS") {
@@ -14,13 +14,12 @@
                     console.error("Error fetching Booking records");
                     helper.showToast(component, 'Error', 'Error fetching Booking records', 'error');
                 }
+                component.set("v.isLoading", false);
             });
             
             $A.enqueueAction(action);
-        }
-        else{
-            
-        }        
+        }     
+        
     },
     handleFileUpload: function(component, event, helper) {
         var files = event.getParam("files");

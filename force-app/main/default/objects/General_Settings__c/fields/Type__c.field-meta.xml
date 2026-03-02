@@ -56,6 +56,11 @@
                 <default>false</default>
                 <label>Cancellation Mail Template</label>
             </value>
+            <value>
+                <fullName>PSR Mail Template</fullName>
+                <default>false</default>
+                <label>PSR Mail Template</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

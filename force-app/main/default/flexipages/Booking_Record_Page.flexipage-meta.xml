@@ -2830,8 +2830,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>PSRQuickActionButton</componentName>
-                <identifier>c_PSRQuickActionButton</identifier>
+                <componentName>ProjectStatusReportButton</componentName>
+                <identifier>c_ProjectStatusReportButton</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

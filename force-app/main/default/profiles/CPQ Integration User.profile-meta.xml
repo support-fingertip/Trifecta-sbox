@@ -429,10 +429,6 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>PSRQuickActionController</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>PaymentScheduleBatch</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -458,6 +454,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ProjectNameAutoFillTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ProjectStatusReportController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
