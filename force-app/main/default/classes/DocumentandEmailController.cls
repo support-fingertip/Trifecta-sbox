@@ -193,7 +193,7 @@ public class DocumentandEmailController {
                     template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
                     template = template.replace('##COMAPANY_NAME##', String.valueOf(booking.Company_Name__c ?? ''));
                     
-          
+                    
                     NumberTOWordConvertion conversion = new NumberTOWordConvertion();
                     String amountInWords = totalAmount != null ?conversion.getNumberTOWordConvertion(totalAmount) : null;
                     template = template.replace('##AMOUNT_IN_WORDS##', amountInWords ?? '');
@@ -207,9 +207,9 @@ public class DocumentandEmailController {
                     subject = subject.replace('##PROJECT_NAME##', booking.Project__c ?? '');
                     subject = subject.replace('##BLOCK_NAME##', String.valueOf(booking.Block_Name__c ?? ''));
                     subject = subject.replace('##UNIT_NUMBER##', String.valueOf(booking.Unit_No__c ?? ''));
-    
-              
-                   
+                    
+                    
+                    
                     String cleanHtml = template.unescapeHtml4();
                     cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
                     cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
@@ -226,10 +226,10 @@ public class DocumentandEmailController {
                     attachment.setFileName('Receipt.pdf');
                     attachment.setBody(pdfBlob);
                     email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
-    
+                    
                     // Send the email
                     Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
-                 }
+                }
                 else {
                     returnMessage = 'Email address not specified in the Booking record.';
                 }
@@ -324,7 +324,7 @@ public class DocumentandEmailController {
                 return;
             }
             system.debug('contentIds'+ contentIds);
-           
+            
             for (Demand_Raised__c demand : demandRecords) {
                 // Convert comma-separated string of content IDs to Set<Id>
                 List<String> contentDocumentIds = new List<String>();
@@ -391,8 +391,8 @@ public class DocumentandEmailController {
                             WHERE ContentDocumentId IN :contentIds
                             AND IsLatest = true
                         ];
-
-						 for (ContentVersion cv : contentVersionsMain) {
+                        
+                        for (ContentVersion cv : contentVersionsMain) {
                             Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
                             contentAttach.setFileName(cv.Title + '.' + cv.FileExtension);
                             contentAttach.setBody(cv.VersionData);
@@ -617,4 +617,95 @@ public class DocumentandEmailController {
         
         return result;
     }
+ @AuraEnabled
+public static String sendKeyHandoverEmail(Id bookingId) {
+    try {
+        // 1. Fetch Booking - Ensure Email__c is selected
+        Booking__c booking = [
+            SELECT Id, First_Applicant_Name__c, Email__c, Email1__c, 
+                   Owner.Email, Project_Type__c
+            FROM Booking__c
+            WHERE Id = :bookingId
+            LIMIT 1
+        ];
+        
+        // Validation: If the primary Email__c is blank, stop immediately
+        if (String.isBlank(booking.Email__c)) {
+            return 'Error: The primary email field (Email__c) is empty. Please provide a recipient email.';
+        }
+
+        // 2. Determine which Visualforce PDF to generate
+        PageReference pr;
+        String pType = booking.Project_Type__c;
+        
+        if (pType == 'Villas') {
+            pr = Page.VillasKeyHandoverVfp;
+        } else if (pType == 'Row House') {
+            pr = Page.RowHouseKeyHandoverVfp;
+        } else if (pType == 'Apartments' || pType == 'Plots') {
+            pr = Page.FlatKeyHandoverVfp;
+        } else {
+            return 'Error: No Key Handover document exists for Project Type: ' + pType;
+        }
+        
+        pr.getParameters().put('id', String.valueOf(bookingId));
+        Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test PDF Content') : pr.getContentAsPDF();
+
+        // 3. Build Recipient List
+        List<String> toList = new List<String>();
+        
+        // Add the primary Email__c first
+        toList.add(booking.Email__c);
+        
+        // Add secondary email if available
+        if (String.isNotBlank(booking.Email1__c)) {
+            toList.add(booking.Email1__c);
+        }
+
+        // Add Co-Applicant emails
+        for (Co_Applicant__c ca : [SELECT Email__c FROM Co_Applicant__c WHERE Booking__c = :bookingId]) {
+            if (String.isNotBlank(ca.Email__c)) {
+                toList.add(ca.Email__c);
+            }
+        }
+
+        // Run validation to remove any malformed email strings
+        toList = validateEmails(toList);
+        
+        if (toList.isEmpty()) {
+            return 'Error: No valid email addresses found in the Booking or Co-Applicants.';
+        }
+
+        // 4. Create and Send the Email
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setToAddresses(toList);
+        
+        // CC the Record Owner
+        if (String.isNotBlank(booking.Owner.Email)) {
+            email.setCcAddresses(new List<String>{booking.Owner.Email});
+        }
+        
+        String custName = String.isNotBlank(booking.First_Applicant_Name__c) ? booking.First_Applicant_Name__c : 'Customer';
+        email.setSubject('Key Handover Document - ' + custName);
+        email.setHtmlBody('Dear ' + custName + ',<br/><br/>Please find the attached Key Handover document for your unit.<br/><br/>Regards,<br/>Customer Relations Team');
+        
+        // Links email to the Activity Timeline of the Booking record
+        email.setWhatId(bookingId);
+        email.setSaveAsActivity(true);
+
+        // Attach the PDF
+        Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
+        attach.setFileName('Key_Handover_Document.pdf');
+        attach.setBody(pdfBlob);
+        attach.setContentType('application/pdf');
+        email.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
+
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+        
+        return 'Success: Key Handover email sent to ' + booking.Email__c;
+
+    } catch (Exception e) {
+        return 'Error: ' + e.getMessage();
+    }
+}
 }

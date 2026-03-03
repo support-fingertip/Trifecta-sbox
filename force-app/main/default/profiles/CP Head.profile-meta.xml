@@ -18,7 +18,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>BookingCancellationApprovalController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BookingController</apexClass>
@@ -50,15 +50,15 @@
     </classAccesses>
     <classAccesses>
         <apexClass>BookingStageController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BookingSummaryController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BookingTriggerHandler</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BookingWelcomeMail</apexClass>
@@ -86,7 +86,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>CancellationMailController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>CarParkingController</apexClass>
@@ -378,7 +378,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>MarkBookingStageCompletedController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>MarkUnqualifiedController</apexClass>
@@ -390,7 +390,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>MasterPaymentScheduleTriggerHandler</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>MicrobatchSelfRegController</apexClass>
@@ -458,7 +458,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ProjectStatusReportController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>PushToCrmController</apexClass>
@@ -522,7 +522,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ReceiptLineIemTriggerHandler</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>ReceiptTriggerHandler</apexClass>
@@ -562,7 +562,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>RequestForAgreementExtensionController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>RoleHeirarchyUtility</apexClass>
@@ -702,7 +702,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>UpdateTimeExtensionDateController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>UserAvailabilityController</apexClass>
@@ -758,11 +758,11 @@
     </classAccesses>
     <classAccesses>
         <apexClass>WelcomeCallReminderBatch</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>WelcomeCallReminderScheduler</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>WelcomeMailController</apexClass>
@@ -810,7 +810,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>executeBatchcmpController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>followUpController</apexClass>
@@ -5547,6 +5547,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Pending_Tds_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Pre_Termination_Mail_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -5569,6 +5574,11 @@
         <editable>false</editable>
         <field>Payment_schedule__c.Received_Amount__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Received_Tds_Amount__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -9301,6 +9311,10 @@
         <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>FlatKeyHandoverVfp</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>ForgotPassword</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -9361,6 +9375,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>RowHouseKeyHandoverVfp</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>SaleAgreement</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -9415,6 +9433,10 @@
     <pageAccesses>
         <apexPage>UnderConstruction</apexPage>
         <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>VillasKeyHandoverVfp</apexPage>
+        <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
         <apexPage>ZuariCostSheet</apexPage>

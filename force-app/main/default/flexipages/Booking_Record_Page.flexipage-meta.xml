@@ -33,6 +33,27 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Booking__c.Welcome_Mail</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Booked</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Welcome_Email_Sent_to_Customer__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Sales</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Booking__c.Mark_Stage_as_Completed</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
@@ -123,27 +144,6 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Booking__c.Welcome_Mail</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Stage__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Booked</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Welcome_Email_Sent_to_Customer__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>NE</operator>
-                                    <rightValue>Sales</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -248,7 +248,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Time_Extension_Approval_Status__c}</leftValue>
                                     <operator>NE</operator>
@@ -259,7 +259,15 @@
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Agreement</rightValue>
+                                </criteria>
                             </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Generate_Key_Handover_Letter</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>

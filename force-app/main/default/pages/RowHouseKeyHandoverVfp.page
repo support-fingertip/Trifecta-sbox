@@ -1,0 +1,194 @@
+<apex:page sidebar="false"
+           showHeader="false"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           cache="false"
+           renderAs="pdf">
+    
+    <html>
+        <head>
+            <style type="text/css">
+                @page {
+                size: A4;
+                margin: 1in 0.6in 1in 0.6in; /* reduce left/right margins */
+                }
+                
+                body {
+                font-family: "Times New Roman", Times, serif;
+                font-size: 12pt;
+                color: #000000;
+                }
+                
+                .page-wrapper {
+                width: 100%;
+                }
+                
+                .heading-project {
+                font-size: 16pt;
+                font-weight: bold;
+                text-align: center;
+                }
+                
+                .heading-address {
+                margin-top: 10px;
+                font-size: 16px;
+                text-align: center;
+                }
+                
+                .section-title {
+                margin-top: 30px;
+                margin-bottom: 20px;
+                font-weight: bold;
+                text-align: center;
+                text-decoration: underline;
+                }
+                
+                .content-block {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                }
+                
+                .content-block p {
+                margin: 3px 0;
+                }
+                
+                .label-inline {
+                display: inline-block;
+                min-width: 65px;
+                }
+                
+                table.keys-table {
+                width: 100%;              /* full width table */
+                border-collapse: collapse;
+                margin-top: 15px;
+                margin-bottom: 20px;      /* bottom margin after table */
+                font-size: 11pt;
+                }
+                
+                table.keys-table th,
+                table.keys-table td {
+                border: 1px solid #000000;
+                padding: 4px 6px;
+                text-align: center;
+                }
+                
+                table.keys-table th {
+                font-weight: bold;
+                }
+                
+                .signature-block-title {
+                margin-top: 10px;
+                margin-bottom: 5px;
+                font-weight: bold;
+                }
+                
+                .line-block {
+                border-bottom: 1px solid #000000;
+                height: 16px;
+                margin-top: 4px;
+                margin-bottom: 4px;
+                }
+                
+                hr.header-line {
+                border: none;
+                border-top: 1px solid #000000;
+                margin-top: 20px;
+                margin-bottom: 30px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="page-wrapper">
+                
+                <!-- Project Header -->
+                <div class="heading-project">
+                    TRIFECTA VERDE EN RESPLANDOR ROW HOUSE PHASE -3
+                </div>
+                <div class="heading-address">
+                    Thirumenahalli, Mandur post, Bengaluru, Karnataka - 560049
+                </div>
+                
+                <hr class="header-line" />
+                
+                <!-- Main Title -->
+                <div class="section-title">
+                    ROW HOUSE KEYS HANDOVER CHECKLIST
+                </div>
+                
+                <!-- Address To -->
+                <div class="content-block">
+                    <p style="margin-top: 20px;">To,</p>
+                    <span style="margin-top: 20px;" >Mr.____________ </span><span style="margin-top: 20px;">Mrs.____________ </span>
+                    <p style="margin-top: 10px;">FLAT NO - </p>
+                    <p style="margin-top: 10px;"><span >SUB:</span>ROW HOUSE KEYS HANDOVER</p>
+                </div>
+                
+                <br/>
+                <!-- Keys Table -->
+                <table class="keys-table" style="text-align: left;">
+                    <tr>
+                        <th style="text-align: left;">SL No</th>
+                        <th style="text-align: left;">LOCATION</th>
+                        <th style="text-align: left;">NO. OF KEYS</th>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">1</td>
+                        <td style="text-align: left;">Main Door</td>
+                        <td style="text-align: left;">2 + 2</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">2</td>
+                        <td style="text-align: left;">Guest Bedroom</td>
+                        <td style="text-align: left;">3</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">3</td>
+                        <td style="text-align: left;">Master Bedroom</td>
+                        <td style="text-align: left;">3</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">4</td>
+                        <td style="text-align: left;">Children Bedroom</td>
+                        <td style="text-align: left;">3</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">5</td>
+                        <td style="text-align: left;">Basement Door</td>
+                        <td style="text-align: left;">4</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;">6</td>
+                        <td style="text-align: left;">Second floor</td>
+                        <td style="text-align: left;">3</td>
+                    </tr>
+                </table>
+                
+                <br/>
+                <br/>
+                <!-- Handed Over By -->
+                <div class="content-block">
+                    
+                    Key Handed Over By
+                    <div class="signature-block-title">
+                        <br/>
+                        <p>Name:</p>
+                        
+                        <p>Designation: Support help</p>
+                        
+                        <p>Mobile Number:</p>
+                    </div>
+                </div>
+                <br/><br/>
+                <!-- Flat Owner Acknowledgement -->
+                <div class="content-block">
+                    <p>Row House Owner’s Acknowledgment:  </p>
+                    <br/><br/>
+                    <p style="border-bottom: 1px solid black; padding-bottom: 1px; display: inline-block;">Customer Signature:</p>
+                    
+                    
+                </div>
+                
+            </div>
+        </body>
+    </html>
+</apex:page>

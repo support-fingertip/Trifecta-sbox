@@ -1,4 +1,8 @@
 public class DemandRaisedSave {
+    //=======================================
+    //Signle Demand Raise 
+    //=======================================
+    
     /**
     * Method Name  : getDemandRaised
     * Description  : Entry method to generate Demand record for selected Payment Schedule milestone.
@@ -52,7 +56,7 @@ public class DemandRaisedSave {
     
     /**
     * Method Name  : raiseCustomDemand
-    * Description  : Entry method to generate Demand record for selected Payment Schedule milestone.
+    * Description  : When Welcome mail Send Using this method we are raising 1st Demand
     *
     * Functionality:
     * 1. Fetches Payment_Schedule__c record based on milestoneId.
@@ -348,7 +352,7 @@ public class DemandRaisedSave {
         DocumentandEmailController.sendEmailGenerateDemand(demandIds,contentIds);
     }
     
-    /**Raise New Demand **/
+    /**Raise New Demand When Raise Demand Button Clicked**/
     @AuraEnabled
     public static String raiseNewCustomDemand(String bookingId,String emailContent,List<Id> contentIds){ 
         Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
@@ -362,12 +366,9 @@ public class DemandRaisedSave {
     }
     
     
-    
-    
-    
-    
-    
-    
+    //=======================================
+    //Bulk Demand Raise 
+    //=======================================
     @AuraEnabled
     public Static String RaiseDemand(List<Id> bookingIds, Map<Id,String> emailContents, map<Id,List<String>> contentIds ) {
         
@@ -379,8 +380,8 @@ public class DemandRaisedSave {
         }
         
         List<Booking__c> bookings = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, GST__c,CRM_Manager__c,
-                                     Project1__r.Name,Quote__r.With_GST__c, RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c
-                                     FROM Booking__c WHERE Id IN :bookingIds];
+                                     Project1__r.Name,Quote__r.With_GST__c, RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,
+                                     Block_Name__c,Unit_No__c,Owner_Phone_Number__c,Company_Name__c FROM Booking__c WHERE Id IN :bookingIds];
         
         if (bookings.isEmpty()) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'No Booking records found.'));
@@ -394,7 +395,7 @@ public class DemandRaisedSave {
         }
         
         if (!apartmentBookings.isEmpty()) {
-            List<Demand_Raised__c> apartmentDemands = bulkScheduleCalculations(apartmentBookings,emailContents,contentIds);
+            List<Demand_Raised__c> apartmentDemands = bulkScheduleCalculations(apartmentBookings,emailContents,contentIds,true);
             if (apartmentDemands != null && !apartmentDemands.isEmpty()) {
                 demandRaisedReturn = 'Demand Raise records created';
             }
@@ -404,7 +405,9 @@ public class DemandRaisedSave {
     }
     
     @TestVisible
-    private Static List<Demand_Raised__c> bulkScheduleCalculations(List<Booking__c> bookings,Map<Id,String> emailContents, map<Id,List<String>> contentIds) {
+    private Static List<Demand_Raised__c> bulkScheduleCalculations1(List<Booking__c> bookings,Map<Id,String> emailContents,
+                                                                   map<Id,List<String>> contentIds)
+    {
         List<Demand_Raised__c> demands = new List<Demand_Raised__c>();
         Map<Id, Payment_Schedule__c> bookingLatestPaymentSchedules = new Map<Id, Payment_Schedule__c>();
         Map<Id, List<Payment_Schedule__c>> groupedByBooking = new Map<Id, List<Payment_Schedule__c>>();
@@ -607,6 +610,377 @@ public class DemandRaisedSave {
         return demands;
     }
     
+    @TestVisible
+    private static List<Demand_Raised__c> bulkScheduleCalculations(
+        List<Booking__c> bookings,
+        Map<Id, String> emailContents,
+        Map<Id, List<String>> contentIds,
+        Boolean sendEmail
+    ) {
+        List<Demand_Raised__c> demands = new List<Demand_Raised__c>();
+        Map<Id, Payment_Schedule__c> bookingLatestPaymentSchedules = new Map<Id, Payment_Schedule__c>();
+        Map<Id, List<Payment_Schedule__c>> groupedByBooking = new Map<Id, List<Payment_Schedule__c>>();
+        Map<Id, Booking__c> bookingProjectMap = new Map<Id, Booking__c>();
+        Set<Id> bookingIds = new Set<Id>();
+        
+        for (Booking__c book : bookings) {
+            bookingProjectMap.put(book.Id, book);
+            bookingIds.add(book.Id);
+        }
+        
+        /** ==================FETCH ALL COMPLETED PAYMENT SCHEDULES ========================= **/
+        List<Payment_Schedule__c> psRecords = [
+            SELECT Id, S_No__c, Is_Demanded__c, Completed_Date__c, Booking__c, Name, Payment_percent__c,
+            Interest_Paid__c, Received_Amount1__c, Interest_Up_to_Date__c, AmountB__c, Interest_Amount__c,
+            Pending_Amount__c, Last_Payment_Schedule__c, Total_TDS_Amount__c
+            FROM Payment_Schedule__c
+            WHERE Status__c = 'Completed' AND Booking__c IN :bookingIds
+        ];
+        
+        for (Payment_Schedule__c ps : psRecords) {
+            if (!groupedByBooking.containsKey(ps.Booking__c)) {
+                groupedByBooking.put(ps.Booking__c, new List<Payment_Schedule__c>());
+            }
+            groupedByBooking.get(ps.Booking__c).add(ps);
+        }
+        
+        // Find the latest (highest S_No__c) Payment Schedule per booking
+        for (Id bookingId : groupedByBooking.keySet()) {
+            List<Payment_Schedule__c> schedules = groupedByBooking.get(bookingId);
+            Decimal highestSNo = 0;
+            Payment_Schedule__c latestps;
+            for (Payment_Schedule__c schedule : schedules) {
+                if (schedule.S_No__c != null && schedule.S_No__c > highestSNo) {
+                    highestSNo = schedule.S_No__c;
+                    latestps = schedule;
+                }
+            }
+            bookingLatestPaymentSchedules.put(bookingId, latestps);
+        }
+        
+        /** ==================PREVIOUS MILESTONE AGGREGATES (excluding current) ========================= **/
+        Set<Id> latestPSIds = new Set<Id>();
+        for (Payment_Schedule__c ps : bookingLatestPaymentSchedules.values()) {
+            if (ps != null) latestPSIds.add(ps.Id);
+        }
+        
+        List<AggregateResult> previousAggregates = [
+            SELECT Booking__c,
+            SUM(Pending_Amount__c) totalPendingAmount,
+            SUM(Interest_Up_to_Date__c) totalInterestAmount,
+            SUM(Interest_Paid__c) totalInterestPaid,
+            SUM(Payment_percent__c) paymentPercentageTill,
+            SUM(Total_TDS_Amount__c) tdsAmount
+            FROM Payment_Schedule__c
+            WHERE Status__c = 'Completed'
+            AND Booking__c IN :bookingIds
+            AND Id NOT IN :latestPSIds
+            GROUP BY Booking__c
+        ];
+        
+        /** ==================CURRENT MILESTONE AGGREGATES ========================= **/
+        // Build a map of booking → current S_No for current milestone aggregation
+        Map<Id, Decimal> bookingToCurrentSNo = new Map<Id, Decimal>();
+        for (Id bookingId : bookingLatestPaymentSchedules.keySet()) {
+            Payment_Schedule__c ps = bookingLatestPaymentSchedules.get(bookingId);
+            if (ps != null) bookingToCurrentSNo.put(bookingId, ps.S_No__c);
+        }
+        
+        // Current milestone aggregates (handles cases where multiple PS records share same S_No)
+        List<AggregateResult> currentAggregates = [
+            SELECT Booking__c,
+            SUM(Pending_Amount__c) currentPending,
+            SUM(Interest_Up_to_Date__c) currentInterest,
+            SUM(Interest_Paid__c) currentInterestPaid,
+            SUM(Payment_percent__c) currentPaymentPercent,
+            SUM(Total_TDS_Amount__c) currentTds
+            FROM Payment_Schedule__c
+            WHERE Booking__c IN :bookingIds
+            AND Id IN :latestPSIds
+            GROUP BY Booking__c
+        ];
+        
+        /** ==================TOTAL RECEIVED (all milestones) ========================= **/
+        List<AggregateResult> totalReceivedAll = [
+            SELECT Booking__c,
+            SUM(Received_Amount1__c) totalReceivedAmountAll,
+            SUM(Interest_Paid__c) totalInterestPaidAll
+            FROM Payment_Schedule__c
+            WHERE Booking__c IN :bookingIds
+            GROUP BY Booking__c
+        ];
+        
+        /** ==================TDS FROM RECEIPT LINE ITEMS ========================= **/
+        List<AggregateResult> tdsReceipts = [
+            SELECT Booking__c,
+            SUM(Amount__c) paidTDS
+            FROM Receipt_Line_Item__c
+            WHERE Payment_Type__c = 'TDS'
+            AND Booking__c IN :bookingIds
+            GROUP BY Booking__c
+        ];
+        
+        /** ==================BUILD MAPS ========================= **/
+        // Previous milestone maps
+        Map<Id, Decimal> prevPendingMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> prevInterestMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> prevInterestPaidMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> prevPaymentPercentMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> prevTDSMap = new Map<Id, Decimal>();
+        
+        for (AggregateResult ar : previousAggregates) {
+            Id bookingId = (Id) ar.get('Booking__c');
+            prevPendingMap.put(bookingId, (Decimal) ar.get('totalPendingAmount') ?? 0);
+            prevInterestMap.put(bookingId, (Decimal) ar.get('totalInterestAmount') ?? 0);
+            prevInterestPaidMap.put(bookingId, (Decimal) ar.get('totalInterestPaid') ?? 0);
+            prevPaymentPercentMap.put(bookingId, (Decimal) ar.get('paymentPercentageTill') ?? 0);
+            prevTDSMap.put(bookingId, (Decimal) ar.get('tdsAmount') ?? 0);
+        }
+        
+        // Current milestone maps
+        Map<Id, Decimal> currPendingMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> currInterestMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> currInterestPaidMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> currPaymentPercentMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> currTDSMap = new Map<Id, Decimal>();
+        
+        for (AggregateResult ar : currentAggregates) {
+            Id bookingId = (Id) ar.get('Booking__c');
+            currPendingMap.put(bookingId, (Decimal) ar.get('currentPending') ?? 0);
+            currInterestMap.put(bookingId, (Decimal) ar.get('currentInterest') ?? 0);
+            currInterestPaidMap.put(bookingId, (Decimal) ar.get('currentInterestPaid') ?? 0);
+            currPaymentPercentMap.put(bookingId, (Decimal) ar.get('currentPaymentPercent') ?? 0);
+            currTDSMap.put(bookingId, (Decimal) ar.get('currentTds') ?? 0);
+        }
+        
+        // Total received maps (all milestones)
+        Map<Id, Decimal> totalReceivedMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> totalInterestPaidAllMap = new Map<Id, Decimal>();
+        
+        for (AggregateResult ar : totalReceivedAll) {
+            Id bookingId = (Id) ar.get('Booking__c');
+            totalReceivedMap.put(bookingId, (Decimal) ar.get('totalReceivedAmountAll') ?? 0);
+            totalInterestPaidAllMap.put(bookingId, (Decimal) ar.get('totalInterestPaidAll') ?? 0);
+        }
+        
+        // TDS paid map
+        Map<Id, Decimal> tdsPaidMap = new Map<Id, Decimal>();
+        for (AggregateResult ar : tdsReceipts) {
+            Id bookingId = (Id) ar.get('Booking__c');
+            tdsPaidMap.put(bookingId, (Decimal) ar.get('paidTDS') ?? 0);
+        }
+        
+        /** ==================EMAIL TEMPLATE FETCH (bulk) ========================= **/
+        // Collect all unique project names
+        Set<String> projectNames = new Set<String>();
+        for (Booking__c book : bookings) {
+            if (String.isNotBlank(book.Project__c)) {
+                projectNames.add(book.Project__c);
+            }
+        }
+        
+        // Bulk fetch templates
+        Map<String, String> templateByProject = new Map<String, String>();
+        if (!projectNames.isEmpty()) {
+            
+            // Build INCLUDES clause dynamically for multi-select picklist
+            List<String> includesClauses = new List<String>();
+            for (String pName : projectNames) {
+                includesClauses.add('\'' + String.escapeSingleQuotes(pName) + '\'');
+            }
+            String includesValue = String.join(includesClauses, ',');
+            
+            String query = 'SELECT Template_Body__c, Project_Name1__c '
+                + 'FROM General_Settings__c '
+                + 'WHERE Project_Name1__c INCLUDES (' + includesValue + ') '
+                + 'AND Type__c = \'Demand Note\'';
+            
+            List<General_Settings__c> templates = Database.query(query);
+            
+            // Build the map — since Project_Name1__c is multi-select,
+            // map each individual project value to the template
+            for (General_Settings__c gs : templates) {
+                if (String.isNotBlank(gs.Project_Name1__c)) {
+                    for (String proj : gs.Project_Name1__c.split(';')) {
+                        if (projectNames.contains(proj)) {
+                            templateByProject.put(proj, gs.Template_Body__c);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /** ==================PROCESS EACH BOOKING ========================= **/
+        List<Payment_Schedule__c> psToUpdate = new List<Payment_Schedule__c>();
+        
+        for (Id bookingId : bookingLatestPaymentSchedules.keySet()) {
+            
+            Payment_Schedule__c currentPS = bookingLatestPaymentSchedules.get(bookingId);
+            
+            // Skip if already demanded
+            if (currentPS == null || currentPS.Is_Demanded__c == true) {
+                continue;
+            }
+            
+            Booking__c book = bookingProjectMap.get(bookingId);
+            
+            // ===== PREVIOUS MILESTONE VALUES =====
+            Decimal balanceDueTillPrevMilestone = prevPendingMap.containsKey(bookingId) ? prevPendingMap.get(bookingId) : 0;
+            Decimal previousMilestoneInterest = prevInterestMap.containsKey(bookingId) ? prevInterestMap.get(bookingId) : 0;
+            Decimal previousTotalInterestPaid = prevInterestPaidMap.containsKey(bookingId) ? prevInterestPaidMap.get(bookingId) : 0;
+            Decimal previousMilestonePaymentPercent = prevPaymentPercentMap.containsKey(bookingId) ? prevPaymentPercentMap.get(bookingId) : 0;
+            Decimal previousTDS = prevTDSMap.containsKey(bookingId) ? prevTDSMap.get(bookingId) : 0;
+            
+            Decimal previousBalanceInterest = previousMilestoneInterest - previousTotalInterestPaid;
+            
+            // ===== CURRENT MILESTONE VALUES =====
+            Decimal presentDue = currPendingMap.containsKey(bookingId) ? currPendingMap.get(bookingId) : 0;
+            Decimal presentInterestAmount = currInterestMap.containsKey(bookingId) ? currInterestMap.get(bookingId) : 0;
+            Decimal presentInterestPaid = currInterestPaidMap.containsKey(bookingId) ? currInterestPaidMap.get(bookingId) : 0;
+            Decimal presentMilestonePaymentPercent = currPaymentPercentMap.containsKey(bookingId) ? currPaymentPercentMap.get(bookingId) : 0;
+            Decimal currentTds = currTDSMap.containsKey(bookingId) ? currTDSMap.get(bookingId) : 0;
+            
+            Decimal presentBalanceInterest = presentInterestAmount - presentInterestPaid;
+            Decimal milestonePaymentPercentResult = presentMilestonePaymentPercent + previousMilestonePaymentPercent;
+            
+            // ===== TOTAL RECEIVED (all milestones) =====
+            Decimal totalReceivedWithCurrent = totalReceivedMap.containsKey(bookingId) ? totalReceivedMap.get(bookingId) : 0;
+            Decimal totalInterestPaidAll = totalInterestPaidAllMap.containsKey(bookingId) ? totalInterestPaidAllMap.get(bookingId) : 0;
+            
+            // ===== TDS CALCULATION (matching single method logic) =====
+            Decimal paidTDS = tdsPaidMap.containsKey(bookingId) ? tdsPaidMap.get(bookingId) : 0;
+            
+            Decimal pendingPreviousTDS = previousTDS - paidTDS;
+            pendingPreviousTDS = pendingPreviousTDS < 0 ? 0 : pendingPreviousTDS;
+            
+            Decimal remainingTdsPaidAmount = paidTDS - previousTDS;
+            Decimal currentPendingTDS = currentTds;
+            currentPendingTDS = remainingTdsPaidAmount > 0 ? currentTds - remainingTdsPaidAmount : currentPendingTDS;
+            currentPendingTDS = currentPendingTDS < 0 ? 0 : currentPendingTDS;
+            
+            // Excluding TDS
+            Decimal prevDueExcludingTDS = balanceDueTillPrevMilestone - pendingPreviousTDS;
+            Decimal currentDueExcludingTDS = presentDue - currentTds;
+            currentDueExcludingTDS = currentDueExcludingTDS < 0 ? 0 : currentDueExcludingTDS;
+            
+            // ===== GRAND TOTAL (matching single method formula) =====
+            Decimal balanceTotalInterest = presentBalanceInterest + previousBalanceInterest;
+            Decimal totalInterestAmount = previousMilestoneInterest + presentInterestAmount;
+            
+            Decimal grandTotal = presentDue + balanceDueTillPrevMilestone + balanceTotalInterest;
+            
+            // ===== CONVERT TO WORDS =====
+            NumberTOWordConvertion convert = new NumberTOWordConvertion();
+            String totalAmountPayableInWords = convert.getNumberTOWordConvertion(grandTotal);
+            
+            // ===== EMAIL TEMPLATE RESOLUTION =====
+            String content = emailContents != null ? emailContents.get(bookingId) : null;
+            
+            if (String.isBlank(content)) {
+                String templateBody = templateByProject.get(book.Project__c);
+                if (String.isNotBlank(templateBody)) {
+                    content = templateBody;
+                    content = content.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
+                    content = content.replace('##PROJECT_NAME##', book.Project__c ?? '');
+                    content = content.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
+                    content = content.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
+                    content = content.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
+                    content = content.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
+                } else {
+                    // Fallback hardcoded template (existing Zuari template)
+                    content = ''
+                        + '<div style="color: black;">'
+                        + 'Dear <strong>' + (book.First_Applicant_Name__c ?? '') + '</strong>,'
+                        + '</div><br/>'
+                        + '<div>'
+                        + '<strong>Greetings!!</strong><br/><br/>'
+                        + 'Hope this mail finds you in good health and spirit.<br/><br/>'
+                        + '<strong>Sub: Requisition for release of instalment.</strong><br/><br/>'
+                        + 'An amount of <strong>INR ' + grandTotal + '/-</strong> (' + totalAmountPayableInWords + ') is due.<br/><br/>'
+                        + 'Request you to kindly release the amount.<br/><br/>'
+                        + 'Best regards'
+                        + '</div>';
+                }
+            }
+            
+            // ===== MILESTONE INFO =====
+            String currentMilestone = currentPS.Name;
+            Date currentMilestoneCompletedDate = currentPS.Completed_Date__c;
+            String currentMilestoneNumber = getMilestoneLabel(currentPS.S_No__c.intValue());
+            Id currentMilestoneId = currentPS.Id;
+            
+            // ===== BUILD DEMAND RECORD (matching all fields from single method) =====
+            Demand_Raised__c re = new Demand_Raised__c();
+            
+            re.Current_Demand_amount__c = presentDue;
+            re.Current_Milestone_Excluding_the_TDS__c = currentDueExcludingTDS;  
+            re.Current_Milestone_TDS_1__c = currentTds;                          
+            re.Milestone_Percentage__c = presentMilestonePaymentPercent;
+            
+            re.Pending_Dues_excluding_TDS__c = prevDueExcludingTDS;                
+            re.Previous_pendings__c = balanceDueTillPrevMilestone;
+            
+            re.Include_Interest__c = true;
+            re.Due_Date__c = System.today() + 15;
+            re.Demand_Email_Send__c = true;                                      
+            
+            re.Amount_Demanded__c = grandTotal;
+            re.Grand_Total__c = grandTotal;
+            re.Total_Amount_Paid__c = totalReceivedWithCurrent;
+            re.Total_Percentage_till_Current_Milestone__c = milestonePaymentPercentResult;
+            
+            re.Interest_Till_Now__c = balanceTotalInterest;                         
+            re.Total_Interest_Paid__c = totalInterestPaidAll;
+            re.Total_Interest__c = totalInterestAmount;                            
+            
+            re.Booking__c = bookingId;
+            re.Payment_schedule__c = currentMilestoneId;
+            re.Demanded_Date__c = System.now();
+            re.Demand_Name__c = currentMilestone;
+            re.Demand_Email_Content__c = content;
+            re.Grand_Total_in_Words__c = totalAmountPayableInWords;
+            re.Disable_Demand_Mail__c = true;                                      
+            
+            demands.add(re);
+            
+            // ===== MARK PAYMENT SCHEDULE AS DEMANDED ===== 
+            Payment_Schedule__c psUpdate = new Payment_Schedule__c();
+            psUpdate.Id = currentPS.Id;
+            psUpdate.Is_Demanded__c = true;
+            psUpdate.Demanded_Date__c = Date.today();
+            psToUpdate.add(psUpdate);
+        }
+        
+        /** ==================SAVE ALL RECORDS ========================= **/
+        if (!psToUpdate.isEmpty()) {
+            update psToUpdate;
+        }
+        if (!demands.isEmpty()) {
+            insert demands;
+            
+            // Send emails if required
+            if (sendEmail) {
+                List<Id> demandIds = new List<Id>();
+                for (Demand_Raised__c d : demands) {
+                    demandIds.add(d.Id);
+                }
+                // Collect all content IDs
+                List<Id> allContentIds = new List<Id>();
+                if (contentIds != null) {
+                    for (List<String> cIds : contentIds.values()) {
+                        for (String cId : cIds) {
+                            allContentIds.add(Id.valueOf(cId));
+                        }
+                    }
+                }
+                if (!demandIds.isEmpty()) {
+                    sendDemandEmail(demandIds, allContentIds);
+                }
+            }
+        }
+        return demands;
+    }
+    
     public static Map<Integer, String> daySuffixMap = new Map<Integer, String>{1 => 'st', 2 => 'nd', 3 => 'rd', 21 => 'st', 22 => 'nd', 23 => 'rd', 31 => 'st'};
         
     public static String getMilestoneLabel(Integer sNo) {
@@ -701,7 +1075,7 @@ public class DemandRaisedSave {
         
         List<Booking__c> bookings = [Select Id, Total__c, Applicant_Name__c,First_Applicant_Name__c, Project1__r.Name, Plot__r.Name, GST__c, 
                                      Project1__r.GST_on_Aggrement__c, RecordType.DeveloperName, Quote__r.With_GST__c,
-                                     Quote__r.Agreement_Value_Before_GST__c
+                                     Quote__r.Agreement_Value_Before_GST__c,Block_Name__c
                                      from Booking__c WHERE Id IN: bookingsWithPSNO.keySet()];
         
         if(bookings.isEmpty()){

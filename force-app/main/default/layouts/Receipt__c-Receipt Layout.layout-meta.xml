@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <excludeButtons>OpenSlackRecordChannel</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
         <detailHeading>false</detailHeading>
@@ -118,10 +119,11 @@
         <fields>Mode_of_Payment__c</fields>
         <fields>Payment_Type__c</fields>
         <fields>Cheque_no_Transaction_Number__c</fields>
+        <fields>CREATEDBY_USER</fields>
         <fields>Booking__c</fields>
         <fields>Drawn_On__c</fields>
         <fields>CREATED_DATE</fields>
-        <fields>CREATEDBY_USER</fields>
+        <fields>Payment_schedule__c.NAME</fields>
         <relatedList>Receipt_Line_Item__c.Receipt__c</relatedList>
     </relatedLists>
     <relatedLists>

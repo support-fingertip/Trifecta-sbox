@@ -5547,6 +5547,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Pending_Tds_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Pre_Termination_Mail_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -5569,6 +5574,11 @@
         <editable>false</editable>
         <field>Payment_schedule__c.Received_Amount__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Received_Tds_Amount__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -9459,6 +9469,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>FlatKeyHandoverVfp</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>ForgotPassword</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -9519,6 +9533,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>RowHouseKeyHandoverVfp</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>SaleAgreement</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -9572,6 +9590,10 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>UnderConstruction</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>VillasKeyHandoverVfp</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

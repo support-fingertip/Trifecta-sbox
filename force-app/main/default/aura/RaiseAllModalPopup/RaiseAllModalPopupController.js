@@ -22,33 +22,8 @@
         checkboxes = Array.isArray(checkboxes) ? checkboxes : [checkboxes];
         checkboxes.forEach(function(checkbox) {
             if (checkbox.get("v.checked")) { 
-                
                 var bookingRecord = checkbox.get("v.value");
-                
                 selectedBookingIds.push(bookingRecord.Id);
-                
-                var applicantNames = '';
-                
-                if (bookingRecord.salutation_Applicant1__c && bookingRecord.First_Applicant_Name__c) {
-                    applicantNames = bookingRecord.salutation_Applicant1__c + ' ' + bookingRecord.First_Applicant_Name__c;
-                }
-                
-                var secondApplicantName = '';
-                if (bookingRecord.Second_Applicant_Name__c && bookingRecord.Second_Applicant_Name__c.trim() !== '') {
-                    secondApplicantName = bookingRecord.salutation_Applicant2__c + ' ' + bookingRecord.Second_Applicant_Name__c;
-                }
-                
-                if (secondApplicantName != '') {
-                    applicantNames += ' and ' + secondApplicantName;
-                }
-                
-                var defaultEmailContent = '<div style="color: black;"><strong>Dear ' + applicantNames + ',</strong></div><br/>'+'<div>Please find the attached Demand Letter.<br/><br/>' +
-                    'We are pleased to inform you that your booking has been confirmed. ' +
-                    'Attached is the Demand Letter for your reference.<br/><br/>' +
-                    'If you have any questions or need further assistance, please do not hesitate to contact us.<br/><br/>' +
-                    'Thank you for choosing <strong>Zuari</strong>.<br/><br/>' +
-                    'Best regards,<br/>';
-                    defaultEmailContent += '<strong>Zuari</strong></div>'
                 emailContentMap[bookingRecord.Id] = '';
                 contentDocumentIdsMap[bookingRecord.Id] = contentDocumentIds;
             }

@@ -91,49 +91,59 @@ public without sharing class ReceiptController {
         return picklistValueList;
     }
     @AuraEnabled
-    public static Id insertReceiptLineItems(List<Receipt_Line_Item__c> polist,string remark,string poc, string recid, Decimal paidAmount, Decimal interestAmount)
+    public static Id insertReceiptLineItems(List<Receipt_Line_Item__c> polist, String remark, String poc, String recid, Decimal paidAmount, Decimal interestAmount)
     {
-        Booking__c bk = [SELECT Id, Name,Finance_Lead__c, Project__c,Project_Type__c FROM Booking__c WHERE Id = :recid LIMIT 1];
-
-        List<Payment_Schedule__c> payList = [SELECT Id, Amount1__c,Is_Demanded__c,Interest_Pending_Amount__c,
-                                             Villa_Flat_Amount_Pending__c, Pending_Amount__c,Type__c,
-                                             S_No__c FROM Payment_Schedule__c WHERE Pending_Amount__c > 0 
-                                             and Booking__c = :bk.Id ORDER BY S_No__c ASC];
+        Booking__c bk = [SELECT Id, Name, Finance_Lead__c, Project__c, Project_Type__c 
+                         FROM Booking__c WHERE Id = :recid LIMIT 1];
         
-
-        //Debug 
-        system.debug('Payment Scdule'+payList);
-        system.debug('Receipt Item from Js'+polist);
+        //  FIX: Added Pending_Tds_Amount__c to the query
+        List<Payment_Schedule__c> payList = [
+            SELECT Id, Amount1__c, Is_Demanded__c, Interest_Pending_Amount__c,
+            Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,
+            S_No__c, Pending_Tds_Amount__c
+            FROM Payment_Schedule__c 
+            WHERE Pending_Amount__c > 0 AND Booking__c = :bk.Id 
+            ORDER BY S_No__c ASC
+        ];
         
-        Set<Id> payIds = new Set<Id>();
-        Map<Id,Decimal> paymentScheduleToPendingAmount = new Map<Id,Decimal>();
+        System.debug('Payment Schedule: ' + payList);
+        System.debug('Receipt Items from JS: ' + polist);
+        
+        Map<Id, Decimal> paymentScheduleToPendingAmount = new Map<Id, Decimal>();
         Map<Id, Payment_Schedule__c> paymentScheduleMap = new Map<Id, Payment_Schedule__c>();
-        for(Payment_Schedule__c pay : payList){
-            paymentScheduleToPendingAmount.put(pay.Id,pay.Pending_Amount__c);
+        for (Payment_Schedule__c pay : payList) {
+            paymentScheduleToPendingAmount.put(pay.Id, pay.Pending_Amount__c);
             paymentScheduleMap.put(pay.Id, pay);
         }
         
-        // -------------------------------
-        // Main Amount Calculation
-        // -------------------------------
+        // ===============================
+        // 1. Main Amount Calculation
+        //    (Flat, Villa, Plot, Booking, Row House — excludes TDS & Additional Charges)
+        // ===============================
         Map<Integer, Receipt_Line_Item__c> receiptLineItemMap = new Map<Integer, Receipt_Line_Item__c>();
         for (Integer i = 0; i < polist.size(); i++) {
-            if(polist[i].Payment_Type__c != 'Additional Charges' &&
-               (polist[i].Payment_Type__c == 'Flat Amount' || polist[i].Payment_Type__c == 'Villa Amount' || 
-                polist[i].Payment_Type__c == 'Plot Amount' || polist[i].Payment_Type__c == 'TDS' ||  polist[i].Payment_Type__c == 'Booking Amount' ||
-                polist[i].Payment_Type__c == 'Row House Amount'
-               ))
+            String payType = polist[i].Payment_Type__c;
+            //  FIX: Removed 'TDS' from this block — TDS now has its own section
+            if (payType != 'Additional Charges' && payType != 'TDS' &&
+                (payType == 'Flat Amount' || payType == 'Villa Amount' || 
+                 payType == 'Plot Amount' || payType == 'Booking Amount' ||
+                 payType == 'Row House Amount'))
             {
                 receiptLineItemMap.put(i + 1, polist[i]);
             }
         }
+        
         List<Receipt_Line_Item__c> receiptsToCreate = new List<Receipt_Line_Item__c>();
-        for(Payment_Schedule__c payIt : payList){
-            if(paymentScheduleToPendingAmount.get(payIt.Id) > 0){
-                for(Integer inte : receiptLineItemMap.keySet()){
-                    if(receiptLineItemMap.get(inte).Received_Amount__c > 0 && paymentScheduleToPendingAmount.get(payIt.Id) > 0){
-                        Decimal amountToReceive = Math.min(paymentScheduleToPendingAmount.get(payIt.Id), 
-                                                           receiptLineItemMap.get(inte).Received_Amount__c);
+        
+        for (Payment_Schedule__c payIt : payList) {
+            if (paymentScheduleToPendingAmount.get(payIt.Id) > 0) {
+                for (Integer inte : receiptLineItemMap.keySet()) {
+                    if (receiptLineItemMap.get(inte).Received_Amount__c > 0 && paymentScheduleToPendingAmount.get(payIt.Id) > 0) {
+                        Decimal amountToReceive = Math.min(
+                            paymentScheduleToPendingAmount.get(payIt.Id), 
+                            receiptLineItemMap.get(inte).Received_Amount__c
+                        );
+                        
                         Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
                         rece.Booking__c = bk.Id;
                         rece.Name = receiptLineItemMap.get(inte).Payment_Type__c;
@@ -147,10 +157,9 @@ public without sharing class ReceiptController {
                         rece.Mode_of_Payment__c = receiptLineItemMap.get(inte).Mode_of_Payment__c;
                         rece.Cheque_Date__c = receiptLineItemMap.get(inte).Cheque_Date__c;
                         rece.Cheque_no_Transaction_Number__c = receiptLineItemMap.get(inte).Cheque_no_Transaction_Number__c;
-                        //Auto Approved
                         rece.Approval_Status_Picklist__c = 'Approved';
                         receiptsToCreate.add(rece);
-                        system.debug(rece);
+                        
                         paymentScheduleToPendingAmount.put(payIt.Id, paymentScheduleToPendingAmount.get(payIt.Id) - amountToReceive);
                         
                         Receipt_Line_Item__c updatedReceiptLineItem = receiptLineItemMap.get(inte);
@@ -161,24 +170,97 @@ public without sharing class ReceiptController {
             }
         }
         
+        // ===============================
+        // 2. TDS Amount Calculation
+        //    Allocated against Pending_Tds_Amount__c per Payment Schedule
+        // ===============================
         
-        //--------------------------------
-        // Additional Amount 
-        // -------------------------------
+        // Collect TDS line items from polist
+        Decimal totalTdsAmount = 0;
+        Receipt_Line_Item__c tdsSourceLineItem = null;
+        for (Integer i = 0; i < polist.size(); i++) {
+            if (polist[i].Payment_Type__c == 'TDS' && polist[i].Received_Amount__c != null && polist[i].Received_Amount__c > 0) {
+                totalTdsAmount += polist[i].Received_Amount__c;
+                // Keep reference to the first TDS line for bank/payment details
+                if (tdsSourceLineItem == null) {
+                    tdsSourceLineItem = polist[i];
+                }
+            }
+        }
         
-   		// ------------------------------
-   		// Interest Amount Calculation
-   		// -----------------------------
-        for(Payment_Schedule__c paymentSchedule : payList){
-            if (interestAmount <= 0 || interestAmount == null) {
+        if (totalTdsAmount > 0 && tdsSourceLineItem != null) {
+            Decimal remainingTds = totalTdsAmount;
+            
+            for (Payment_Schedule__c paymentSchedule : payList) {
+                if (remainingTds <= 0) {
+                    break;
+                }
+                if (paymentSchedule.Pending_Tds_Amount__c != null && paymentSchedule.Pending_Tds_Amount__c > 0) {
+                    Decimal amountToReceive = Math.min(paymentSchedule.Pending_Tds_Amount__c, remainingTds);
+                    remainingTds -= amountToReceive;
+                    
+                    Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
+                    rece.Booking__c = bk.Id;
+                    rece.Name = 'Against TDS';
+                    rece.Payment_Type__c = 'TDS';
+                    rece.Payment_Schedule__c = paymentSchedule.Id;
+                    rece.Received_Amount__c = amountToReceive;
+                    rece.Amount__c = amountToReceive;
+                    rece.Bank_Name__c = tdsSourceLineItem.Bank_Name__c;
+                    rece.Branch__c = tdsSourceLineItem.Branch__c;
+                    rece.Drawn_On__c = tdsSourceLineItem.Drawn_On__c;
+                    rece.Mode_of_Payment__c = tdsSourceLineItem.Mode_of_Payment__c;
+                    rece.Cheque_Date__c = tdsSourceLineItem.Cheque_Date__c;
+                    rece.Cheque_no_Transaction_Number__c = tdsSourceLineItem.Cheque_no_Transaction_Number__c;
+                    rece.Approval_Status_Picklist__c = 'Approved';
+                    
+                    if (amountToReceive > 0) {
+                        receiptsToCreate.add(rece);
+                    }
+                }
+            }
+            
+            // Handle excess TDS — if user entered more TDS than total Pending_Tds_Amount__c
+            // Adjust against last Payment Schedule (same pattern as interest overflow)
+            if (remainingTds > 0) {
+                System.debug('Excess TDS Amount: ' + remainingTds);
+                Integer paymentScheduleSize = payList.size();
+                Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
+                rece.Booking__c = bk.Id;
+                rece.Name = 'Against TDS';
+                rece.Payment_Type__c = 'TDS';
+                rece.Payment_Schedule__c = payList[paymentScheduleSize - 1].Id;
+                rece.Received_Amount__c = remainingTds;
+                rece.Amount__c = remainingTds;
+                rece.Bank_Name__c = tdsSourceLineItem.Bank_Name__c;
+                rece.Branch__c = tdsSourceLineItem.Branch__c;
+                rece.Drawn_On__c = tdsSourceLineItem.Drawn_On__c;
+                rece.Mode_of_Payment__c = tdsSourceLineItem.Mode_of_Payment__c;
+                rece.Cheque_Date__c = tdsSourceLineItem.Cheque_Date__c;
+                rece.Cheque_no_Transaction_Number__c = tdsSourceLineItem.Cheque_no_Transaction_Number__c;
+                rece.Approval_Status_Picklist__c = 'Approved';
+                receiptsToCreate.add(rece);
+            }
+        }
+        
+        // ===============================
+        // 3. Additional Amount (placeholder for future)
+        // ===============================
+        
+        // ===============================
+        // 4. Interest Amount Calculation
+        // ===============================
+        for (Payment_Schedule__c paymentSchedule : payList) {
+            if (interestAmount == null || interestAmount <= 0) {
                 break;
             }
-            if( (interestAmount != 0 || interestAmount != null) &&  paymentSchedule.Interest_Pending_Amount__c != null
-               && paymentSchedule.Interest_Pending_Amount__c > 0 )
+            if (interestAmount != 0 && interestAmount != null
+                && paymentSchedule.Interest_Pending_Amount__c != null
+                && paymentSchedule.Interest_Pending_Amount__c > 0)
             {
-               
                 Decimal amountToReceive = Math.min(paymentSchedule.Interest_Pending_Amount__c, interestAmount);
                 interestAmount -= amountToReceive;
+                
                 Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
                 rece.Booking__c = bk.Id;
                 rece.Name = 'Against Interest';
@@ -187,45 +269,32 @@ public without sharing class ReceiptController {
                 rece.Received_Amount__c = amountToReceive;
                 rece.Amount__c = amountToReceive;
                 rece.Bank_Name__c = polist[0].Bank_Name__c;
-                rece.Mode_of_Payment__c =  polist[0].Mode_of_Payment__c;
-                rece.Branch__c =polist[0].Branch__c;
+                rece.Mode_of_Payment__c = polist[0].Mode_of_Payment__c;
+                rece.Branch__c = polist[0].Branch__c;
                 rece.Cheque_no_Transaction_Number__c = polist[0].Cheque_no_Transaction_Number__c;
                 rece.Cheque_Date__c = polist[0].Cheque_Date__c;
                 rece.Drawn_On__c = polist[0].Drawn_On__c;
-                //Auto Approved
                 rece.Approval_Status_Picklist__c = 'Approved';
-                if(amountToReceive > 0){
+                if (amountToReceive > 0) {
                     receiptsToCreate.add(rece);
                 }
             }
         }
         
-        // After allocating interest against each Payment Schedule’s Interest_Pending__c,
-        // there can be a scenario where the user entered Interest Amount is MORE than
-        // the actual pending interest available in all schedules.
-        //
-        // Example:
-        // User entered Interest Paid  = 10,000
-        // Total Interest Pending      = 8,000
-        // ------------------------------------
-        // Excess interest             = 2,000
-        //
-        // This remaining 2,000 cannot be mapped to Interest bucket,
-        // so it will be adjusted against the last available Payment Schedule
-        // as a normal payment line item to ensure total received amount is not lost.
-        if(interestAmount !=null && interestAmount !=0) {
-            system.debug('Interest');
-            Integer PaymentScheduleSize = payList.size();
+        // Handle excess Interest — adjust against last Payment Schedule
+        if (interestAmount != null && interestAmount > 0) {
+            System.debug('Excess Interest Amount: ' + interestAmount);
+            Integer paymentScheduleSize = payList.size();
             Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
             rece.Booking__c = bk.Id;
             rece.Name = 'Against Interest';
             rece.Payment_Type__c = 'Interest';
-            rece.Payment_Schedule__c = payList[PaymentScheduleSize-1].Id;
+            rece.Payment_Schedule__c = payList[paymentScheduleSize - 1].Id;
             rece.Received_Amount__c = interestAmount;
             rece.Amount__c = interestAmount;
             rece.Bank_Name__c = polist[0].Bank_Name__c;
-            rece.Mode_of_Payment__c =  polist[0].Mode_of_Payment__c;
-            rece.Branch__c =polist[0].Branch__c;
+            rece.Mode_of_Payment__c = polist[0].Mode_of_Payment__c;
+            rece.Branch__c = polist[0].Branch__c;
             rece.Cheque_no_Transaction_Number__c = polist[0].Cheque_no_Transaction_Number__c;
             rece.Cheque_Date__c = polist[0].Cheque_Date__c;
             rece.Drawn_On__c = polist[0].Drawn_On__c;
@@ -233,22 +302,19 @@ public without sharing class ReceiptController {
             receiptsToCreate.add(rece);
         }
         
+        // =======================================
+        // 5. SPLIT RECEIPTS BASED ON TYPE (VILLAS)
+        // =======================================
+        Map<String, List<Receipt_Line_Item__c>> typeToLinesMap = new Map<String, List<Receipt_Line_Item__c>>();
         
-        // ---------------------------------------
-        // SPLIT RECEIPTS BASED ON TYPE (VILLAS)
-        // ---------------------------------------
-        Map<String, List<Receipt_Line_Item__c>> typeToLinesMap =
-            new Map<String, List<Receipt_Line_Item__c>>();
-        
-        for(Receipt_Line_Item__c line : receiptsToCreate){
-            
+        for (Receipt_Line_Item__c line : receiptsToCreate) {
             String typeKey = paymentScheduleMap.get(line.Payment_Schedule__c).Type__c;
             
-            if(String.isBlank(typeKey)){
+            if (String.isBlank(typeKey)) {
                 typeKey = 'COMMON';
             }
             
-            if(!typeToLinesMap.containsKey(typeKey)){
+            if (!typeToLinesMap.containsKey(typeKey)) {
                 typeToLinesMap.put(typeKey, new List<Receipt_Line_Item__c>());
             }
             
@@ -258,11 +324,8 @@ public without sharing class ReceiptController {
         List<Receipt__c> receiptsToInsert = new List<Receipt__c>();
         Map<String, Receipt__c> typeToReceiptMap = new Map<String, Receipt__c>();
         
-        // Villas → Split
-        if(bk.Project_Type__c == 'Villas'){
-            
-            for(String typeKey : typeToLinesMap.keySet()){
-                
+        if (bk.Project_Type__c == 'Villas') {
+            for (String typeKey : typeToLinesMap.keySet()) {
                 Receipt__c receipt = new Receipt__c();
                 receipt.Remarks__c = remark;
                 receipt.Receipt_date__c = Date.valueOf(poc);
@@ -274,9 +337,7 @@ public without sharing class ReceiptController {
                 receiptsToInsert.add(receipt);
                 typeToReceiptMap.put(typeKey, receipt);
             }
-        }
-        else{
-            // Apartments → Single Receipt
+        } else {
             Receipt__c receipt = new Receipt__c();
             receipt.Remarks__c = remark;
             receipt.Receipt_date__c = Date.valueOf(poc);
@@ -289,28 +350,25 @@ public without sharing class ReceiptController {
             typeToReceiptMap.put('COMMON', receipt);
         }
         
-        // Insert Receipts
         insert receiptsToInsert;
         
-        // Assign Receipt Id to Line Items
-        for(String typeKey : typeToLinesMap.keySet()){
-            
+        for (String typeKey : typeToLinesMap.keySet()) {
             Receipt__c createdReceipt;
             
-            if(bk.Project_Type__c == 'Villas'){
+            if (bk.Project_Type__c == 'Villas') {
                 createdReceipt = typeToReceiptMap.get(typeKey);
-            }else{
+            } else {
                 createdReceipt = typeToReceiptMap.get('COMMON');
             }
             
-            for(Receipt_Line_Item__c line : typeToLinesMap.get(typeKey)){
+            for (Receipt_Line_Item__c line : typeToLinesMap.get(typeKey)) {
                 line.Receipt__c = createdReceipt.Id;
             }
         }
         
-        // Insert Line Items
         insert receiptsToCreate;
         
         return bk.Id;
     }
+    
 }

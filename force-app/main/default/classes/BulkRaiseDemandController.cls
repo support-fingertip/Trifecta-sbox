@@ -17,20 +17,21 @@ public without sharing class BulkRaiseDemandController {
         public BookingWrapper(Booking__c booking, Decimal displayAmount, Decimal totalPaymentAmount, 
                               Id paymentScheduleId, Decimal previousDemandRaisedPending, 
                               Decimal grandTotal, String includeInterest, Boolean demandRaised, 
-                              Id unitId,Boolean selected,String currentMilestone,Decimal totalAmountPaid) {
-                                  this.booking = booking;
-                                  this.displayAmount = displayAmount;
-                                  this.totalPaymentAmount = totalPaymentAmount;
-                                  this.paymentScheduleId = paymentScheduleId;
-                                  this.previousDemandRaisedPending = previousDemandRaisedPending;
-                                  this.grandTotal = grandTotal;
-                                  this.demandRaised = demandRaised;
-                                  this.includeInterest = includeInterest;
-                                  this.unitId = unitId;
-                                  this.selected = selected;
-                                  this.currentMilestone = currentMilestone;
-                                  This.totalAmountPaid = totalAmountPaid;
-                              }
+                              Id unitId,Boolean selected,String currentMilestone,Decimal totalAmountPaid)
+        {
+            this.booking = booking;
+            this.displayAmount = displayAmount;
+            this.totalPaymentAmount = totalPaymentAmount;
+            this.paymentScheduleId = paymentScheduleId;
+            this.previousDemandRaisedPending = previousDemandRaisedPending;
+            this.grandTotal = grandTotal;
+            this.demandRaised = demandRaised;
+            this.includeInterest = includeInterest;
+            this.unitId = unitId;
+            this.selected = selected;
+            this.currentMilestone = currentMilestone;
+            This.totalAmountPaid = totalAmountPaid;
+        }
     }
     
     @AuraEnabled
