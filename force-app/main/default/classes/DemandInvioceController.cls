@@ -99,6 +99,10 @@ public class DemandInvioceController {
             {
                 bookingInfo.reminderType = 'REMINDER-3';
             }
+            else
+            {
+                bookingInfo.reminderType = reminderType;
+            }
         }
       
 

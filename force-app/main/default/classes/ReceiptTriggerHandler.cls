@@ -37,6 +37,7 @@ public class ReceiptTriggerHandler {
         {
             DocumentandEmailController.sendEmailGenerateReceiptfromTrigger(rcp.Id);
         }
+   
     }
 
 }

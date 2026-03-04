@@ -77,6 +77,10 @@ public with sharing class FileUploadController {
             {
                 bk.Cancellation_Agreement_Uploaded__c = true;
             }
+            else if(mainDocName == 'Signed Sales Deed ')
+            {
+                bk.Signed_Sales_Deed_Uploaded__c = true;
+            }
             update bk;
             return newDocId;
             

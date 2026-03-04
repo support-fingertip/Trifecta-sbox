@@ -13,11 +13,12 @@ public without sharing class BulkRaiseDemandController {
         @AuraEnabled public Id unitId;
         @AuraEnabled public Boolean selected;
         @AuraEnabled public String currentMilestone;
+        @AuraEnabled public Decimal balanceInterest;
         
         public BookingWrapper(Booking__c booking, Decimal displayAmount, Decimal totalPaymentAmount, 
                               Id paymentScheduleId, Decimal previousDemandRaisedPending, 
                               Decimal grandTotal, String includeInterest, Boolean demandRaised, 
-                              Id unitId,Boolean selected,String currentMilestone,Decimal totalAmountPaid)
+                              Id unitId,Boolean selected,String currentMilestone,Decimal totalAmountPaid,Decimal balanceInterest)
         {
             this.booking = booking;
             this.displayAmount = displayAmount;
@@ -31,6 +32,7 @@ public without sharing class BulkRaiseDemandController {
             this.selected = selected;
             this.currentMilestone = currentMilestone;
             This.totalAmountPaid = totalAmountPaid;
+            this.balanceInterest = balanceInterest;
         }
     }
     
@@ -170,7 +172,8 @@ public without sharing class BulkRaiseDemandController {
                     unitId,
                     false,
                     currentMilestone,
-                    totalPaidAmount
+                    totalPaidAmount,
+                    0
                 ));
                 
                 continue; 
@@ -221,7 +224,8 @@ public without sharing class BulkRaiseDemandController {
                 unitId,
                 false,
                 currentMilestone,
-                paidTotalAmount
+                paidTotalAmount,
+                balanceInterest
             ));
         }
         

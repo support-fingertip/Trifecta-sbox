@@ -54,8 +54,9 @@
                                 <th scope="col" style="padding: 8px 6px; width: 160px; font-weight: 700; color: #3e3e3c;">Email</th>
                                 <th scope="col" style="padding: 8px 6px; width: 100px; font-weight: 700; color: #3e3e3c;">Project</th>
                                 <th scope="col" style="padding: 8px 6px; width: 80px; font-weight: 700; color: #3e3e3c;">Unit Name</th>
-                                <th scope="col" style="padding: 8px 6px; width: 100px; font-weight: 700; color: #3e3e3c; text-align: center;">Milestone Amt</th>
+                                <th scope="col" style="padding: 8px 6px; width: 100px; font-weight: 700; color: #3e3e3c; text-align: center;">Current Milestone Amt</th>
                                 <th scope="col" style="padding: 8px 6px; width: 90px; font-weight: 700; color: #3e3e3c; text-align: center;">Prev. Pending</th>
+                                <th scope="col" style="padding: 8px 6px; width: 90px; font-weight: 700; color: #3e3e3c; text-align: center;">Interest Amt</th>
                                 <th scope="col" style="padding: 8px 6px; width: 90px; font-weight: 700; color: #3e3e3c; text-align: center;">Received</th>
                                 <th scope="col" style="padding: 8px 6px; width: 90px; font-weight: 700; color: #3e3e3c; text-align: center;">Grand Total</th>
                                 <th scope="col" style="padding: 8px 6px; width: 100px; font-weight: 700; color: #3e3e3c; text-align: center;">Action</th>
@@ -93,6 +94,7 @@
                                     </td>
                                     <td data-label="Current Milestone Amount" style="padding: 8px 6px; text-align: center; color: #3e3e3c; font-size: 12px;">{!bookingWrapper.totalPaymentAmount}</td>
                                     <td data-label="Previous Pendings" style="padding: 8px 6px; text-align: center; color: #e07b00; font-size: 12px; font-weight: 500;">{!bookingWrapper.previousDemandRaisedPending}</td>
+                                    <td data-label="Interest Amt" style="padding: 8px 6px; text-align: center; color: #e07b00; font-size: 12px; font-weight: 500;">{!bookingWrapper.balanceInterest}</td>
                                     <td data-label="Received Amount" style="padding: 8px 6px; text-align: center; color: #2e844a; font-size: 12px; font-weight: 500;">{!bookingWrapper.totalAmountPaid}</td>
                                     <td data-label="Grand Total" style="padding: 8px 6px; text-align: center; color: #0176d3; font-size: 12px; font-weight: 600;">{!bookingWrapper.grandTotal}</td>
                                     <td data-label="Raise Demand" style="padding: 8px 6px; text-align: center;">

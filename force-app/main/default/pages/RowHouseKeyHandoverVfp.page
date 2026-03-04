@@ -8,11 +8,11 @@
     <html>
         <head>
             <style type="text/css">
-                @page {
+                  @page {
                 size: A4;
-                margin: 1in 0.6in 1in 0.6in; /* reduce left/right margins */
+                margin: 12mm;
+                border: 0.5px solid #000;
                 }
-                
                 body {
                 font-family: "Times New Roman", Times, serif;
                 font-size: 12pt;
@@ -24,7 +24,7 @@
                 }
                 
                 .heading-project {
-                font-size: 16pt;
+                font-size: 14pt;
                 font-weight: bold;
                 text-align: center;
                 }

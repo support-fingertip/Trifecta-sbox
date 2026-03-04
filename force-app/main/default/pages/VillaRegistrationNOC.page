@@ -1,0 +1,202 @@
+<apex:page standardController="Booking__c"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           sidebar="false"
+           cache="true"
+           readOnly="true">
+    <html>
+        <head>
+            <meta charset="UTF-8"/>
+            <style>
+                
+                @page {
+                size: A4;
+                margin: 12mm;
+                border: 0.5px solid #000;
+                }
+                
+                body {
+                font-family: "Times New Roman", Times, serif;
+                font-size: 13px;
+                color: #111;
+                background: #fff;
+                }
+                
+                .page {
+                padding: 20px;
+                }
+                
+                .header-row {
+                width: 100%;
+                margin-bottom: 4px;
+                text-align: right;
+                }
+                .triangle-wrap {
+                display: inline-block;
+                position: relative;
+                width: 68px;
+                height: 62px;
+                }
+                .triangle-shape {
+                width: 0;
+                height: 0;
+                border-left:  34px solid transparent;
+                border-right: 34px solid transparent;
+                border-bottom: 62px solid #cc1e1e;
+                }
+                .triangle-label {
+                position: absolute;
+                bottom: 8px;
+                left: 0;
+                width: 68px;
+                text-align: center;
+                color: #fff;
+                font-family: Arial, sans-serif;
+                font-size: 5px;
+                font-weight: 900;
+                letter-spacing: 1px;
+                }
+                
+                .company-info { text-align: center; margin-bottom: 16px; }
+                .company-name { font-size: 15px; font-weight: bold; text-decoration: underline; margin-bottom: 7px; }
+                .company-address { font-size: 12px; line-height: 1.75; }
+                
+                hr.divider { border: none; border-top: 1.5px solid #222; margin-bottom: 16px; }
+                
+                .doc-title {
+                text-align: center;
+                font-size: 14px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1.5px;
+                margin: 26px 0 28px 0;
+                }
+                
+                .date-place { text-align: right; margin-bottom: 22px; line-height: 2; }
+                
+                .body-text { text-align: justify; line-height: 2; margin-bottom: 14px; }
+                
+                .val { display: inline-block; border-bottom: 1px solid #222; padding: 0 3px; min-width: 90px; }
+                .val.sm  { min-width: 50px; }
+                .val.md  { min-width: 130px; }
+                .val.lg  { min-width: 170px; }
+                .val.xl  { min-width: 210px; }
+                
+                .payment-table { width: 100%; border-collapse: collapse; margin: 18px 0 46px 0; }
+                .payment-table th, .payment-table td { border: 1px solid #333; padding: 7px 10px; font-size: 12.5px; }
+                .payment-table th { font-weight: bold; text-align: center; }
+                .payment-table td { height: 26px; }
+                
+                .signatory { margin-top: 14px; line-height: 2.2; }
+                
+                /* ── Header: logo floated right ── */
+                .header-block {
+                margin-bottom: 6px;
+                }
+                
+                .logo-right {
+                float: right;
+                }
+                
+                .logo-right img {
+                width: 60px;
+                height: 60px;
+                }
+                 /* ── Company name ── */
+                .company-name {
+                text-align: center;
+                font-size: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+                }
+                
+                /* ── Address ── */
+                .address {
+                text-align: center;
+                font-size: 12.5px;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 4px;
+                }
+         
+            </style>
+        </head>
+        <body>
+            <div class="page">
+                
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
+                </div>
+                
+                
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+                    <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
+                    Web: www.trifectaprojects.com
+                </div>
+                <hr class="divider"/>
+                
+                <div class="doc-title">REGISTRATION NOC</div>
+                
+                <div class="date-place">
+                    Date:&#160;
+                    <apex:outputText value="{0,date,dd/MM/yyyy}">
+                        <apex:param value="{!NOW()}"/>
+                    </apex:outputText>,<br/>
+                    Place: Bangalore.
+                </div>
+                
+                <p class="body-text">
+                    We, <strong>M/s. TRIFECTA PROJECTS PRIVATE LIMITED,</strong> would like to confirm that
+                    Villa &#8211; <span class="val sm"><apex:outputField value="{!Booking__c.Unit_Number__c}"/></span>
+                    belongs to <strong>Mr./Ms.&#160;<span class="val lg"><apex:outputField value="{!Booking__c.First_Applicant_Name__c}"/></span></strong>
+                    in the project <strong>&#8220;VERDE EN RESPLANDOR &#8211; PHASE 3&#8221;</strong> situated at
+                    Jyothipura Village, Bidarahalli Hobli, Bangalore East Taluk, has cleared the amount for the land registration.
+                </p>
+                
+                <p class="body-text">
+                    The Total Sale Consideration of the Villa
+                    <strong>Rs.&#160;<span class="val md"><apex:outputField value="{!Booking__c.Total_Amount__c}"/></span>&#160;/-</strong>
+                    (Rupees&#160;&#160;Only).
+                </p>
+                
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th><u>Amount</u></th>
+                            <th><u>Cheque</u> / Online</th>
+                            <th><u>Date</u></th>
+                            <th><u>Remarks</u></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+           
+                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+                    </tbody>
+                </table>
+                
+                <div class="signatory">
+                    <p>Authorized Signatory</p>
+                    <p>Accounts Department</p>
+                </div>
+                
+            </div>
+        </body>
+    </html>
+</apex:page>

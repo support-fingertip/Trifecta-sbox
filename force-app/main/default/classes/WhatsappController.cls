@@ -24,6 +24,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
     private List<Lead> leads;
     private List<Site_Visit__c> visits;
     private List<Booking__c> bookings;
+    private List<Receipt__c> receipts;
     
     // Constructor to pass leads to the queueable class
     public WhatsappController(List<Lead> leads, String act) {
@@ -41,6 +42,12 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         this.ACTION = act;
     }
     
+    // Constructor to pass receipts to the queueable class
+    public WhatsappController(List<Receipt__c> receipts, String act) {
+        this.receipts = receipts;
+        this.ACTION = act;
+    }
+    
     // The execute method where the actual callout will happen
     public void execute(QueueableContext context) {
         if (Test.isRunningTest() || disableWhatsApp) {
@@ -54,6 +61,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         if(this.ACTION == '4') sendSVConfirmedMsg(this.visits);
         if(this.ACTION == '5') sendSVDoneMsg(this.visits);
         if(this.ACTION == '6') sendBookingDoneMsg(this.bookings);
+        if(this.ACTION == '7') sendPaymentReceiptMsg(this.receipts);
     }
     
     // Method to send WELCOME WhatsApp message to multiple leads
@@ -259,6 +267,40 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             
             // Construct the dynamic JSON body
             String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+projectName+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+dim+'"},{"type":"text","text":"'+bhk+'"},{"type":"text","text":"'+sal+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            
+            // Send the message
+            Boolean res = sendWhatsAppMessage(jsonBody, config);
+            
+        }
+        
+    }
+    
+    // Method to send BOOKINGDONE WhatsApp message to multiple leads
+    public void sendPaymentReceiptMsg(List<Receipt__c> receipts) {
+        
+        // Fetch WhatsApp configuration from Custom Metadata
+        Whatsapp_Setting__mdt config = getWhatsAppConfig('trifecta_payment_receipt_template');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+    
+        // Loop through the leads and send a message to each one
+        for (Receipt__c rec : receipts) {
+            String customerPhoneNumber = rec.Booking__r.Mobile__c;
+            String customerName = rec.Booking__r.First_Applicant_Name__c;
+            Decimal amount = rec.Total_Received_Amount__c;
+            String unit = rec.Booking__r.Unit_No__c;
+            String projectandBlockName = rec.Project_Block_Name__c;
+            String crmExectutivePhone = rec.Booking__r.CRM_Executive_Contact_No__c;
+            
+            if (String.isBlank(customerPhoneNumber)) {
+                continue; // Skip to the next lead if no phone number
+            }
+            // Construct the dynamic JSON body
+            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+crmExectutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
             
             // Send the message
             Boolean res = sendWhatsAppMessage(jsonBody, config);

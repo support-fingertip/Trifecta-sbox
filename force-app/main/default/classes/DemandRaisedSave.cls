@@ -397,7 +397,7 @@ public class DemandRaisedSave {
         if (!apartmentBookings.isEmpty()) {
             List<Demand_Raised__c> apartmentDemands = bulkScheduleCalculations(apartmentBookings,emailContents,contentIds,true);
             if (apartmentDemands != null && !apartmentDemands.isEmpty()) {
-                demandRaisedReturn = 'Demand Raise records created';
+                demandRaisedReturn = 'Demands Raised Successfully';
             }
         }
         

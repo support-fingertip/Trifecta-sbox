@@ -45,7 +45,7 @@
             
             if (state === 'SUCCESS') {
                 var res_string = response.getReturnValue();
-                var type = res_string === 'Demand Raise records created and submitted for approval.' ? 'success' : 'error';
+                var type = res_string === 'Demands Raised Successfully' ? 'success' : 'error';
                 component.set("v.showPopup",false);
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({

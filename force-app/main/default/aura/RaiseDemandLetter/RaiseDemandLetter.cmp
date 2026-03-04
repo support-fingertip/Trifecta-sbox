@@ -27,7 +27,7 @@
     
     <aura:html tag="style">
         .slds-modal__container{ 
-        max-width: 90rem !important;
+        max-width: 85rem !important;
         width:100% !important;
         } 
         .slds-modal__content

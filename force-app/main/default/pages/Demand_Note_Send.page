@@ -9,7 +9,7 @@
         <style>
             @page {
             size: A4;
-            margin: 10mm;
+            margin: 0mm;
             border: 0.5px solid #000;
             }
             

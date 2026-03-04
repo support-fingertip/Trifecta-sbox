@@ -10,7 +10,8 @@
             <style type="text/css">
                 @page {
                 size: A4;
-                margin: 1in 0.6in 1in 0.6in; /* reduce left/right margins */
+                margin: 12mm;
+                border: 0.5px solid #000;
                 }
                 
                 body {
@@ -161,14 +162,14 @@
                 <!-- Handed Over By -->
                 <div class="content-block">
                     
-                        Key Handed Over By
-                   <div class="signature-block-title">
-                    <br/>
-                    <p>Name:</p>
-                    
-                    <p>Designation:Support help</p>
-                    
-                    <p>Mobile Number:</p>
+                    Key Handed Over By
+                    <div class="signature-block-title">
+                        <br/>
+                        <p>Name:</p>
+                        
+                        <p>Designation:Support help</p>
+                        
+                        <p>Mobile Number:</p>
                     </div>
                 </div>
                 <br/><br/>
@@ -177,7 +178,7 @@
                     <p>Flat Owner's Acknowledgement:</p>
                     <br/><br/>
                     <p><u>Customer Signature:</u></p>
-
+                    
                     
                 </div>
                 

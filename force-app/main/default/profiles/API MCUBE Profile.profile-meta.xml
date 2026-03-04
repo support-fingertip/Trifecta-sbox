@@ -21,6 +21,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingCancellationRequestController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1683,6 +1687,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Is_Cancellation_Requested_by_Executive__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Is_Cancelled__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2194,6 +2203,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Shaft_room_No_Of_Keys__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Signed_Sales_Deed_Uploaded__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7458,6 +7472,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt__c.Project_Block_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Receipt__c.Receipt_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9127,6 +9146,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>FlatOrRowHouseNOC</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>ForgotPassword</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -9244,6 +9267,14 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>UnderConstruction</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>VillaNOC</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>VillaRegistrationNOC</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

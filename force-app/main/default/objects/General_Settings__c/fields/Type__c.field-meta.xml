@@ -61,6 +61,11 @@
                 <default>false</default>
                 <label>PSR Mail Template</label>
             </value>
+            <value>
+                <fullName>Revised Demand Note</fullName>
+                <default>false</default>
+                <label>Revised Demand Note</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

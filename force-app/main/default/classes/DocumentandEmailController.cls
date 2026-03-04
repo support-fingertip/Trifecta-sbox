@@ -617,24 +617,25 @@ public class DocumentandEmailController {
         
         return result;
     }
- @AuraEnabled
+@AuraEnabled
 public static String sendKeyHandoverEmail(Id bookingId) {
     try {
-        // 1. Fetch Booking - Ensure Email__c is selected
         Booking__c booking = [
-            SELECT Id, First_Applicant_Name__c, Email__c, Email1__c, 
-                   Owner.Email, Project_Type__c
+            SELECT Id,
+                   First_Applicant_Name__c,
+                   Email__c,
+                   Email1__c,
+                   Owner.Email,
+                   Project_Type__c
             FROM Booking__c
             WHERE Id = :bookingId
             LIMIT 1
         ];
         
-        // Validation: If the primary Email__c is blank, stop immediately
-        if (String.isBlank(booking.Email__c)) {
+        if (booking == null || String.isBlank(booking.Email__c)) {
             return 'Error: The primary email field (Email__c) is empty. Please provide a recipient email.';
         }
 
-        // 2. Determine which Visualforce PDF to generate
         PageReference pr;
         String pType = booking.Project_Type__c;
         
@@ -649,60 +650,74 @@ public static String sendKeyHandoverEmail(Id bookingId) {
         }
         
         pr.getParameters().put('id', String.valueOf(bookingId));
-        Blob pdfBlob = Test.isRunningTest() ? Blob.valueOf('Test PDF Content') : pr.getContentAsPDF();
+        Blob pdfBlob = Test.isRunningTest()
+            ? Blob.valueOf('Test PDF Content')
+            : pr.getContentAsPDF();
 
-        // 3. Build Recipient List
         List<String> toList = new List<String>();
-        
-        // Add the primary Email__c first
         toList.add(booking.Email__c);
         
-        // Add secondary email if available
         if (String.isNotBlank(booking.Email1__c)) {
             toList.add(booking.Email1__c);
         }
 
-        // Add Co-Applicant emails
-        for (Co_Applicant__c ca : [SELECT Email__c FROM Co_Applicant__c WHERE Booking__c = :bookingId]) {
+        for (Co_Applicant__c ca : [
+            SELECT Email__c
+            FROM Co_Applicant__c
+            WHERE Booking__c = :bookingId
+        ]) {
             if (String.isNotBlank(ca.Email__c)) {
                 toList.add(ca.Email__c);
             }
         }
 
-        // Run validation to remove any malformed email strings
         toList = validateEmails(toList);
         
         if (toList.isEmpty()) {
             return 'Error: No valid email addresses found in the Booking or Co-Applicants.';
         }
 
-        // 4. Create and Send the Email
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         email.setToAddresses(toList);
         
-        // CC the Record Owner
         if (String.isNotBlank(booking.Owner.Email)) {
-            email.setCcAddresses(new List<String>{booking.Owner.Email});
+            email.setCcAddresses(new List<String>{ booking.Owner.Email });
         }
         
-        String custName = String.isNotBlank(booking.First_Applicant_Name__c) ? booking.First_Applicant_Name__c : 'Customer';
-        email.setSubject('Key Handover Document - ' + custName);
-        email.setHtmlBody('Dear ' + custName + ',<br/><br/>Please find the attached Key Handover document for your unit.<br/><br/>Regards,<br/>Customer Relations Team');
+        email.setSubject('Key Handover Confirmation – Zuari Garden City');
         
-        // Links email to the Activity Timeline of the Booking record
+        String custName = String.isNotBlank(booking.First_Applicant_Name__c)
+            ? booking.First_Applicant_Name__c
+            : 'Customer';
+        
+        String body = ''
+            + '<p>Dear ' + custName + ',</p>'
+            + '<p>We are delighted to inform you that the keys for your unit at '
+            + '<strong>Zuari Garden City</strong>, located at KRS Road, Hulikere, '
+            + 'Sreerangapatna Taluk, Mandya Dist-571606, have been handed over to you.</p>'
+            + '<p>Please find the attached letter for your reference.</p>'
+            + '<p>Kindly acknowledge receipt by signing the attached document, confirming that '
+            + 'you have inspected all the keys and verified their working condition prior to the handover.</p>'
+            + '<p>Thank you for choosing <strong>Zuari Infraworld India Limited</strong>. '
+            + 'We look forward to serving you.</p>'
+            + '<br/>'
+            + '<p>Best regards,<br/>'
+            + 'CRM Representative<br/>'
+            + 'Zuari Infraworld India Limited</p>';
+        
+        email.setHtmlBody(body);
         email.setWhatId(bookingId);
         email.setSaveAsActivity(true);
 
-        // Attach the PDF
         Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
-        attach.setFileName('Key_Handover_Document.pdf');
+        attach.setFileName('Key Handover Document.pdf');
         attach.setBody(pdfBlob);
         attach.setContentType('application/pdf');
         email.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
 
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
         
-        return 'Success: Key Handover email sent to ' + booking.Email__c;
+        return 'Success: Key Handover email sent to ' + String.join(toList, ', ');
 
     } catch (Exception e) {
         return 'Error: ' + e.getMessage();
