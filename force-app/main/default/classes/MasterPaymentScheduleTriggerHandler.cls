@@ -86,7 +86,7 @@ public class MasterPaymentScheduleTriggerHandler {
 
                 String body = 'Payment Milestone ' + mps.Name
                             + ' for ' + mps.Project_Name__c
-                            + ' has been completed';
+                            + ' has been completed. Please proceed with Demand Raising.';
 
                 CustomNotificationService.notificationSend(
                     'Master Payment Schedule Update',

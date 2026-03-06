@@ -304,7 +304,7 @@ public class DemandRaisedSave {
         re.Current_Milestone_Excluding_the_TDS__c = currentDueExcludingTDS;
         re.Current_Milestone_TDS_1__c = currentTds;
         re.Milestone_Percentage__c = presentMilestonePaymentPercent;
-            
+        re.Pending_Payment_TDS_1__c = pendingPreviousTDS;   
         re.Pending_Dues_excluding_TDS__c = prevDueExcludingTDS;
         re.Previous_pendings__c = balanceDueTillPrevMilestone;
         
@@ -916,7 +916,7 @@ public class DemandRaisedSave {
             re.Current_Milestone_Excluding_the_TDS__c = currentDueExcludingTDS;  
             re.Current_Milestone_TDS_1__c = currentTds;                          
             re.Milestone_Percentage__c = presentMilestonePaymentPercent;
-            
+            re.Pending_Payment_TDS_1__c = pendingPreviousTDS;   
             re.Pending_Dues_excluding_TDS__c = prevDueExcludingTDS;                
             re.Previous_pendings__c = balanceDueTillPrevMilestone;
             

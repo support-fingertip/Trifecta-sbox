@@ -264,9 +264,9 @@
         <filterLogic>and</filterLogic>
         <filters>
             <field>Cancellation_Status__c</field>
-            <operator>NotEqualTo</operator>
+            <operator>IsChanged</operator>
             <value>
-                <stringValue>Submitted For Cancellation</stringValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Booking__c</object>

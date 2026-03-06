@@ -723,4 +723,98 @@ public static String sendKeyHandoverEmail(Id bookingId) {
         return 'Error: ' + e.getMessage();
     }
 }
+    @AuraEnabled
+    public static String sendPossessionLetterViaProjectType(Id bookingId) {
+        try {
+            // Fetch Booking details including Project_Type__c
+            Booking__c booking = [
+                SELECT Id, First_Applicant_Name__c, Email__c, Email1__c, Owner.Email, Project_Type__c, Project__c, Unit_No__c,Possession_Date__c
+                FROM Booking__c WHERE Id = :bookingId LIMIT 1
+            ];
+            
+            if (booking == null || String.isBlank(booking.Email__c)) {
+                return 'Error: The primary email field (Email__c) is empty. Please provide a recipient email.';
+            }
+            
+            // Select appropriate Possession Letter page
+            PageReference pr;
+            String pType = booking.Project_Type__c;
+            
+            if (pType == 'Villas') {
+                pr = Page.VillaPossessionLetter;
+            } else if (pType == 'Row House') {
+                pr = Page.RowHousePossessionLetter;
+            } else if (pType == 'Apartments' || pType == 'Plots') {
+                pr = Page.FlatPossessionLetter;
+            } else {
+                return 'Error: Unknown Project Type for Possession Letter: ' + pType;
+            }
+            pr.getParameters().put('id', String.valueOf(bookingId));
+            Blob pdfBlob = Test.isRunningTest()
+                ? Blob.valueOf('Test PDF Content')
+                : pr.getContentAsPDF();
+            
+            // Prepare list of recipients
+            List<String> toList = new List<String>();
+            toList.add(booking.Email__c);
+            
+            if (String.isNotBlank(booking.Email1__c)) {
+                toList.add(booking.Email1__c);
+            }
+            
+            // Add Co-Applicant emails
+            for (Co_Applicant__c ca : [
+                SELECT Email__c FROM Co_Applicant__c WHERE Booking__c = :bookingId
+            ]) {
+                if (String.isNotBlank(ca.Email__c)) {
+                    toList.add(ca.Email__c);
+                }
+            }
+            // Validate emails
+            toList = validateEmails(toList);
+            if (toList.isEmpty()) {
+                return 'Error: No valid email addresses found in Booking or Co-Applicants.';
+            }
+            
+            // Compose email
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setToAddresses(toList);
+            
+            // CC Booking Owner if present
+            if (String.isNotBlank(booking.Owner.Email)) {
+                email.setCcAddresses(new List<String>{ booking.Owner.Email });
+            }
+            
+            email.setSubject('Your Possession Letter from Zuari/Trifecta');
+            
+            String custName = String.isNotBlank(booking.First_Applicant_Name__c)
+                ? booking.First_Applicant_Name__c
+                : 'Customer';
+            
+            String body = ''
+                + '<p>Dear ' + custName + ',</p>'
+                + '<p>We are delighted to inform you the possession of your unit at <strong>' + (booking.Project__c != null ? booking.Project__c : '') + '</strong> is now ready.</p>'
+                + '<p><b>Unit Number:</b> ' + (booking.Unit_No__c != null ? booking.Unit_No__c : '') + '</p>'
+                + '<p>Please find the attached Possession Letter for your kind reference.</p>'
+                + '<p>For any queries, feel free to reach out.<br/><br/>Thank you for choosing us!</p>'
+                + '<br/><p>Best regards,<br/>CRM Representative</p>';
+            
+            email.setHtmlBody(body);
+            email.setSaveAsActivity(true);
+            email.setWhatId(booking.Id);
+            
+            Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
+            attach.setFileName('PossessionLetter.pdf');
+            attach.setBody(pdfBlob);
+            attach.setContentType('application/pdf');
+            email.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
+            
+            // Send email
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+            return 'Success: Possession Letter sent successfully.'/* + String.join(toList, ', ')*/;
+            
+        } catch (Exception e) {
+            return 'Error: ' + e.getMessage();
+        }
+    }
 }

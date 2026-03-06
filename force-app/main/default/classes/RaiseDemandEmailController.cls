@@ -241,7 +241,7 @@ public without sharing class RaiseDemandEmailController {
             '##COMAPANY_NAME##', companyName != null ? String.valueOf(companyName) : ''
         );
         dt.emailContent = template;
-
+        
         // Project
         subject = subject.replace(
             '##PROJECT_NAME##',
@@ -260,7 +260,7 @@ public without sharing class RaiseDemandEmailController {
             '##UNIT_NUMBER##',
             bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : ''
         );
-
+        
         dt.subject = subject;
         return dt;
         
@@ -384,148 +384,115 @@ public without sharing class RaiseDemandEmailController {
     public Static String RaiseDemand(String bookingId, String emailContent,List<Id> contentIds) {
         return DemandRaisedSave.raiseNewCustomDemand(bookingId,emailContent,contentIds);
     }
+    
+    
+    
+    /**
+    * Main method that executes the revised demand use case.
+    * Sends email (as before) and enqueues WhatsApp notification.
+    */
     @AuraEnabled
-    public static String revisedDemand(String bookingId, String emailContent, List<Id> contentIds,string subject) {
+    public static String revisedDemand(String bookingId, String emailContent, List<Id> contentIds, String subject) {
         try {
-            // 1. Get the latest completed Payment Schedule
-            Payment_Schedule__c psRecord = [
-                SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,
-                Booking__c, Master_Payment_Schedule__r.S_No__c, Master_Payment_Schedule__c,
-                CreatedBy.Email
-                FROM Payment_Schedule__c
-                WHERE Status__c = 'Completed' AND Booking__c = :bookingId
-                ORDER BY S_No__c DESC
-                LIMIT 1
-            ];
+            // 1. Get the latest completed Payment Schedule and Booking
+            Payment_Schedule__c psRecord = getLatestCompletedSchedule(bookingId);
+            if (psRecord == null) throw new AuraHandledException('No completed Payment Schedule found.');
             
-            // 2. Get Booking with ALL required fields
             Booking__c book = [
                 SELECT Id, Applicant_Name__c, First_Applicant_Name__c, Plot__r.Name, Total__c, Name,
-                Project__c, Project1__r.Name, GST__c, RecordType.DeveloperName,
-                Quote__r.Agreement_Value_Before_GST__c, Total_Amount__c, Block_Name__c,
+                Project__c, Project1__r.Name, GST__c, RecordType.DeveloperName,Mobile__c,Project_Block_Name__c,
+                Quote__r.Agreement_Value_Before_GST__c, Total_Amount__c, Block_Name__c,CRM_Executive_Contact_No__c,
                 Unit_No__c, Owner_Phone_Number__c, Company_Name__c,
                 Email__c, Owner.Email, CRM_Head_Manager_Email__c
                 FROM Booking__c
                 WHERE Id = :psRecord.Booking__c
+                LIMIT 1
             ];
             
-            /** ==================GET TEMPLATE RECORD ========================= **/
-            String template = '';
-            if (String.isBlank(emailContent)) {
-                General_Settings__c temp = [
-                    SELECT Template_Body__c, Type__c,Subject__c
-                    FROM General_Settings__c
-                    WHERE Project_Name1__c INCLUDES (:book.Project__c)
-                    AND Type__c = 'Demand Note'
-                    LIMIT 1
-                ];
-                
-                template = temp.Template_Body__c;
-                
-                template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
-                template = template.replace('##PROJECT_NAME##', book.Project__c ?? '');
-                template = template.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
-                template = template.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
-                template = template.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
-                template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
-            } else {
-                template = emailContent;
+            // 2. Get email template and fill merge fields
+            String template = String.isBlank(emailContent)
+                ? getDemandEmailTemplate(book)
+                : emailContent;
+            
+            // 3. Prepare email
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            List<String> toList = new List<String>();
+            if (!String.isBlank(book.Email__c)) {
+                toList.add(book.Email__c);
+            }
+            email.setToAddresses(toList);
+            
+            // CCs
+            List<String> ccList = new List<String>();
+            if (!String.isBlank(book.Owner.Email)) ccList.add(book.Owner.Email);
+            if (!String.isBlank(book.CRM_Head_Manager_Email__c)) ccList.add(book.CRM_Head_Manager_Email__c);
+            if (!ccList.isEmpty()) email.setCcAddresses(ccList);
+            
+            // Subject
+            String rawSubject = (String.isNotBlank(subject))
+                ? subject
+                : 'Revised Demand Note for Completion of ' + psRecord.Name +
+                    ' In ' + (book.Project1__r != null ? book.Project1__r.Name : '');
+            
+            email.setSubject(rawSubject);
+            
+            // HTML Body
+            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                + template +
+                '</body></html>';
+            email.setHtmlBody(htmlBody);
+            
+            // Attach PDF and any ContentVersion files
+            List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
+            
+            // Attach PDF (simulate in test mode)
+            PageReference vfPage = Page.DemandNote;
+            vfPage.getParameters().put('id', book.Id);
+            vfPage.getParameters().put('reminderType', 'REVISED DEMAND NOTE');
+            Blob pdfBlob = !Test.isRunningTest() ? vfPage.getContentAsPDF() : Blob.valueOf('testblob');
+            Messaging.EmailFileAttachment pdfAttach = new Messaging.EmailFileAttachment();
+            pdfAttach.setFileName('Revised Demand Note.pdf');
+            pdfAttach.setBody(pdfBlob);
+            emailAttachments.add(pdfAttach);
+            
+            // Attach ContentVersion files
+            if (contentIds != null && !contentIds.isEmpty()) {
+                for (ContentVersion cv : [SELECT Title, FileExtension, VersionData
+                                          FROM ContentVersion
+                                          WHERE ContentDocumentId IN :contentIds
+                                          AND IsLatest = true]) {
+                                              Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
+                                              contentAttach.setFileName(cv.Title + '.' + cv.FileExtension);
+                                              contentAttach.setBody(cv.VersionData);
+                                              emailAttachments.add(contentAttach);
+                                          }
+            }
+            email.setFileAttachments(emailAttachments);
+            
+            // Set OrgWideEmailAddress
+            if (!Test.isRunningTest() && !String.isBlank(psRecord.CreatedBy.Email)) {
+                List<OrgWideEmailAddress> orgWideEmail =
+                    [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+                if (!orgWideEmail.isEmpty()) {
+                    email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+                }
             }
             
-            // 3. Prepare email list
-            List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
-            List<String> lstCCEmail = new List<String>();
-            
-            if (book != null && !String.isBlank(book.Email__c)) {
-                
-                // 4. Generate the PDF — pass reminderType=Revised Demand
-                PageReference vfPage = Page.DemandNote;
-                vfPage.getParameters().put('id', book.Id);
-                vfPage.getParameters().put('reminderType', 'REVISED DEMAND NOTE');
-                Blob pdfBlob = !Test.isRunningTest() ? vfPage.getContentAsPDF() : Blob.valueOf('testblob');
-                
-                // 5. Prepare email
-                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-                
-                List<String> sendTo = new List<String>();
-                sendTo.add(book.Email__c);
-                
-                if (!String.isBlank(book.Owner.Email)) {
-                    lstCCEmail.add(book.Owner.Email);
-                }
-                if (!String.isBlank(book.CRM_Head_Manager_Email__c)) {
-                    lstCCEmail.add(book.CRM_Head_Manager_Email__c);
-                }
-                if (!lstCCEmail.isEmpty()) {
-                    email.setCcAddresses(lstCCEmail);
-                }
-                
-                email.setToAddresses(sendTo);
-                string rawSubject = 'Revised Demand Note for Completion of ' + psRecord.Name + ' In ' + book.Project1__r.Name;
-                if (!String.isBlank(subject)) {
-                    rawSubject = subject;
-                }
-                
-                email.setSubject(rawSubject);
- 
-                String htmlBody =
-                    '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                    + template +
-                    '</body></html>';
-                
-                email.setHtmlBody(htmlBody);
-                
-                // 7. Prepare attachments
-                List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
-                
-                // Attach files from contentIds
-                if (contentIds != null && !contentIds.isEmpty()) {
-                    List<ContentVersion> contentVersionsMain = [
-                        SELECT Title, FileExtension, VersionData
-                        FROM ContentVersion
-                        WHERE ContentDocumentId IN :contentIds
-                        AND IsLatest = true
-                    ];
-                    
-                    for (ContentVersion cv : contentVersionsMain) {
-                        Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
-                        contentAttach.setFileName(cv.Title + '.' + cv.FileExtension);
-                        contentAttach.setBody(cv.VersionData);
-                        emailAttachments.add(contentAttach);
-                    }
-                }
-                
-                // Attach the Demand PDF
-                Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-                attachment.setFileName('Revised Demand Note.pdf');
-                attachment.setBody(pdfBlob);
-                emailAttachments.add(attachment);
-                
-                if (!emailAttachments.isEmpty()) {
-                    email.setFileAttachments(emailAttachments);
-                }
-                
-                // 8. Set OrgWideEmailAddress using Payment Schedule's CreatedBy email
-                if (!Test.isRunningTest()) {
-                    String createdEmail = psRecord.CreatedBy.Email;
-                    List<OrgWideEmailAddress> orgWideEmail = [
-                        SELECT Id FROM OrgWideEmailAddress WHERE Address = :createdEmail LIMIT 1
-                    ];
-                    if (!orgWideEmail.isEmpty()) {
-                        email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
-                    }
-                }
-                
-                email.setSaveAsActivity(true);
-                email.setWhatId(book.Id);  // Link activity to the Booking record
-                
-                emails.add(email);
+            email.setSaveAsActivity(true);
+            email.setWhatId(book.Id);
+            try {
+                Messaging.sendEmail(new List<Messaging.SingleEmailMessage> { email });
+                System.debug('Email sent successfully.');
+            } catch (Exception ex) {
+                System.debug('Error sending email: ' + ex.getMessage());
+                // If in Aura/LWC context, you may want to throw for client-side display:
+                // throw new AuraHandledException('Error sending email: ' + ex.getMessage());
             }
-            
-            // 9. Send emails
-            if (!emails.isEmpty()) {
-                Messaging.sendEmail(emails);
-            }
+            // WhatsApp notification
+            Decimal Amount = calculateGrandTotal(psRecord, book);
+            system.debug('Amount'+Amount);
+            WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '10');
+            System.enqueueJob(controller);
             
             return 'Revised Demand sent successfully.';
             
@@ -533,4 +500,93 @@ public without sharing class RaiseDemandEmailController {
             throw new AuraHandledException('Error sending Revised Demand: ' + e.getMessage());
         }
     }
+    
+    /** Returns the latest completed Payment Schedule for a Booking */
+    private static Payment_Schedule__c getLatestCompletedSchedule(String bookingId) {
+        List<Payment_Schedule__c> schedules = [
+            SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,
+            Booking__c, Master_Payment_Schedule__r.S_No__c, Master_Payment_Schedule__c,
+            CreatedBy.Email, PaymentDueDate__c
+            FROM Payment_Schedule__c
+            WHERE Status__c = 'Completed' AND Booking__c = :bookingId
+            ORDER BY S_No__c DESC
+            LIMIT 1
+        ];
+        return schedules.isEmpty() ? null : schedules[0];
+    }
+    
+    /** Performs the grand total calculation per business rules */
+    private static Decimal calculateGrandTotal(Payment_Schedule__c psRecord, Booking__c book) {
+        // Use master or own S_No
+        Decimal currentSNo = 0;
+        if (psRecord.Master_Payment_Schedule__c != null) {
+            Master_Payment_Schedule__c msRecord = [
+                SELECT Id, S_No__c
+                FROM Master_Payment_Schedule__c
+                WHERE Id = :psRecord.Master_Payment_Schedule__c
+                LIMIT 1
+            ];
+            currentSNo = msRecord.S_No__c;
+        } else {
+            currentSNo = psRecord.S_No__c;
+        }
+        
+        // Previous Milestone Aggregates
+        AggregateResult prev = [
+            SELECT SUM(Pending_Amount__c) totalPending,
+            SUM(Interest_Up_to_Date__c) totalInterest,
+            SUM(Interest_Paid__c) totalInterestPaid
+            FROM Payment_Schedule__c
+            WHERE Status__c = 'Completed'
+            AND Booking__c = :book.Id
+            AND S_No__c < :currentSNo
+        ];
+        Decimal prevDue = (Decimal)prev.get('totalPending')    ?? 0;
+        Decimal prevInt = (Decimal)prev.get('totalInterest')   ?? 0;
+        Decimal prevIntPaid = (Decimal)prev.get('totalInterestPaid') ?? 0;
+        Decimal prevBalanceInt = prevInt - prevIntPaid;
+        
+        // Current Milestone Due
+        AggregateResult curr = [
+            SELECT SUM(Pending_Amount__c) due,
+            SUM(Interest_Up_to_Date__c) interest,
+            SUM(Interest_Paid__c) interestPaid
+            FROM Payment_Schedule__c
+            WHERE S_No__c = :currentSNo
+            AND Booking__c = :book.Id
+        ];
+        Decimal currDue = (Decimal)curr.get('due') ?? 0;
+        Decimal currInt = (Decimal)curr.get('interest') ?? 0;
+        Decimal currIntPaid = (Decimal)curr.get('interestPaid') ?? 0;
+        Decimal currBalanceInt = currInt - currIntPaid;
+        
+        // Total
+        Decimal balanceTotalInterest = currBalanceInt + prevBalanceInt;
+        Decimal grandTotal = currDue + prevDue + balanceTotalInterest;
+        return grandTotal;
+    }
+    
+    /** Loads and merges the Demand Note email template */
+    private static String getDemandEmailTemplate(Booking__c book) {
+        List<General_Settings__c> temps = [
+            SELECT Template_Body__c
+            FROM General_Settings__c
+            WHERE Project_Name1__c INCLUDES (:book.Project__c)
+            AND Type__c = 'Demand Note'
+            LIMIT 1
+        ];
+        String template = temps.isEmpty() ? '' : temps[0].Template_Body__c;
+        
+        if (!String.isBlank(template)) {
+            template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c ?? '');
+            template = template.replace('##PROJECT_NAME##', book.Project__c ?? '');
+            template = template.replace('##BLOCK_NAME##', String.valueOf(book.Block_Name__c ?? ''));
+            template = template.replace('##UNIT_NUMBER##', String.valueOf(book.Unit_No__c ?? ''));
+            template = template.replace('##CRM_PHONE##', String.valueOf(book.Owner_Phone_Number__c ?? ''));
+            template = template.replace('##COMAPANY_NAME##', String.valueOf(book.Company_Name__c ?? ''));
+        }
+        return template;
+    }
+    
+    
 }

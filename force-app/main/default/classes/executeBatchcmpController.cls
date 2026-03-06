@@ -6,7 +6,7 @@ public class executeBatchcmpController {
     public static String runPaymentReminderBatch() {
         try {
             Database.executeBatch(
-                new PendingPaymentReminderScheduler(), 20
+                new PendingPaymentReminderScheduler(), 1
             );
             return 'Batch Called Successfully';
         } catch (Exception e) {

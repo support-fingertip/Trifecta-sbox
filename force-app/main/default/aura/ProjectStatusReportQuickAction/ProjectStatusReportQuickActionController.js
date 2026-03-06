@@ -119,6 +119,7 @@
                 component.set("v.filesLoading", false);
                 var fileIds = response.getReturnValue();
                 component.set("v.exestingFilesIDS", fileIds);
+                component.set("v.filesIDS", fileIds);
             }
         });
         $A.enqueueAction(action);

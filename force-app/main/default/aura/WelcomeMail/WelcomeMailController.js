@@ -120,8 +120,11 @@
                 });
                 toastEvent.fire();
                 
+                
                 var dismissActionPanel = $A.get("e.force:closeQuickAction");
                 dismissActionPanel.fire();
+                // Refresh the view to reflect changes
+                $A.get('e.force:refreshView').fire();
             } else {
                 console.error("Error sending email");
                 

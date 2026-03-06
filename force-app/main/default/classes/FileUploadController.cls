@@ -77,9 +77,19 @@ public with sharing class FileUploadController {
             {
                 bk.Cancellation_Agreement_Uploaded__c = true;
             }
-            else if(mainDocName == 'Signed Sales Deed ')
+            else if(mainDocName == 'Signed Agreement')
+            {
+                bk.Signed_Agreement_Uploaded__c = true;
+            }
+            else if(mainDocName == 'Signed Sales Deed')
             {
                 bk.Signed_Sales_Deed_Uploaded__c = true;
+                bk.Sale_Deed_Date__c = Date.today();
+            }
+            else if(mainDocName == 'Final NOC')
+            {
+                bk.Final_NOC_Uploaded__c = true;
+                bk.Final_NOC_Uploaded_Date__c = Date.today();
             }
             update bk;
             return newDocId;

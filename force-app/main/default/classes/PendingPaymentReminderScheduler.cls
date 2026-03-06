@@ -35,6 +35,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             Booking__r.COO__r.Email,
             Booking__r.CRM_Executive__r.Email,
             Booking__r.Stage__c,
+            Booking__r.CRM_Executive_Contact_No__c,
             Booking__r.Unit_No__c,
             Booking__r.Block_Name__c,
             Booking__r.Disable_Automatic_Payment_Reminders__c,
@@ -70,7 +71,12 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
                 'Demand_3RD_REMINDER'
             )
         ];
-
+        // Set OrgWideEmailAddress
+        
+        List<OrgWideEmailAddress> orgWideEmail =
+            [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+        
+        
         // Build Project → Reminder → Template Map
         Map<String, Map<String, General_Settings__c>> projectTemplateMap =
             new Map<String, Map<String, General_Settings__c>>();
@@ -123,6 +129,11 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
 
             Booking__c booking = schedules[0].Booking__r;
             if (booking == null) continue;
+            // Call WhatsappController for demand reminder (action '9')
+            List<Booking__c> bookingList = new List<Booking__c>{ booking };
+                WhatsappController controller = new WhatsappController(bookingList, '9');
+            System.enqueueJob(controller);
+
 
             String reminderType =
                 determineReminderTypeForBooking(schedules, today);
@@ -193,6 +204,9 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
                     new String[] { booking.Email__c });
 
                 mail.setSubject(subject);
+                if (!orgWideEmail.isEmpty()) {
+                    mail.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+                }
                 mail.setHtmlBody(body);
                 mail.setSaveAsActivity(false);
                 

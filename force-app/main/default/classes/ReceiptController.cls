@@ -99,7 +99,7 @@ public without sharing class ReceiptController {
         //  FIX: Added Pending_Tds_Amount__c to the query
         List<Payment_Schedule__c> payList = [
             SELECT Id, Amount1__c, Is_Demanded__c, Interest_Pending_Amount__c,
-            Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,
+            Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,Pending_Amount_Without_Tds__c,
             S_No__c, Pending_Tds_Amount__c
             FROM Payment_Schedule__c 
             WHERE Pending_Amount__c > 0 AND Booking__c = :bk.Id 
@@ -112,7 +112,7 @@ public without sharing class ReceiptController {
         Map<Id, Decimal> paymentScheduleToPendingAmount = new Map<Id, Decimal>();
         Map<Id, Payment_Schedule__c> paymentScheduleMap = new Map<Id, Payment_Schedule__c>();
         for (Payment_Schedule__c pay : payList) {
-            paymentScheduleToPendingAmount.put(pay.Id, pay.Pending_Amount__c);
+            paymentScheduleToPendingAmount.put(pay.Id, pay.Pending_Amount_Without_Tds__c);
             paymentScheduleMap.put(pay.Id, pay);
         }
         
@@ -326,6 +326,14 @@ public without sharing class ReceiptController {
         
         if (bk.Project_Type__c == 'Villas') {
             for (String typeKey : typeToLinesMap.keySet()) {
+                Decimal amountReceived = 0;
+                for (Receipt_Line_Item__c line : typeToLinesMap.get(typeKey)) {
+                    if (line.Payment_Type__c != 'TDS') {
+                        amountReceived += line.Received_Amount__c != null ? line.Received_Amount__c : 0;
+                    }
+                }
+
+
                 Receipt__c receipt = new Receipt__c();
                 receipt.Remarks__c = remark;
                 receipt.Receipt_date__c = Date.valueOf(poc);
@@ -333,17 +341,25 @@ public without sharing class ReceiptController {
                 receipt.Finance_User__c = bk.Finance_Lead__c;
                 receipt.Approval_status__c = 'Approved';
                 receipt.Type__c = typeKey;
+                receipt.Amount_Received__c = amountReceived;
                 
                 receiptsToInsert.add(receipt);
                 typeToReceiptMap.put(typeKey, receipt);
             }
         } else {
+            Decimal amountReceived = 0;
+            for (Receipt_Line_Item__c line : receiptsToCreate) {
+                if (line.Payment_Type__c != 'TDS') {
+                    amountReceived += line.Received_Amount__c != null ? line.Received_Amount__c : 0;
+                }
+            }
             Receipt__c receipt = new Receipt__c();
             receipt.Remarks__c = remark;
             receipt.Receipt_date__c = Date.valueOf(poc);
             receipt.Booking__c = recid;
             receipt.Finance_User__c = bk.Finance_Lead__c;
             receipt.Approval_status__c = 'Approved';
+            receipt.Amount_Received__c = amountReceived;
             receipt.Type__c = bk.Project_Type__c;
             
             receiptsToInsert.add(receipt);

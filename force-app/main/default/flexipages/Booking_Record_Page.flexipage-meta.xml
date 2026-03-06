@@ -9,7 +9,7 @@
                         <valueListItems>
                             <value>Booking__c.Update_Stage_Executive</value>
                             <visibilityRule>
-                                <booleanFilter>(1 AND 2 AND 3) OR 4</booleanFilter>
+                                <booleanFilter>((1 AND 2 AND 3 ) OR 4 )AND 5</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage_Status__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -29,6 +29,11 @@
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>System Administrator</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -82,7 +87,7 @@
                         <valueListItems>
                             <value>Booking__c.Booking_Form</value>
                             <visibilityRule>
-                                <booleanFilter>1 OR 2</booleanFilter>
+                                <booleanFilter>(1 OR 2 )AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -93,32 +98,49 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Row House</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Land_Booking_Form</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Villas</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Construction_Booking_Form</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Villas</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Push_to_CRM</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Sub_Stages__c}</leftValue>
                                     <operator>NE</operator>
@@ -128,6 +150,11 @@
                                     <leftValue>{!Record.Sub_Stages__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Management User Approved</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -248,7 +275,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Time_Extension_Approval_Status__c}</leftValue>
                                     <operator>NE</operator>
@@ -269,10 +296,17 @@
                                     <operator>NE</operator>
                                     <rightValue>Approved</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Agreement_Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Executed</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Agreement_Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Executed &amp; Registered</rightValue>
+                                </criteria>
                             </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Booking__c.Generate_Key_Handover_Letter</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Request_Booking_Cancellation</value>
@@ -294,6 +328,46 @@
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Generate_NOC</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Registration</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Sales</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Land_NOC</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Registration</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Sales</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Project_Type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Villas</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Possession_Letter</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -446,6 +520,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Payment_Remarks__c</fieldItem>
                 <identifier>RecordPayment_Remarks_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Project_Block_Name__c</fieldItem>
+                <identifier>RecordProject_Block_Name__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-add77c2e-2e5c-4074-acbe-86dc1bbe4725</name>
@@ -885,6 +969,16 @@
                 <identifier>RecordAgreement_Execution_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Signed_Agreement_Uploaded__c</fieldItem>
+                <identifier>RecordSigned_Agreement_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-5bfba8cd-aa3a-494e-846d-56cc5693493c</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -954,6 +1048,108 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-c37c6c91-e503-4f84-8bf0-1176eb7d6cd2</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Registration_Number__c</fieldItem>
+                <identifier>RecordRegistration_Number_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Signed_Sales_Deed_Uploaded__c</fieldItem>
+                <identifier>RecordSigned_Sales_Deed_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Final_NOC_Uploaded__c</fieldItem>
+                <identifier>RecordFinal_NOC_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Possession_Date__c</fieldItem>
+                <identifier>RecordPossession_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-3a95c5c0-afc2-4473-a8e6-12426f6323a5</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Registration_Date__c</fieldItem>
+                <identifier>RecordRegistration_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Sale_Deed_Date__c</fieldItem>
+                <identifier>RecordSale_Deed_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Final_NOC_Uploaded_Date__c</fieldItem>
+                <identifier>RecordFinal_NOC_Uploaded_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fec23a5c-62d0-450e-b5ba-c8ef56f9afcd</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-3a95c5c0-afc2-4473-a8e6-12426f6323a5</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column39</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fec23a5c-62d0-450e-b5ba-c8ef56f9afcd</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column40</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-be82f18e-8fb4-4e18-8b1a-e983503fe059</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1991,6 +2187,16 @@
                 <identifier>RecordTotal_received_Amount__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Received_Interest_Amount__c</fieldItem>
+                <identifier>RecordReceived_Interest_Amount_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-780e9eb3-99cc-4ca3-9ee7-bc4e0e05d75d</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -2444,6 +2650,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection19</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-be82f18e-8fb4-4e18-8b1a-e983503fe059</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Registration Information</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection20</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -2991,6 +3215,13 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>parentFieldApiName</name>
                     <value>Booking__c.Id</value>
                 </componentInstanceProperties>
@@ -2999,19 +3230,56 @@
                     <value>Demand_Raised__r</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>NAME</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Grand_Total__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Current_Demand_amount__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Previous_pendings__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CREATED_DATE</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Due_Date__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Milestone_Percentage__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Payment_schedule__c</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Demand Raised</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>force_relatedListSingleContainer4</identifier>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList2</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-447be699-9cf6-4ee4-80a0-1394230585c4</name>

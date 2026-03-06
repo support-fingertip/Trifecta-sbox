@@ -1,4 +1,4 @@
-<apex:page standardController="Booking__c"
+<apex:page standardController="Booking__c" extensions="NOCController"
            renderAs="pdf"
            applyHtmlTag="false"
            showHeader="false"
@@ -166,7 +166,7 @@
                 
                 <!-- DATE AND PLACE -->
                 <div class="date-place">
-                    <div>Date: --/--/2025,</div>
+                    <div>Date: --/--/{!bookingInfo.currentYear},</div>
                     <div>Place: Bengaluru.</div>
                 </div>
                 
@@ -176,13 +176,17 @@
                 <!-- BODY TEXT -->
                 <div class="body-text">
                     We, <strong>M/s. TRIFECTA PROJECTS PRIVATE LIMITED,</strong> would like to confirm that
-                    <strong> Villa-<span class="field-blank">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span></strong>
+                    <strong> Villa : {!bookingInfo.unitNo}</strong>
                     belongs to
-                    <strong>Mr.&#160;<span class="field-blank">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span>
-                        &#160;&amp; Mrs.&#160;<span class="field-blank">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span></strong>
+                    <strong>  
+                       Mr./Ms. {!bookingInfo.customerName}        
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                          Mr./Ms.  &amp; {!firstCoApplicant.Name}
+                        </apex:outputPanel>
+                    </strong>
                     has cleared the payments and the customer been permitted to start interiors in
-                    <strong>VERDE EN RESPLANDOR- PHASE 2&#8221;</strong> situated at
-                    <span class="ul">Jyothipura</span> Village, <span class="ul">Bidarahalli Hobli</span>, Bangalore East Taluk.
+                    <strong>{!bookingInfo.project} {!bookingInfo.block}</strong> situated at
+                    {!bookingInfo.projectAddress}
                 </div>
                 
                 <!-- SIGNATURE TABLE -->

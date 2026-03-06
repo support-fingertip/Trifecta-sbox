@@ -196,16 +196,17 @@ public class DemandInvioceController {
         Decimal totalInterestPaid = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('totalInterestPaid') ?? 0 : 0;
         Decimal previousTDS = !prevAgg.isEmpty() ? (Decimal)prevAgg[0].get('tdsAmount') ?? 0 : 0; 
         balanceDueTillPrevMilestone = totalPendingAmount;
-        balanceInterest = totalInterestUplodateAmount - totalInterestPaid;
+       
 
         /** ===================== CURRENT MILESTONE DUE ===================== **/
-        AggregateResult currentDue = [SELECT SUM(Pending_Amount__c) totalAmountB,  SUM(Total_TDS_Amount__c) tdsAmount FROM Payment_Schedule__c 
+        AggregateResult currentDue = [SELECT SUM(Pending_Amount__c) totalAmountB, SUM(Interest_Up_to_Date__c) totalInterestUplodate,  
+                                      SUM(Total_TDS_Amount__c) tdsAmount FROM Payment_Schedule__c 
                                       WHERE S_No__c = :psRecord.S_No__c AND Booking__c = :booking.Id];
         presentDue = (Decimal)currentDue.get('totalAmountB') ?? 0;
         Decimal currentTds = (Decimal)currentDue.get('tdsAmount') ?? 0;
-
-
-
+        Decimal currentDueInterest = (Decimal)currentDue.get('totalInterestUplodate') ?? 0;
+        
+        balanceInterest = (currentDueInterest + totalInterestUplodateAmount) - totalInterestPaid;
         /** ===================== PAID TDS ===================== **/
         AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS'
                                       AND Booking__c = :booking.Id];

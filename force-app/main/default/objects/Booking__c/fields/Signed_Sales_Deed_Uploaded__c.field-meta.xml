@@ -3,7 +3,7 @@
     <fullName>Signed_Sales_Deed_Uploaded__c</fullName>
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
-    <label>Signed Sales Deed Uploaded</label>
+    <label>Signed Sale Deed Uploaded</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

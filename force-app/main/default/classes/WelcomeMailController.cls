@@ -191,7 +191,7 @@ public without sharing class WelcomeMailController {
         system.debug('Content IDs: ' + contentIds);
         Booking__c bk = [SELECT Id, Quote__c,Name, CRM_Manager__c,Project1__r.Name, Owner_Phone__c,CRM_Head__c, 
                          CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c, 
-                         Project__c,Block_Name__c,Unit_No__c,Project_Type__c,
+                         Project__c,Block_Name__c,Unit_No__c,Project_Type__c,Mobile__c,Owner_Full_Name__c,
                          (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks 
                           WHERE ContentDocumentId IN :contentIds) 
                          FROM Booking__c 
@@ -331,6 +331,15 @@ public without sharing class WelcomeMailController {
             
             
             mail.setToAddresses(toAddresses);
+                 
+            // Set OrgWideEmailAddress
+            if (!Test.isRunningTest()) {
+                List<OrgWideEmailAddress> orgWideEmail =
+                    [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+                if (!orgWideEmail.isEmpty()) {
+                    mail.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+                }
+            }
             if(lstCCEmail.size()>0){
                 mail.setCcAddresses(lstCCEmail);
             }
@@ -341,7 +350,9 @@ public without sharing class WelcomeMailController {
             }
             
             List<Messaging.SendEmailResult> results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-            system.debug(results);           
+            system.debug(results);   
+            WhatsappController controller = new WhatsappController(bk, '11');
+            System.enqueueJob(controller);
             
             bk.Welcome_Mail_Sent_Time__c = system.now();
             bk.Welcome_Email_Sent_to_Customer__c = true;

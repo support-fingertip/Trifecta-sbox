@@ -74,6 +74,10 @@
                 <behavior>Edit</behavior>
                 <field>Move_to_Next_Stage__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Project_Block_Name__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

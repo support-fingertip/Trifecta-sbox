@@ -175,7 +175,7 @@
             <div class="info-section">
                 <div class="info-row">
                     <div class="info-left">
-                        <strong>Customer ID:</strong>{!bookingInfo.webAddress}<br/>
+                        <strong>Customer ID:</strong>{!bookingInfo.customerId}<br/>
                         <strong>Customer Name:</strong> {!bookingInfo.customerName}
                         <!-- Co Applicant if exists -->
                         <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">

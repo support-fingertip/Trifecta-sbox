@@ -201,6 +201,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>DemandRaisedTriggerHandler</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Demand_Note_send_Controller</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1597,6 +1601,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Final_NOC_Uploaded_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Final_NOC_Uploaded__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Finance_Lead__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2032,6 +2046,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Project_Block_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Project_Sales_Head__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2092,7 +2111,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Received_Interest_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Refund_Expected_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Registration_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2203,6 +2232,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Shaft_room_No_Of_Keys__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Signed_Agreement_Uploaded__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3082,6 +3116,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Demand_Raised__c.Payment_Due_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Demand_Raised__c.Payment_schedule__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -3103,6 +3142,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Demand_Raised__c.Previous_pendings__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Demand_Raised__c.Project_Block_Name__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5437,6 +5481,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Booking_Stage__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Booking__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -5548,6 +5597,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.Payment_percent__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Pending_Amount_Without_Tds__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7492,6 +7546,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt__c.Received_Amount_Without_Interest__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt__c.Received_Interest_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Receipt__c.Remarks__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -9141,6 +9205,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>FlatPossessionLetter</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>ForgotPassword</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -9205,6 +9273,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>RowHousePossessionLetter</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>SaleAgreement</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -9262,6 +9334,10 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>VillaNOC</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>VillaPossessionLetter</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

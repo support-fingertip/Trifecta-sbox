@@ -1,4 +1,4 @@
-<apex:page standardController="Booking__c"
+<apex:page standardController="Booking__c" extensions="NOCController"
            renderAs="pdf"
            applyHtmlTag="false"
            showHeader="false"
@@ -152,45 +152,71 @@
                 <div class="doc-title">REGISTRATION NOC</div>
                 
                 <div class="date-place">
-                    Date:&#160;
-                    <apex:outputText value="{0,date,dd/MM/yyyy}">
-                        <apex:param value="{!NOW()}"/>
-                    </apex:outputText>,<br/>
-                    Place: Bangalore.
+                    <div>Date: --/--/{!bookingInfo.currentYear},</div>
+                    <div>Place: Bengaluru.</div>
                 </div>
                 
                 <p class="body-text">
                     We, <strong>M/s. TRIFECTA PROJECTS PRIVATE LIMITED,</strong> would like to confirm that
-                    Villa &#8211; <span class="val sm"><apex:outputField value="{!Booking__c.Unit_Number__c}"/></span>
-                    belongs to <strong>Mr./Ms.&#160;<span class="val lg"><apex:outputField value="{!Booking__c.First_Applicant_Name__c}"/></span></strong>
-                    in the project <strong>&#8220;VERDE EN RESPLANDOR &#8211; PHASE 3&#8221;</strong> situated at
-                    Jyothipura Village, Bidarahalli Hobli, Bangalore East Taluk, has cleared the amount for the land registration.
+                    Villa {!bookingInfo.unitNo}
+                    belongs to   <strong>  
+                    Mr./Ms. {!bookingInfo.customerName}        
+                    <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                        Mr./Ms.  &amp; {!firstCoApplicant.Name}
+                    </apex:outputPanel>
+                    </strong>
+                    in the project <strong>{!bookingInfo.project} {!bookingInfo.block}</strong> situated at
+                    {!bookingInfo.projectAddress}
                 </p>
                 
                 <p class="body-text">
                     The Total Sale Consideration of the Villa
-                    <strong>Rs.&#160;<span class="val md"><apex:outputField value="{!Booking__c.Total_Amount__c}"/></span>&#160;/-</strong>
-                    (Rupees&#160;&#160;Only).
+                    <strong>Rs.&#160;<span class="val md">{!amount}</span>&#160;/-</strong>
+                    (Rupees {!amountInWords} Only).
                 </p>
-                
                 <table class="payment-table">
                     <thead>
                         <tr>
-                            <th><u>Amount</u></th>
-                            <th><u>Cheque</u> / Online</th>
                             <th><u>Date</u></th>
+                            <th><u>Cheque</u> / Online</th>
+                            <th><u>Amount</u></th>
                             <th><u>Remarks</u></th>
                         </tr>
                     </thead>
+                    
                     <tbody>
-           
-                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
-                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
-                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
-                        <tr><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+                        <apex:repeat value="{!landreceiptLineItems}" var="receipt">
+                            <tr>
+                                <!-- Date -->
+                                <td>
+                                    <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                                        <apex:param value="{!receipt.Receipt_Date__c}" />
+                                    </apex:outputText>
+                                </td>
+                                
+                                <!-- Cheque / Online -->
+                                <td>
+                                    {!receipt.Mode_of_Payment__c}
+                                    <apex:outputText rendered="{!NOT(ISBLANK(receipt.Cheque_no_Transaction_Number__c))}">
+                                        &nbsp;({!receipt.Cheque_no_Transaction_Number__c})
+                                    </apex:outputText>
+                                </td>
+                                
+                                <!-- Amount -->
+                                <td>
+                                    <apex:outputText value="{0,number,###,##0.00}">
+                                        <apex:param value="{!receipt.Received_Amount__c}" />
+                                    </apex:outputText>
+                                </td>
+                                
+                                <!-- Remarks -->
+                                <td>
+                                   
+                                </td>
+                            </tr>
+                        </apex:repeat>
                     </tbody>
                 </table>
-                
                 <div class="signatory">
                     <p>Authorized Signatory</p>
                     <p>Accounts Department</p>

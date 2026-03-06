@@ -48,23 +48,6 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Type__c</fieldItem>
-                <identifier>RecordType_cField</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Quote__r.Property_Type__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Villas</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.S_No__c</fieldItem>
                 <identifier>RecordS_No_cField</identifier>
             </fieldInstance>
@@ -87,6 +70,33 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Amount1__c</fieldItem>
                 <identifier>RecordAmount1_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Pending_Amount_Without_Tds__c</fieldItem>
+                <identifier>RecordPending_Amount_Without_Tds_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Type__c</fieldItem>
+                <identifier>RecordType_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Quote__r.Property_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Villas</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -151,6 +161,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Payment_percent__c</fieldItem>
                 <identifier>RecordPayment_percent_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Pending_Tds_Amount__c</fieldItem>
+                <identifier>RecordPending_Tds_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

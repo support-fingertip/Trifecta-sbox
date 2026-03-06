@@ -41,14 +41,22 @@
             
             return; // STOP execution
         }
+             
+        var content = component.get("v.emailContent");
+        // Remove empty paragraphs created by inputRichText
+        content = content.replace(/<p>(&nbsp;|\s)*<\/p>/g, '');
+        // Also handle multiple breaks
+        content = content.replace(/(<br\s*\/?>\s*){2,}/g, '<br/>');
+        
         console.log('here sendEmail'); 
         var action = component.get("c.RaiseDemand");
         var recId = component.get("v.recordId");
         var contentDocumentIds = component.get("v.filesIDS");
+        
 
         action.setParams({
             "bookingId": recId,
-            "emailContent": component.get("v.emailContent"),
+            "emailContent": content,
             "contentIds": contentDocumentIds  
         });
         console.log('here 1');        
