@@ -171,6 +171,15 @@ public class DocumentandEmailController {
                         }
                     }
                     
+                    // Set OrgWideEmailAddress
+                    if (!Test.isRunningTest()) {
+                        List<OrgWideEmailAddress> orgWideEmail =
+                            [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+                        if (!orgWideEmail.isEmpty()) {
+                            email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+                        }
+                    }
+                    
                     // Include CC addresses
                     lstCCEmail.add(booking.Owner.Email);
                     if (!lstCCEmail.isEmpty()) {
@@ -409,13 +418,18 @@ public class DocumentandEmailController {
                     if (!emailAttachments.isEmpty()) {
                         email.setFileAttachments(emailAttachments);
                     }
-                    if(!Test.isRunningTest()){
-                        String CreatedEmail = demand.CreatedBy.Email;
-                        list<OrgWideEmailAddress> orgWideEmail = [SELECT Id FROM OrgWideEmailAddress WHERE Address = :CreatedEmail LIMIT 1];
-                        if (orgWideEmail.size() > 0) {
+
+                    // Set OrgWideEmailAddress
+                    if (!Test.isRunningTest()) {
+                        List<OrgWideEmailAddress> orgWideEmail =
+                            [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+                        if (!orgWideEmail.isEmpty()) {
                             email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
                         }
                     }
+                    
+                    
+                    
                     email.setSaveAsActivity(true);
                     email.setWhatId(demand.Id);
                     // Send the email

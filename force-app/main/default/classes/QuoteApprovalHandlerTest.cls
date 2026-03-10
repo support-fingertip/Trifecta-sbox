@@ -11,6 +11,7 @@ public class QuoteApprovalHandlerTest {
         
         Block__c bc = new Block__c();
         bc.Name='A';
+        bc.Intrest_Percentage__c = 11;
         bc.Project__c=pjt.id;
         insert bc;
         

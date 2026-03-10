@@ -1,10 +1,15 @@
-trigger BookingTrigger on Booking__c (after insert,before update,after Update) {
+trigger BookingTrigger on Booking__c (after insert,before Insert, before update,after Update) {
     if(trigger.isinsert)
     {
-        if(trigger.isAfter)
+        if(trigger.isBefore)
+        {
+            BookingTriggerHandler.beforeInsert(trigger.new);
+        }
+        else
         {
             BookingTriggerHandler.afterInsert(trigger.new);
         }
+        
     }
     if(trigger.isUpdate)
     {

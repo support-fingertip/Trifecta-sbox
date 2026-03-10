@@ -5,6 +5,11 @@ public  without sharing class SiteVisitTriggerHandler {
         for (Site_Visit__c sv : newSiteVisits) {
             if (sv.Lead_Record_Type_Name__c != null) {
                 sv.Lead_Stage__c =sv.Lead_Record_Type_Name__c;
+                
+            }
+            if(sv.Credit_Source__c != null)
+            {
+                sv.Credit_Source_for_Sharing__c = sv.Credit_Source__c;
             }
         }
     }
