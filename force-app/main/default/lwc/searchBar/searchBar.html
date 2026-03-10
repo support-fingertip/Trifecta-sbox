@@ -1,0 +1,37 @@
+<template>
+    <lightning-card title="Search" icon-name="utility:search">
+        <div class="slds-p-horizontal_medium">
+            <lightning-input
+                type="search"
+                label="Search"
+                placeholder="Search accounts, contacts, opportunities..."
+                value={searchTerm}
+                onchange={handleSearchTermChange}
+                class="slds-m-bottom_small"
+            ></lightning-input>
+
+            <template if:true={isLoading}>
+                <lightning-spinner
+                    alternative-text="Searching..."
+                    size="small"
+                ></lightning-spinner>
+            </template>
+
+            <template if:true={hasResults}>
+                <lightning-datatable
+                    key-field="recordId"
+                    data={results}
+                    columns={columns}
+                    hide-checkbox-column
+                    onrowaction={handleRowAction}
+                ></lightning-datatable>
+            </template>
+
+            <template if:true={showNoResults}>
+                <p class="slds-text-color_weak slds-m-top_small">
+                    No results found for &quot;{searchTerm}&quot;.
+                </p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
