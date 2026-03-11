@@ -19,7 +19,7 @@ public class FlatKeyHandoverVfpController {
         } else {
             booking = new Booking__c();
         }
-
+      system.debug('bookingId'+bookingId);
         User currentUser = [
             SELECT Name, Title, MobilePhone
             FROM User
