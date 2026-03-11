@@ -1,4 +1,6 @@
-<apex:page sidebar="false"
+<apex:page standardController="Booking__c"
+           extensions="FlatKeyHandoverVfpController"
+           sidebar="false"
            showHeader="false"
            applyBodyTag="false"
            applyHtmlTag="false"
@@ -162,8 +164,8 @@
                 <!-- Address To -->
                 <div class="content-block">
                     <p style="margin-top: 20px;">To,</p>
-                    <span style="margin-top: 20px;" >Mr.____________ </span><span style="margin-top: 20px;">Mrs.____________ </span>
-                    <p style="margin-top: 10px;">FLAT NO - </p>
+                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}</p>
+                    <p style="margin-top: 10px;">FLAT NO - {!booking.Unit_Number__c}</p>
                     <p style="margin-top: 10px;"><span >SUB:</span> FLAT KEYS HANDOVER</p>
                 </div>
                 
@@ -209,11 +211,11 @@
                     Key Handed Over By
                     <div class="signature-block-title">
                         <br/>
-                        <p>Name:</p>
+                        <p>Name: {!handoverByName}</p>
                         
-                        <p>Designation:Support help</p>
+                        <p>Designation: {!handoverByDesignation}</p>
                         
-                        <p>Mobile Number:</p>
+                        <p>Mobile Number: {!handoverByMobile}</p>
                     </div>
                 </div>
                 <br/><br/>
