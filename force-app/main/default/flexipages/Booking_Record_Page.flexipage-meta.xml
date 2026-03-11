@@ -311,7 +311,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Booking_Cancellation</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -321,11 +321,6 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>CRM Executive</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
