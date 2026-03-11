@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validation_rule_for_Booking_Stage</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    NOT($Profile.Name = &quot;System Administrator&quot;),   /* Allow Admin */
+
+    CASE(
+        Stage__c,
+        &quot;Booked&quot;, 1,
+        &quot;Agreement&quot;, 2,
+        &quot;Demands &amp; Progressive Collections&quot;, 3,
+        &quot;Registration&quot;, 4,
+        &quot;Possession / Handover&quot;, 5,
+        &quot;Customer Service &amp; Complaints&quot;, 6,
+        &quot;Cancellation&quot;, 7,
+        0
+    )
+    &lt;
+    CASE(
+        PRIORVALUE(Stage__c),
+        &quot;Booked&quot;, 1,
+        &quot;Agreement&quot;, 2,
+        &quot;Demands &amp; Progressive Collections&quot;, 3,
+        &quot;Registration&quot;, 4,
+        &quot;Possession / Handover&quot;, 5,
+        &quot;Customer Service &amp; Complaints&quot;, 6,
+        &quot;Cancellation&quot;, 7,
+        0
+    )
+)</errorConditionFormula>
+    <errorMessage>You can&apos;t go backward</errorMessage>
+</ValidationRule>

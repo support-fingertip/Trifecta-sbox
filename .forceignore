@@ -1,0 +1,7 @@
+# Salesforce CLI ignores
+.sfdx/*
+node_modules/
+.vscode/
+*.log
+.DS_Store
+*.tmp

@@ -1,0 +1,23 @@
+<aura:component controller="ProjectStatusReportController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global">
+    <aura:attribute name="showPopup" type="boolean" default="false" />
+    <aura:attribute name="showDemandPopup" type="boolean" default="false" />
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="bookingRecord" type="Booking__c" />
+    <aura:attribute name="currentMilestone" type="Payment_schedule__c" />
+
+    <div class="slds-grid slds-grid_align-end slds-gutters_small">
+        <div class="slds-col">
+            <lightning:button variant="brand" label="Project Status Report" title="Project Status Report" onclick="{!c.handleClick}" />
+        </div>
+        <div class="slds-col">
+            <lightning:button variant="brand" label="Revised Demand" title="Revised Demand" onclick="{!c.handleDemandClick}" />
+        </div>
+    </div>
+
+    <aura:if isTrue="{!v.showPopup}">
+        <c:ProjectStatusReportQuickAction visible="{!v.showPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+    <aura:if isTrue="{!v.showDemandPopup}">
+        <c:RevisiedDemand visible="{!v.showDemandPopup}" recordId="{!v.recordId}" />
+    </aura:if>
+</aura:component>

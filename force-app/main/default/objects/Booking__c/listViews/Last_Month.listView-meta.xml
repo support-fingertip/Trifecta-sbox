@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Month</fullName>
+    <columns>NAME</columns>
+    <columns>Project_Type__c</columns>
+    <columns>First_Applicant_Name__c</columns>
+    <columns>Plot__c</columns>
+    <columns>Email1__c</columns>
+    <columns>Booking_Amount__c</columns>
+    <columns>Total_Amount__c</columns>
+    <columns>Booking_Date__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>Booking_Date__c</field>
+        <operation>equals</operation>
+        <value>LAST_MONTH</value>
+    </filters>
+    <label>Last Month</label>
+</ListView>
