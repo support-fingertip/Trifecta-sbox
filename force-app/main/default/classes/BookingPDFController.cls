@@ -202,8 +202,8 @@ public class BookingPDFController {
             'Dear Sir/Madam,<br/><br/>' +
             'Thank you very much for your interest in <b>' + bk.Project__c + '</b>.<br/><br/>' +
             'Please find the attached booking form for your reference.<br/><br/>' +
-            'To continue, please ' +
-            '<a href="' + bookingUrl + '">click here to proceed with your booking</a>.<br/><br/>' +
+            //'To continue, please ' +
+            //'<a href="' + bookingUrl + '">click here to proceed with your booking</a>.<br/><br/>' +
             'We appreciate your trust in Trifecta Projects and look forward to welcoming you.<br/><br/>' +
             'Warm Regards,<br/>' +
             '<b>Team Trifecta</b><br/>' +

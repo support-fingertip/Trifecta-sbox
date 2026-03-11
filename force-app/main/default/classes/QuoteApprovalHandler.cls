@@ -10,12 +10,21 @@ public class QuoteApprovalHandler {
             }
         }
         
-        list<Project__c> lstProjects = [select Id,Project_Sales_Head__c,Project__c from Project__c where Project__c In:projectSet
-                                       AND Project__c!= null AND Project_Sales_Head__c != null];
+        list<Project__c> lstProjects = [select Id,Project_Sales_Head__c,Project__c,	Sales_Head__c from Project__c where Project__c In:projectSet
+                                        AND Project__c!= null AND Project_Sales_Head__c != null];
         map<String,String> projectWithProjectSalesHead = new map<String,String>();
+        map<String,String> projectWithSalesHead = new map<String,String>();
         for(Project__c pr: lstProjects)
         {
-            projectWithProjectSalesHead.put(pr.Project__c,pr.Project_Sales_Head__c);
+            if(pr.Project_Sales_Head__c != null)
+            {
+                projectWithProjectSalesHead.put(pr.Project__c,pr.Project_Sales_Head__c);
+            }
+            if(pr.Sales_Head__c != null)
+            {
+                projectWithSalesHead.put(pr.Project__c,pr.Sales_Head__c);
+            }
+          
         }
         
         for(Quote__c qt: newQuoteList)
@@ -23,6 +32,10 @@ public class QuoteApprovalHandler {
             if(qt.Project__c != null && projectWithProjectSalesHead.containsKey(qt.Project__c ))
             {
                 qt.Project_Sales_Head__c = projectWithProjectSalesHead.get(qt.Project__c);
+            }
+            if(qt.Project__c != null && projectWithSalesHead.containsKey(qt.Project__c ))
+            {
+                qt.Sales_Head__c = projectWithSalesHead.get(qt.Project__c);
             }
         }
 

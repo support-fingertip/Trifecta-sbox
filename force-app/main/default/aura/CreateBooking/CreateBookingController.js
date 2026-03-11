@@ -12,8 +12,10 @@
             console.log('Response : '+response.getReturnValue()); 
             
             if(state==='SUCCESS'){
-                var qt = response.getReturnValue();
+                var result = response.getReturnValue();
+                var qt = result.quote;
                 component.set('v.quote',qt);
+                component.set('v.bankNames',result.bankNames);
                 var book = component.get("v.book");
                 var unitstatus = qt.Unit__r.Status__c;
                 if(unitstatus == 'Booked'){
@@ -37,9 +39,6 @@
                 book.Construction_Cost__c =  qt.Construction_Cost__c; 
                 book.Plot_Land_Cost__c =  qt.Land_Cost__c; 
                 book.Extra_Land_Amount__c =  qt.Extra_Land_Amount__c;
-                book.Carpet_Area__c =  qt.Carpet_Area__c;
-                book.Payment_Remarks__c = '';
-                
                 
                 /*book.Aadhaar_Uploaded__c = true;
                 book.PAN_Uploaded__c = true;
@@ -90,12 +89,6 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.fileName", fileName);
-        if(fileName != 'Upload Government issued photo identity proof..' )
-        {
-            var book = component.get("v.book");
-            book.Aadhaar_Uploaded__c = true;
-        }
-      
         
     },
     handleFilesChange2ndPhoto: function(component, event, helper) {
@@ -104,11 +97,6 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file2ndName", fileName);
-        if(fileName != 'Upload PAN Photo..' )
-        {
-            var book = component.get("v.book");
-            book.Pan_Uploaded__c = true;
-        }
         
     },
     handleFilesChange3rdPhoto: function(component, event, helper) {
@@ -117,11 +105,6 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file3rdName", fileName);
-        if(fileName != 'Upload Applicant Photo..' )
-        {
-            var book = component.get("v.book");
-            book.Applicant_Photo_Uploaded__c = true;
-        }
         
     },
     handleFilesChange4thPhoto: function(component, event, helper) {
@@ -130,11 +113,7 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file4thName", fileName);
-        if(fileName != 'Upload Proof of Address..' )
-        {
-            var book = component.get("v.book");
-            book.Proof_of_Address_Uploaded__c = true;
-        }
+        
     },
     
     removeRow : function(component, event, helper) {
@@ -145,28 +124,8 @@
         component.set("v.applicantList", aitems);
     },
     addRow: function(component, event, helper) { 
-        var applicantList = component.get("v.applicantList");
-        
-        // Check if there is already an applicant in the list
-        if (applicantList.length > 0) {
-            // Get the last applicant added to the list
-            var lastApplicant = applicantList[applicantList.length - 1];
-            
-            // Define which fields must be filled before adding a new row
-            // You can add or remove fields from this list based on your needs
-            if (!lastApplicant.Name || !lastApplicant.Age__c || !lastApplicant.Primary_Phone__c) {
-                helper.showToast('Error', 'Wait!', "Please fill in the details for the current Co-Applicant before adding another one.");
-                return; // Stop execution here
-            }
-        }
-        
-        // If list is empty or last row is valid, proceed to add row
         helper.addAppliacantRecord(component, event, helper);
     },
-
-    // addRow: function(component, event, helper) { 
-    //    helper.addAppliacantRecord(component, event, helper);
-   // },
     
     closeModel: function(component, event, helper) {
         component.set("v.isModalOpen", false);

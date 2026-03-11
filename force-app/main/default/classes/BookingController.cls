@@ -1,13 +1,49 @@
 public without sharing class BookingController {
     @AuraEnabled
-    public static Quote__c quoteRecord(String recId) {
-        Quote__c qt = [select id,name,BHK_Type__c,Super_Built_UpArea__c,Rate_sq_Ft_Discount__c,
-                       Unit_Number__c,Unit__r.Unit_Facing_Direction__c, Unit__r.Status__c,Property_Type__c,
-                       Project__c,Wing__c,Block__c,Agreement_Value_Before_GST__c,SLead__r.Email,Rate_per_sqft__c,
-                       Extra_Land_Amount__c,Grand_Total_Amount__c,Carpet_Area__c,
-                       SLead__r.Name, SLead__r.Phone__c,SLead__r.Age__c,Plot_Land_Area__c,Construction_Cost__c,Land_Cost__c
-                       from Quote__c where Id=:recId ];
-        return qt;
+    public static List<String> getPaymentTypePicklistValues() {
+        List<String> paymentTypeValues = new List<String>();
+        Schema.DescribeFieldResult fieldResult = Booking__c.Mode_Of_Payment__c.getDescribe();
+        
+        for (Schema.PicklistEntry picklistEntry : fieldResult.getPicklistValues()) {
+            paymentTypeValues.add(picklistEntry.getLabel());
+        }
+        
+        return paymentTypeValues;
+    }
+    
+    @AuraEnabled
+    public static List<String> getFundingtTypePicklistValues() {
+        List<String> paymentTypeValues = new List<String>();
+        Schema.DescribeFieldResult fieldResult = Booking__c.Funding_Type__c.getDescribe();
+        
+        for (Schema.PicklistEntry picklistEntry : fieldResult.getPicklistValues()) {
+            paymentTypeValues.add(picklistEntry.getLabel());
+        }
+        
+        return paymentTypeValues;
+    }
+    
+    public class returnBox {
+        @AuraEnabled public Quote__c quote;
+        @AuraEnabled public List<String> bankNames = new List<String>();
+    }
+    
+    @AuraEnabled
+    public static returnBox quoteRecord(String recId) {
+        returnBox rt = new returnBox();
+        rt.quote = [select id,name,BHK_Type__c,Super_Built_UpArea__c,Rate_sq_Ft_Discount__c,
+                    Unit_Number__c,Unit__r.Unit_Facing_Direction__c, Unit__r.Status__c,Property_Type__c,
+                    Project__c,Wing__c,Block__c,Agreement_Value_Before_GST__c,SLead__r.Email,Rate_per_sqft__c,
+                    Extra_Land_Amount__c,Grand_Total_Amount__c,
+                    SLead__r.Name, SLead__r.Phone__c,SLead__r.Age__c,Plot_Land_Area__c,Construction_Cost__c,Land_Cost__c
+                    from Quote__c where Id=:recId ];
+        List<String> bankNames = new List<String>();
+        Schema.DescribeFieldResult fieldResult = Booking__c.Bank_Name__c.getDescribe();
+        for (Schema.PicklistEntry picklistEntry : fieldResult.getPicklistValues()) {
+            bankNames.add(picklistEntry.getLabel());
+        }
+        rt.bankNames = bankNames;
+        return rt;
     }
     @AuraEnabled
     public static Id saveFile(Id parentId, String fileName, String base64Data, String contentType, String fileType) {
@@ -109,7 +145,7 @@ public without sharing class BookingController {
                 bk.CRM_Executive__c = block.CRM_Executive__c != null ? block.CRM_Executive__c : null ;
                 bk.CRM_Head__c = block.CRM_Head__c != null ? block.CRM_Head__c : null ;
             }
-
+            
             insert bk;
             
             List<Co_Applicant__c> applicantListToInsert = new List<Co_Applicant__c>();

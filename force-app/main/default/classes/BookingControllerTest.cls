@@ -15,6 +15,7 @@ public class BookingControllerTest {
        
         Block__c bc = new Block__c(
             Name = 'A',
+            Intrest_Percentage__c = 12,
             Project__c = pjt.Id
         );
         insert bc;
@@ -65,7 +66,7 @@ Test.setMock(HttpCalloutMock.class, new RestMock());
         List<String> fundTypes = BookingController.getFundingtTypePicklistValues();
 
       
-        Quote__c qResult = BookingController.quoteRecord(qc.Id);
+        BookingController.quoteRecord(qc.Id);
        
         Blob testBlob = Blob.valueOf('Test File Content');
         String base64File = EncodingUtil.base64Encode(testBlob);
@@ -101,7 +102,7 @@ Test.setMock(HttpCalloutMock.class, new RestMock());
         );
 
         List<Co_Applicant__c> caList = new List<Co_Applicant__c>{
-            new Co_Applicant__c(Name = 'Test User')
+            new Co_Applicant__c(Name = 'Test User',Primary_Phone__c ='1234567891')
         };
 
         String bId = BookingController.convertQuote(qc.Id, newBook, caList);

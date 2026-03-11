@@ -47,6 +47,7 @@ public class BookingTriggerHandler {
                 if (booking.Quote__c != null) {
                     quoteToBookingMap.put(booking.Quote__c, booking.Id);
                 }
+
             }
             
             if (!quoteToBookingMap.isEmpty()) {
@@ -77,6 +78,18 @@ public class BookingTriggerHandler {
                 System.enqueueJob(wactrl);
                 SMSHandler smsctrl = new SMSHandler(books,'6');
                 System.enqueueJob(smsctrl);
+            }
+        }
+    }
+    
+    public static void beforeInsert(list<Booking__c> newBookingList){
+        for(Booking__c bk: newBookingList)
+        {
+            for (Booking__c booking : newBookingList) {
+                if (booking.Credit_Source__c != null) {
+                    booking.Credit_Source_For_Sharing__c = booking.Credit_Source__c;
+                }
+                
             }
         }
     }

@@ -318,14 +318,14 @@
                                     <rightValue>false</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>CRM Executive</rightValue>
-                                </criteria>
-                                <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>CRM Executive</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -367,7 +367,24 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Booking__c.Generate_Key_Handover_Letter</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Booking__c.Possession_Letter</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -1150,6 +1167,422 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-be82f18e-8fb4-4e18-8b1a-e983503fe059</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door__c</fieldItem>
+                <identifier>RecordMain_Door_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Common_Bedroom_Key_No__c</fieldItem>
+                <identifier>RecordCommon_Bedroom_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-0c9b9e78-9f5a-480f-9aa8-f553ca958c03</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door_Sensor_No_of_Keys__c</fieldItem>
+                <identifier>RecordMain_Door_Sensor_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_No_Of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_No_Of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Common_Bedroom_No_of_Keys__c</fieldItem>
+                <identifier>RecordCommon_Bedroom_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-b2007d27-18a1-4a46-b465-f86e6dac96f3</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-0c9b9e78-9f5a-480f-9aa8-f553ca958c03</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column45</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-b2007d27-18a1-4a46-b465-f86e6dac96f3</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column46</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-6bae9f4f-56b6-4956-83ab-a446c28c5e26</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door__c</fieldItem>
+                <identifier>RecordMain_Door_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Guest_Bedroom_Key_No__c</fieldItem>
+                <identifier>RecordGuest_Bedroom_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_Key_No_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_Key_No_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Sit_Out_Key_No__c</fieldItem>
+                <identifier>RecordSit_Out_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Second_Floor_Key_No__c</fieldItem>
+                <identifier>RecordSecond_Floor_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-stpcnnkevga</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door_Sensor_No_of_Keys__c</fieldItem>
+                <identifier>RecordMain_Door_Sensor_No_of_Keys_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Guest_Bedroom_No_of_Keys__c</fieldItem>
+                <identifier>RecordGuest_Bedroom_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_No_Of_Keys_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_No_Of_Keys_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Sit_Out_No_of_Keys__c</fieldItem>
+                <identifier>RecordSit_Out_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Second_Floor_No_of_Keys__c</fieldItem>
+                <identifier>RecordSecond_Floor_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-lz0c8h0utx</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-stpcnnkevga</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column51</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-lz0c8h0utx</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column52</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-nk12kfkd1cs</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door_Key_No__c</fieldItem>
+                <identifier>RecordMain_Door_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Guest_Bedroom_Key_No__c</fieldItem>
+                <identifier>RecordGuest_Bedroom_Key_No_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_Key_No_cField3</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_Key_No__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_Key_No_cField3</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Basement_Door_Key_No__c</fieldItem>
+                <identifier>RecordBasement_Door_Key_No_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Second_Floor_Key_No__c</fieldItem>
+                <identifier>RecordSecond_Floor_Key_No_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-57x347vurt8</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Main_Door_No_of_Keys__c</fieldItem>
+                <identifier>RecordMain_Door_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Guest_Bedroom_No_of_Keys__c</fieldItem>
+                <identifier>RecordGuest_Bedroom_No_of_Keys_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_Master_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_Master_bedroom_No_Of_Keys_cField3</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FF_children_bedroom_No_Of_Keys__c</fieldItem>
+                <identifier>RecordFF_children_bedroom_No_Of_Keys_cField3</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Basement_Door_No_of_Keys__c</fieldItem>
+                <identifier>RecordBasement_Door_No_of_Keys_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Second_Floor_No_of_Keys__c</fieldItem>
+                <identifier>RecordSecond_Floor_No_of_Keys_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-rfch15jkg5b</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-57x347vurt8</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column53</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-rfch15jkg5b</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column54</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-i3ccfpppye</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -2674,6 +3107,81 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-6bae9f4f-56b6-4956-83ab-a446c28c5e26</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Key Handover</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection23</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Project_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Apartments</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-nk12kfkd1cs</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Key Handover</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection26</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Project_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Villas</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-i3ccfpppye</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Key Handover</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection27</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Project_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Row House</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-ce9f362f-3d1f-46c5-9135-323d7cd510f1</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -2690,7 +3198,7 @@
                     <criteria>
                         <leftValue>{!Record.Project_Type__c}</leftValue>
                         <operator>EQUAL</operator>
-                        <rightValue>Villas</rightValue>
+                        <rightValue>Row House</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -3468,6 +3976,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>BookkingSummary</componentName>
+                <identifier>c_BookkingSummary</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
                     <value>Booking__c.Id</value>
@@ -3490,12 +4004,6 @@
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
                 <identifier>force_relatedListSingleContainer6</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>BookkingSummary</componentName>
-                <identifier>c_BookkingSummary</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

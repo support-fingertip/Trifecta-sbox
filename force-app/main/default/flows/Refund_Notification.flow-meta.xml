@@ -90,7 +90,7 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>CustomNotifTypeName</field>
+            <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Booking_Refund_Notification</stringValue>

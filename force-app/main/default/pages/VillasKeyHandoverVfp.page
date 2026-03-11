@@ -101,12 +101,25 @@
         <body>
             <div class="page-wrapper">
                 
-                <!-- Project Header -->
-                <div class="heading-project">
-                    TRIFECTA VERDE EN RESPLANDOR VILLA PHASE -3
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
                 </div>
-                <div class="heading-address">
-                    Thirumenahalli, Mandur post, Bengaluru, Karnataka -560049
+                
+                
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+                    <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
+                    Web: www.trifectaprojects.com
                 </div>
                 
                 <hr class="header-line" />

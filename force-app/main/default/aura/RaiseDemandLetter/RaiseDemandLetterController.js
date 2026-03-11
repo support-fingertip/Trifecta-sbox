@@ -34,7 +34,7 @@
             toastEvent.setParams({
                 type: "error",
                 title: "Error",
-                message: "File upload mandatory as this is the last payment schedule",
+                message: "The list of required registration details needs to be uploaded, as this is the final payment schedule.",
                 duration: 3000
             });
             toastEvent.fire();

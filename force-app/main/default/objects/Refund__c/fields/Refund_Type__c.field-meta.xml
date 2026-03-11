@@ -12,14 +12,15 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Credit Note</fullName>
-                <default>false</default>
-                <label>Credit Note</label>
-            </value>
-            <value>
                 <fullName>Refund Voucher</fullName>
                 <default>false</default>
                 <label>Refund Voucher</label>
+            </value>
+            <value>
+                <fullName>Credit Note</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Credit Note</label>
             </value>
         </valueSetDefinition>
     </valueSet>

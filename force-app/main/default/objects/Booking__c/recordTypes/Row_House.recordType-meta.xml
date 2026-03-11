@@ -71,10 +71,6 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>BAJAJ</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>HDFC</fullName>
             <default>false</default>
         </values>
@@ -445,10 +441,6 @@
         </values>
         <values>
             <fullName>Demands %26 Progressive Collections</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Maintenance</fullName>
             <default>false</default>
         </values>
         <values>

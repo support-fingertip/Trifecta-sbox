@@ -38,7 +38,7 @@
     <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg', '.pdf']" />
     <aura:attribute name="bookingrecordId" type="string"/>
     <aura:attribute name="quote" type="Quote__c" default="{}"/>
-    
+    <aura:attribute name="bankNames" type="String[]" />
     <aura:attribute name="Proffesion" type="string"/>
     <aura:attribute name="Industry" type="string"/>
     <aura:attribute name="Employeedat" type="string"/>
@@ -93,7 +93,7 @@
                 <header class="slds-modal__header">
                     <h2 id="modal-heading-01" class="slds-text-heading--medium">Create New Booking</h2>
                 </header>
-                
+               
                 <div class="slds-modal__content slds-p-around_medium slds-scrollable_y" id="modal-content-id-1" 
                      style="height:100% !important; max-height:100% !important ;overflow-y:auto !important;" >
                     <aura:if isTrue="{!v.isLoading == true}">
@@ -145,17 +145,11 @@
                                                          required="true" pattern="^[a-zA-Z0-9]*$"
                                                          messageWhenPatternMismatch="Only letters and numbers are allowed (no spaces or special characters)."/>
                                     </div>
-                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
+                                    <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
                                         <lightning:select name="Bank Name" label="Bank Name" aura:id="statusField" value="{!v.book.Bank_Name__c}" required="true">
-                                            <option value="ICICI">ICICI</option>
-                                            <option value="HDFC">HDFC</option>
-                                            <option value="AXIS">AXIS</option>
-                                            <option value="IDBI">IDBI</option>
-                                            <option value="SBI">SBI</option>
-                                            <option value="KOTAK">KOTAK</option>
-                                            <option value="TATA">TATA</option>
-                                            <option value="UNION">UNION</option>
-                                            <option value="BAJAJ">BAJAJ</option>
+                                            <aura:iteration items="{!v.bankNames}" var="option">
+                                                <option value="{!option}">{!option}</option>
+                                            </aura:iteration>
                                         </lightning:select>
                                     </div>
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium">                   
@@ -183,21 +177,20 @@
                                                              messageWhenRangeOverflow="Loan Percentage cannot be more than 100%"
                                                              onchange="{!c.calculateLoanAmount}" 
                                                              min="0"/> 
-                                            
+                                           
                                         </div>      
                                         <div class="slds-size_1-of-2 slds-p-horizontal--medium slds-m-top_small">
                                             <lightning:input name="Loan Amount"  type="number"
                                                              label="Loan Amount"
                                                              disabled="true"
                                                              value="{!v.loanAmount}" 
-                                                             
+                   
                                                              required="true"
                                                              formatter="currency" 
                                                              min="0"/>
                                         </div>
-                                        
+                                      
                                     </aura:if>
-                                    
                                     <div class="slds-size_1-of-2 slds-p-horizontal--medium"> 
                                         <lightning:textarea 
                                                             name="Payment Remarks" 
@@ -206,6 +199,7 @@
                                                             value="{!v.book.Payment_Remarks__c}" /> 
                                     </div>
                                     
+                                  
                                 </div>
                             </div>
                             <aura:if isTrue="{!v.book.Project_Type__c == 'Apartments'}">
@@ -267,7 +261,7 @@
                                 </div>
                             </aura:if>
                             <aura:if isTrue="{!v.book.Project_Type__c == 'Villas'}">
-                                <!--Apartments Details Section -->
+                                                                <!--Apartments Details Section -->
                                 <div class="slds-section slds-is-open slds-p-around--medium">
                                     <h3 class="slds-section__title slds-theme_shade">
                                         <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Villa Details</span>
@@ -317,7 +311,7 @@
                                                              disabled="true"
                                                              value="{!v.book.Project__c}" />
                                         </div>
-                                        
+                                      
                                         
                                     </div>
                                 </div>
@@ -415,7 +409,7 @@
                                         
                                         <lightning:input aura:id="fuploader2" onchange="{!c.handleFilesChange2ndPhoto}" type="file" name="files" label="Pan card" multiple="false" />
                                         <div class="slds-text-body_medium ">{!v.file2ndName}</div>
-                                        
+                                       
                                     </div>
                                     
                                     <!--Applicant Photo-->
@@ -423,11 +417,11 @@
                                         
                                         <lightning:input aura:id="fuploader3" onchange="{!c.handleFilesChange3rdPhoto}" type="file" name="files" label="Applicant photo" multiple="false" />
                                         <div class="slds-text-body_medium ">{!v.file3rdName}</div>
-                                        
+
                                     </div>
                                     <!--Proof of Address-->
                                     <div class="slds-size_1-of-4 slds-p-horizontal-medium">
-                                        
+                                 
                                         <lightning:input aura:id="fuploader4" onchange="{!c.handleFilesChange4thPhoto}" type="file" name="files" label="Proof of Address" multiple="false" />
                                         <div class="slds-text-body_medium ">{!v.file4thName}</div>
                                         
@@ -505,7 +499,7 @@
                                                                     <div class="slds-size_1-of-1 slds-p-horizontal-medium">
                                                                         <span class="slds-m-left_large"></span>
                                                                         <lightning:button variant="Neutral" label="Add Applicant" title="Cancel" onclick="{!c.addRow}"/>
-                                                                        <span class="slds-m-left_large"></span>
+                                                          				 <span class="slds-m-left_large"></span>
                                                                         <a onclick="{!c.removeRow}" data-record="{!index}" class="slds-m-left_medium">
                                                                             <lightning:button variant="destructive-text" label="Remove Applicant" title="Cancel"/>
                                                                         </a>

@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FF_children_bedroom_Key_No__c</fullName>
     <externalId>false</externalId>
-    <label>FF children bedroom Key No</label>
+    <label>Children Bedroom Key No</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>
