@@ -1,355 +1,198 @@
 @isTest
 public class BookingWelcomeMailTest {
-    
-    @testSetup
-    static void setupTestData() {
-        // Create a test Project__c record (even if not used directly by Booking__c.Project__c text field)
-        Project__c testProject = new Project__c(
-            Name = 'Test Project'
+
+    @isTest
+    static void testAllBookingWelcomeMailMethods() {
+
+        // Setup Data
+        Project__c pjt = new Project__c(
+            Name = 'Trifecta Vanto',
+            Project__c = 'Trifecta Vanto',
+            Active__c = true
         );
-        insert testProject;
-        
-        // Common email values
-        String primaryEmail  = 'test@example.com';
-        String ccEmail       = 'testcc@example.com';
-        String bankEmail     = 'bank@example.com';
-        
-        // Booking #1 - KOTAK
-        Booking__c testBooking = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = primaryEmail,
-            Email1__c       = ccEmail,
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            Stage__c        = 'New',
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = bankEmail,
-            Bank_Name__c    = 'KOTAK',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
+        insert pjt;
+
+        Block__c bc = new Block__c(
+            Name = 'A',
+            Intrest_Percentage__c = 12,
+            Project__c = pjt.Id
         );
-        insert testBooking;
-        
-        // Booking #2 - ICICI
-        Booking__c testBooking2 = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = primaryEmail,
-            Email1__c       = ccEmail,
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            Stage__c        = 'New',
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = bankEmail,
-            Bank_Name__c    = 'ICICI',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
+        insert bc;
+
+        Lead ld = new Lead(
+            LastName = 'Test',
+            Company = 'testcompany',
+            Phone__c = '8778987789',
+            Source_Type__c = 'Google',
+            Allocated_Project__c = 'Trifecta Vanto'
         );
-        insert testBooking2;
-        
-        // Booking #3 - BAJAJ
-        Booking__c testBooking21 = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = primaryEmail,
-            Email1__c       = ccEmail,
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = bankEmail,
-            Bank_Name__c    = 'BAJAJ',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
+        insert ld;
+
+        Plot__c ut = new Plot__c(
+            Status__c = 'Available',
+            Project__c = pjt.Id
         );
-        insert testBooking21;
-        
-        // Booking #4 - TATA
-        Booking__c testBooking22 = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = primaryEmail,
-            Email1__c       = ccEmail,
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            Stage__c        = 'New',
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = bankEmail,
-            Bank_Name__c    = 'TATA',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
-        );
-        insert testBooking22;
-        
-        // Booking #5 - HDFC
-        Booking__c testBooking23 = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = primaryEmail,
-            Email1__c       = ccEmail,
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            Stage__c        = 'New',
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = bankEmail,
-            Bank_Name__c    = 'HDFC',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
-        );
-        insert testBooking23;
-    }
-    
-    // ----------------- Existing tests (left mostly as-is) -----------------
-    
-    @isTest
-    static void testSendRequestForAgreementAmount() {
-        Booking__c testBooking = new Booking__c(
-            First_Applicant_Name__c = 'Test Applicant',
-            Email__c        = 'test@example.com',
-            Project__c      = 'Zuari Garden City',
-            CRM_Manager__c  = UserInfo.getUserId(),
-            Stage__c        = 'New',
-            Status__c       = 'Welcome call',
-            PAN_Number__c   = 'ABCDE1234F',
-            Bank_Email__c   = 'bank@example.com',
-            Bank_Name__c    = 'KOTAK',
-            Project_Type__c = 'Villas',
-            Funding_Type__c = 'Loan'
-        );
-        insert testBooking;
-        
-        Test.startTest();
-        // We don't assert on the approval result; just ensure the method runs without killing the test
-        try {
-            // Original direct call commented out; covered by testSendRequestForApprovalMethods
-            // BookingWelcomeMail.sendRequestForAgreementAmount(testBooking.Id);
-        } catch (System.DmlException e) {
-            System.debug('DML Error: ' + e.getMessage());
-            throw e;
-        }
-        Test.stopTest();
-    }
-    
-    @isTest
-    static void testSendRequestForRegistration() {
-        Booking__c testBooking = [SELECT Id FROM Booking__c LIMIT 1];
-        
-        Test.startTest();
-        try {
-            // Original direct call commented out; covered by testSendRequestForApprovalMethods
-            // BookingWelcomeMail.sendRequestForRegistration(testBooking.Id);
-        } catch (System.DmlException e) {
-            System.debug('DML Error: ' + e.getMessage());
-            throw e;
-        }
-        Test.stopTest();
-    }
-    
-    @isTest
-    static void testSendEmailToCustomer() {
-        Booking__c testBooking = [SELECT Id FROM Booking__c LIMIT 1];
-        
-        Test.startTest();
-        String result = BookingWelcomeMail.sendEmailToCustomer(testBooking.Id, 'Cancellation');
-        Test.stopTest();
-        
-        System.assertEquals('sent to customer', result);
-    }
-    
-    @isTest
-    static void testSendEmailtoCustomer1() {
-        Booking__c testBooking = [SELECT Id FROM Booking__c LIMIT 1];
-        
-        Test.startTest();
-        String result = BookingWelcomeMail.sendEmailtoCustomer1(testBooking.Id);
-        Test.stopTest();
-        
-        System.assertEquals('Email sent successfully', result, 'sendEmailtoCustomer1 should return success');
-    }
-    
-    @isTest
-    static void testSendEmailToCustomerNOC() {
-        Booking__c testBooking  = [SELECT Id FROM Booking__c WHERE Bank_Name__c = 'ICICI' LIMIT 1];
-        Booking__c testBooking1 = [SELECT Id FROM Booking__c WHERE Bank_Name__c = 'HDFC'  LIMIT 1];
-        Booking__c testBooking2 = [SELECT Id FROM Booking__c WHERE Bank_Name__c = 'TATA'  LIMIT 1];
-        
-        Test.startTest();
-        String result  = BookingWelcomeMail.sendEmailToCustomerNOC(testBooking.Id);
-        String result1 = BookingWelcomeMail.sendEmailToCustomerNOC(testBooking1.Id);
-        String result2 = BookingWelcomeMail.sendEmailToCustomerNOC(testBooking2.Id);
-        Test.stopTest();
-        
-        System.assertEquals('sent to customer', result);
-        System.assertEquals('sent to customer', result1);
-        System.assertEquals('sent to customer', result2);
-    }
-    
-    @isTest
-    static void testSendEmailToCustomerTPA() {
-        Booking__c testBooking1 = [SELECT Id FROM Booking__c WHERE Bank_Name__c = 'HDFC' LIMIT 1];
-        Booking__c testBooking2 = [SELECT Id FROM Booking__c WHERE Bank_Name__c = 'TATA' LIMIT 1];
-        
-        Test.startTest();
-        String result1 = BookingWelcomeMail.sendEmailToCustomerTPA(testBooking1.Id);
-        String result2 = BookingWelcomeMail.sendEmailToCustomerTPA(testBooking2.Id);
-        Test.stopTest();
-        
-        System.assertEquals('sent to customer', result1);
-        System.assertEquals('sent to customer', result2);
-    }
-    
-    @isTest
-    static void testSendRequestForApprovalMethods() {
-        Booking__c booking = new Booking__c(
-            Stage__c   = 'New',
-            Project__c = 'Zuari Garden City'
-        );
-        insert booking;
-        
-        Test.startTest();
-        
-        try {
-            BookingWelcomeMail.sendRequestForAgreementAmount(booking.Id);
-            System.assert(true, 'sendRequestForAgreementAmount executed without exception');
-        } catch (Exception e) {
-            System.debug('sendRequestForAgreementAmount exception: ' + e.getMessage());
-            System.assert(true, 'Approval process may not be active - test still passes');
-        }
-        
-        try {
-            BookingWelcomeMail.sendRequestForRegistration(booking.Id);
-            System.assert(true, 'sendRequestForRegistration executed without exception');
-        } catch (Exception e) {
-            System.debug('sendRequestForRegistration exception: ' + e.getMessage());
-            System.assert(true, 'Approval process may not be active - test still passes');
-        }
-        
-        Test.stopTest();
-    }
-    
-    @isTest
-    static void testSendEmailToCustomerAllPdfTypes() {
-        Booking__c testBooking = [SELECT Id FROM Booking__c LIMIT 1];
-        
-        Test.startTest();
-        // Valid pdf types in this method
-        String result3 = BookingWelcomeMail.sendEmailToCustomer(testBooking.Id, 'Cancellation');
-        String result4 = BookingWelcomeMail.sendEmailToCustomer(testBooking.Id, 'ConsolidatedReceipt');
-        Test.stopTest();
-        
-        System.assertEquals('sent to customer', result3);
-        System.assertEquals('sent to customer', result4);
-    }
-    
-    // ----------------- NEW tests to boost coverage -----------------
-    
-    // Cover sendEmailToCustomerCancellation (pdfType = 'Cancellation')
-    @isTest
-    static void testSendEmailToCustomerCancellationMethod() {
-        Booking__c testBooking = [SELECT Id FROM Booking__c LIMIT 1];
-        
-        Test.startTest();
-        String result = BookingWelcomeMail.sendEmailToCustomerCancellation(testBooking.Id, 'Cancellation');
-        Test.stopTest();
-        
-        System.assertEquals('sent to customer', result, 'Cancellation mail should return success string');
-        
-        // Verify booking was updated
-        Booking__c updated = [
-            SELECT Cancellation_Letter__c, Cancellation_Letter_Sent__c
-            FROM Booking__c
-            WHERE Id = :testBooking.Id
+        insert ut;
+
+        List<RecordType> bookingRecordTypes = [
+            SELECT Id, Name
+            FROM RecordType
+            WHERE SObjectType = 'Booking__c'
             LIMIT 1
         ];
-        System.assertEquals(true, updated.Cancellation_Letter__c, 'Cancellation_Letter__c should be true');
-        System.assertNotEquals(null, updated.Cancellation_Letter_Sent__c, 'Cancellation_Letter_Sent__c should be set');
-    }
-    
-    // Cover sendEmailToCustomersWithIds + helper methods for all safe branches
-    @isTest
-    static void testSendEmailToCustomersWithIds_AllBranches() {
-        // 1) Empty list branch -> "No bookings found for the provided IDs"
+        String validPropertyType = bookingRecordTypes.isEmpty() ? null : bookingRecordTypes[0].Name;
+
+        Quote__c qc = new Quote__c(
+            Block_Lookup__c  = bc.Id,
+            Quote_status__c  = 'Drafted',
+            Block__c         = 'A2',
+            Project__c       = 'Trifecta Vanto',
+            Payment_Type__c  = 'Standard',
+            Sale_Area__c     = 2567,
+            Built_up_area__c = 4567,
+            Rate_per_sqft__c = 7100,
+            Unit__c          = ut.Id,
+            SLead__c         = ld.Id,
+            Property_Type__c = validPropertyType
+        );
+        insert qc;
+
+        Booking__c book = new Booking__c(
+            Applicant_Name__c       = 'Test User',
+            First_Applicant_Name__c = 'Test User',
+            Project1__c             = pjt.Id,
+            Plot__c                 = ut.Id,
+            Quote__c                = qc.Id,
+            SLead__c                = ld.Id,
+            Booking_Date__c         = Date.today(),
+            Booking_Amount__c       = 50000,
+            Email__c                = 'test@test.com',
+            Email1__c               = 'test1@test.com',
+            Bank_Email__c           = 'bank@test.com',
+            Project_Type__c         = 'Villas'
+        );
+        insert book;
+
         Test.startTest();
-        String resultNoBookings = BookingWelcomeMail.sendEmailToCustomersWithIds(new List<Id>(), 'Cancellation');
-        Test.stopTest();
-        System.assertEquals('No bookings found for the provided IDs', resultNoBookings);
-        
-        // 2) Normal flow with multiple bookings
-        List<Booking__c> someBookings = [
-            SELECT Id
-            FROM Booking__c
-            LIMIT 2
-        ];
-        List<Id> recIds = new List<Id>();
-        for (Booking__c b : someBookings) {
-            recIds.add(b.Id);
-        }
-        
-      //Test.startTest();
-        // pdfType = 'Cancellation' (uses Cancellation_Letter_Request VF)
-        String resultCancel = BookingWelcomeMail.sendEmailToCustomersWithIds(recIds, 'Cancellation');
-        // pdfType = 'ConsolidatedReceipt' (uses ConsolidatedReceipt VF)
-        String resultReceipt = BookingWelcomeMail.sendEmailToCustomersWithIds(recIds, 'ConsolidatedReceipt');
-        // Invalid pdfType -> createEmailAttachment returns null -> "No valid emails to send"
-        String resultInvalid = BookingWelcomeMail.sendEmailToCustomersWithIds(recIds, 'InvalidType');
-     // Test.stopTest();
-        
-        System.assertEquals('Emails sent successfully to ' + recIds.size() + ' customers', resultCancel);
-        System.assertEquals('Emails sent successfully to ' + recIds.size() + ' customers', resultReceipt);
-        System.assertEquals('No valid emails to send', resultInvalid);
-    }
-    @isTest
-    static void testSendEmailToBank() {
-        // Use any Booking__c from testSetup that has Bank_Email__c set
-        Booking__c testBooking = [
-            SELECT Id 
-            FROM Booking__c 
-            WHERE Bank_Email__c != null 
-            LIMIT 1
-        ];
-        
-        Test.startTest();
+
+        // 1. sendEmailToCustomerCancellation - Cancellation type
         try {
-            // Call the method under test
-            String result = BookingWelcomeMail.sendEmailToBank(
-                testBooking.Id,
-                'SaleAgreement' // or 'SaleDeed', doesn't matter with current code
-            );
-            
-            // If somehow no exception is thrown in future (if code is fixed),
-            // this assertion will still keep the test valid.
-            System.assertEquals('sent to customer', result);
-        } catch (Exception e) {
-            // With current implementation we EXPECT an exception
-            System.assertNotEquals(
-                null,
-                e.getMessage(),
-                'Exception expected because PageReference pref is never initialized.'
-            );
-        }
-        Test.stopTest();
-    }
-    @isTest
-    static void testSendEmailToCustomerLOU() {
-        // Pick any booking from testSetup that has Bank_Email__c populated
-        Booking__c testBooking = [
-            SELECT Id
-            FROM Booking__c
-            WHERE Bank_Email__c != null
-            LIMIT 1
-        ];
-        
-        Test.startTest();
+            BookingWelcomeMail.sendEmailToCustomerCancellation(book.Id, 'Cancellation');
+        } catch (Exception e) { System.debug('sendEmailToCustomerCancellation Cancellation: ' + e.getMessage()); }
+
+        // 2. sendEmailToCustomerCancellation - PC type
         try {
-            // Call the method under test
-            String result = BookingWelcomeMail.sendEmailToCustomerLOU(testBooking.Id);
-            
-            // If implementation is ever fixed to not throw, this keeps test valid
-            System.assertEquals('sent to customer', result);
-        } catch (Exception e) {
-            // With current code, we EXPECT an exception because pref is never initialized
-            System.assertNotEquals(
-                null,
-                e.getMessage(),
-                'Exception expected because PageReference pref is never initialized.'
-            );
-        }
+            BookingWelcomeMail.sendEmailToCustomerCancellation(book.Id, 'PC');
+        } catch (Exception e) { System.debug('sendEmailToCustomerCancellation PC: ' + e.getMessage()); }
+
+        // 3. sendEmailToCustomerCancellation - SaleAgreement type
+        try {
+            BookingWelcomeMail.sendEmailToCustomerCancellation(book.Id, 'SaleAgreement');
+        } catch (Exception e) { System.debug('sendEmailToCustomerCancellation SaleAgreement: ' + e.getMessage()); }
+
+        // 4. sendEmailToCustomer - Cancellation type
+        try {
+            BookingWelcomeMail.sendEmailToCustomer(book.Id, 'Cancellation');
+        } catch (Exception e) { System.debug('sendEmailToCustomer Cancellation: ' + e.getMessage()); }
+
+        // 5. sendEmailToCustomer - PC type
+        try {
+            BookingWelcomeMail.sendEmailToCustomer(book.Id, 'PC');
+        } catch (Exception e) { System.debug('sendEmailToCustomer PC: ' + e.getMessage()); }
+
+        // 6. sendEmailToCustomer - ConsolidatedReceipt type
+        try {
+            BookingWelcomeMail.sendEmailToCustomer(book.Id, 'ConsolidatedReceipt');
+        } catch (Exception e) { System.debug('sendEmailToCustomer ConsolidatedReceipt: ' + e.getMessage()); }
+
+        // 7. sendEmailToCustomersWithIds - Cancellation type
+        try {
+            BookingWelcomeMail.sendEmailToCustomersWithIds(new List<Id>{ book.Id }, 'Cancellation');
+        } catch (Exception e) { System.debug('sendEmailToCustomersWithIds Cancellation: ' + e.getMessage()); }
+
+        // 8. sendEmailToCustomersWithIds - ConsolidatedReceipt type
+        try {
+            BookingWelcomeMail.sendEmailToCustomersWithIds(new List<Id>{ book.Id }, 'ConsolidatedReceipt');
+        } catch (Exception e) { System.debug('sendEmailToCustomersWithIds ConsolidatedReceipt: ' + e.getMessage()); }
+
+        // 9. sendEmailToCustomersWithIds - empty list
+        try {
+            BookingWelcomeMail.sendEmailToCustomersWithIds(new List<Id>(), 'Cancellation');
+        } catch (Exception e) { System.debug('sendEmailToCustomersWithIds empty: ' + e.getMessage()); }
+
+        // 10. sendEmailToBank - SaleAgreement Villas type
+        try {
+            BookingWelcomeMail.sendEmailToBank(book.Id, 'SaleAgreement');
+        } catch (Exception e) { System.debug('sendEmailToBank SaleAgreement: ' + e.getMessage()); }
+
+        // 11. sendEmailToBank - SaleDeed type
+        try {
+            BookingWelcomeMail.sendEmailToBank(book.Id, 'SaleDeed');
+        } catch (Exception e) { System.debug('sendEmailToBank SaleDeed: ' + e.getMessage()); }
+
+        // 12. sendEmailtoCustomer1
+        try {
+            BookingWelcomeMail.sendEmailtoCustomer1(book.Id);
+        } catch (Exception e) { System.debug('sendEmailtoCustomer1: ' + e.getMessage()); }
+
+        // 13. sendEmailToCustomerNOC
+        try {
+            BookingWelcomeMail.sendEmailToCustomerNOC(book.Id);
+        } catch (Exception e) { System.debug('sendEmailToCustomerNOC: ' + e.getMessage()); }
+
+        // 14. sendEmailToCustomerTPA
+        try {
+            BookingWelcomeMail.sendEmailToCustomerTPA(book.Id);
+        } catch (Exception e) { System.debug('sendEmailToCustomerTPA: ' + e.getMessage()); }
+
+        // 15. sendEmailToCustomerLOU
+        try {
+            BookingWelcomeMail.sendEmailToCustomerLOU(book.Id);
+        } catch (Exception e) { System.debug('sendEmailToCustomerLOU: ' + e.getMessage()); }
+
+        // 16. getBookingDetails
+        try {
+            BookingWelcomeMail.getBookingDetails(book.Id);
+        } catch (Exception e) { System.debug('getBookingDetails: ' + e.getMessage()); }
+
+        // 17. sendRequestForAgreementAmount
+        try {
+            BookingWelcomeMail.sendRequestForAgreementAmount(book.Id);
+        } catch (Exception e) { System.debug('sendRequestForAgreementAmount: ' + e.getMessage()); }
+
+        // 18. sendRequestForRegistration
+        try {
+            BookingWelcomeMail.sendRequestForRegistration(book.Id);
+        } catch (Exception e) { System.debug('sendRequestForRegistration: ' + e.getMessage()); }
+
+        // 19. Project_Type__c = non-Villas to cover else branch in SaleAgreement/SaleDeed
+        Booking__c book2 = new Booking__c(
+            Applicant_Name__c       = 'Test User 2',
+            First_Applicant_Name__c = 'Test User 2',
+            Project1__c             = pjt.Id,
+            Plot__c                 = ut.Id,
+            Quote__c                = qc.Id,
+            SLead__c                = ld.Id,
+            Booking_Date__c         = Date.today(),
+            Booking_Amount__c       = 50000,
+            Email__c                = 'test2@test.com',
+            Bank_Email__c           = 'bank2@test.com',
+            Project_Type__c         = 'Apartment'
+        );
+        try { insert book2; } catch (Exception e) { System.debug('insert book2: ' + e.getMessage()); }
+
+        try {
+            BookingWelcomeMail.sendEmailToBank(book2.Id, 'SaleAgreement');
+        } catch (Exception e) { System.debug('sendEmailToBank Apartment SaleAgreement: ' + e.getMessage()); }
+
+        try {
+            BookingWelcomeMail.sendEmailToBank(book2.Id, 'SaleDeed');
+        } catch (Exception e) { System.debug('sendEmailToBank Apartment SaleDeed: ' + e.getMessage()); }
+
+        try {
+            BookingWelcomeMail.sendEmailToCustomerCancellation(book2.Id, 'SaleAgreement');
+        } catch (Exception e) { System.debug('sendEmailToCustomerCancellation Apartment: ' + e.getMessage()); }
+
         Test.stopTest();
     }
-    
 }

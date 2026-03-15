@@ -311,7 +311,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Booking_Cancellation</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -321,11 +321,6 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>CRM Executive</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -367,6 +362,16 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Booking__c.Unit_Readiness_Email</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Booking__c.Generate_Key_Handover_Letter</value>
                             <visibilityRule>
                                 <criteria>
@@ -378,6 +383,16 @@
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Possession_Letter</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Booking__c.Inspection</value>
                             <visibilityRule>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
@@ -543,10 +558,23 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Project_Block_Name__c</fieldItem>
-                <identifier>RecordProject_Block_Name__cField</identifier>
+                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
+                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Debit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-add77c2e-2e5c-4074-acbe-86dc1bbe4725</name>
@@ -629,21 +657,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
-                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
-                <visibilityRule>
-                    <booleanFilter>1 OR 2</booleanFilter>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Credit Card</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Debit Card</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <fieldItem>Record.Project_Type__c</fieldItem>
+                <identifier>RecordProject_Type_cField4</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-13dde832-0f68-4202-a9da-ec6fa36c5622</name>
@@ -1104,8 +1119,15 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Possession_Date__c</fieldItem>
-                <identifier>RecordPossession_Date_cField</identifier>
+                <fieldItem>Record.DD_Uploaded__c</fieldItem>
+                <identifier>RecordDD_Uploaded_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Funding_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Loan</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-3a95c5c0-afc2-4473-a8e6-12426f6323a5</name>
@@ -1140,6 +1162,23 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Final_NOC_Uploaded_Date__c</fieldItem>
                 <identifier>RecordFinal_NOC_Uploaded_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.DD_Uploaded_Date__c</fieldItem>
+                <identifier>RecordDD_Uploaded_Date_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Funding_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Loan</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fec23a5c-62d0-450e-b5ba-c8ef56f9afcd</name>
@@ -1177,7 +1216,7 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Main_Door__c</fieldItem>
-                <identifier>RecordMain_Door_cField</identifier>
+                <identifier>RecordMain_Door_cField2</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -1289,7 +1328,7 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Main_Door__c</fieldItem>
-                <identifier>RecordMain_Door_cField2</identifier>
+                <identifier>RecordMain_Door_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -1590,6 +1629,78 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Unit_Readiness_Date_Time__c</fieldItem>
+                <identifier>RecordUnit_Readiness_Date_Time_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Possession_Date__c</fieldItem>
+                <identifier>RecordPossession_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-4b05d644-7518-4eb0-bb43-3356dd0a3a5d</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Unit_Readiness_Mail_Sent__c</fieldItem>
+                <identifier>RecordUnit_Readiness_Mail_Sent_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Possession_Certificate_Uploaded__c</fieldItem>
+                <identifier>RecordPossession_Certificate_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-f63cd1c1-e667-47df-8aa2-7ab3e7f571d4</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-4b05d644-7518-4eb0-bb43-3356dd0a3a5d</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column55</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-f63cd1c1-e667-47df-8aa2-7ab3e7f571d4</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column56</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-79e51ece-d582-4f81-9964-c446275fcb71</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.BHK_Type__c</fieldItem>
@@ -1620,16 +1731,6 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Project_Type__c</fieldItem>
-                <identifier>RecordProject_Type_cField2</identifier>
-            </fieldInstance>
-        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -1698,16 +1799,6 @@
                 <identifier>RecordProject_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Rate_per_sqft__c</fieldItem>
-                <identifier>RecordRate_per_sqft_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-486bf061-2d46-46e2-901b-4974ef4f34d0</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -1718,8 +1809,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Project_Type__c</fieldItem>
-                <identifier>RecordProject_Type_cField</identifier>
+                <fieldItem>Record.Super_Built_UpArea__c</fieldItem>
+                <identifier>RecordSuper_Built_UpArea_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -1728,8 +1819,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Super_Built_UpArea__c</fieldItem>
-                <identifier>RecordSuper_Built_UpArea_cField</identifier>
+                <fieldItem>Record.Rate_per_sqft__c</fieldItem>
+                <identifier>RecordRate_per_sqft_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-a261228c-09db-4f05-b04c-c20795437d73</name>
@@ -1780,16 +1871,6 @@
                 <identifier>RecordProject_cField3</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Rate_per_sqft__c</fieldItem>
-                <identifier>RecordRate_per_sqft_cField3</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-ytjghhne3il</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -1800,8 +1881,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Project_Type__c</fieldItem>
-                <identifier>RecordProject_Type_cField3</identifier>
+                <fieldItem>Record.Super_Built_UpArea__c</fieldItem>
+                <identifier>RecordSuper_Built_UpArea_cField3</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -1810,8 +1891,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Super_Built_UpArea__c</fieldItem>
-                <identifier>RecordSuper_Built_UpArea_cField3</identifier>
+                <fieldItem>Record.Rate_per_sqft__c</fieldItem>
+                <identifier>RecordRate_per_sqft_cField3</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-c6gp6cwfgmc</name>
@@ -3182,6 +3263,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-79e51ece-d582-4f81-9964-c446275fcb71</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Hand Over Information</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection28</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-ce9f362f-3d1f-46c5-9135-323d7cd510f1</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -3692,6 +3791,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>SendReceiptToCustomer</componentName>
+                <identifier>c_SendReceiptToCustomer</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
                     <value>Booking__c.Id</value>
@@ -3841,6 +3946,79 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>MassChangeOwner</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>New</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Booking__c.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>Inspections__r</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>NAME</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Approval_Status__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CREATEDBY_USER</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CREATED_DATE</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Description__c</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Inspections</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-e7110ba2-2220-49a2-8ba5-ba46486147c9</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>active</name>
                     <value>true</value>
                 </componentInstanceProperties>
@@ -3952,6 +4130,20 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>flexipage_tab6</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-e7110ba2-2220-49a2-8ba5-ba46486147c9</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Inspections</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab8</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>

@@ -162,6 +162,10 @@
                 <behavior>Edit</behavior>
                 <field>Finance_User__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Inspection_Executive__c</field>
+            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
@@ -246,6 +250,9 @@
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Site_Visit__c.Project1__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <relatedList>RelatedNoteList</relatedList>
     </relatedLists>
     <relatedLists>
         <relatedList>RelatedEntityHistoryList</relatedList>

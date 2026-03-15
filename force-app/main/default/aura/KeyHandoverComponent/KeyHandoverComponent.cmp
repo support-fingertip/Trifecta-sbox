@@ -63,11 +63,11 @@
             <button class="slds-button slds-button_neutral" onclick="{!c.close}">
                 Cancel
             </button>
-            <button class="slds-button slds-button_brand"
+            <!--<button class="slds-button slds-button_brand"
                     onclick="{!c.openConfirm}"
                     disabled="{!v.isSending}">
                 Send Email
-            </button>
+            </button>-->
         </footer>
     </section>
 

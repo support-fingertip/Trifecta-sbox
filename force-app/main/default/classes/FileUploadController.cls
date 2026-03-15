@@ -91,6 +91,11 @@ public with sharing class FileUploadController {
                 bk.Final_NOC_Uploaded__c = true;
                 bk.Final_NOC_Uploaded_Date__c = Date.today();
             }
+            else if(mainDocName == 'DD')
+            {
+                bk.DD_Uploaded__c = true;
+                bk.DD_Uploaded_Date__c = Date.today();
+            }
             update bk;
             return newDocId;
             
