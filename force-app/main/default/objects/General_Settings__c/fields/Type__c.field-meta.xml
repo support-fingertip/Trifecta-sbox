@@ -66,6 +66,21 @@
                 <default>false</default>
                 <label>Revised Demand Note</label>
             </value>
+            <value>
+                <fullName>Unit Readiness Mail</fullName>
+                <default>false</default>
+                <label>Unit Readiness Mail</label>
+            </value>
+            <value>
+                <fullName>Receipt</fullName>
+                <default>false</default>
+                <label>Receipt</label>
+            </value>
+            <value>
+                <fullName>Penalty Demand Note</fullName>
+                <default>false</default>
+                <label>Penalty Demand Note</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

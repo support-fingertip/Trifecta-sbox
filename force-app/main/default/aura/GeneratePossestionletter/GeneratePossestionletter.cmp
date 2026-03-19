@@ -24,7 +24,7 @@
     <aura:set attribute="else">
         <section class="slds-modal slds-fade-in-open">
             <header class="slds-modal__header">
-                <h2 class="slds-text-heading_medium slds-hyphenate">Send Possession Letter</h2>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Generate Possession Letter</h2>
             </header>
             <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
                 <aura:if isTrue="{!not(empty(v.vfPageName))}">
@@ -36,9 +36,9 @@
             </div>
             <footer class="slds-modal__footer">
                 <button class="slds-button slds-button_neutral" onclick="{!c.close}">Cancel</button>
-                <aura:if isTrue="{!not(empty(v.vfPageName))}">
+                <!--<aura:if isTrue="{!not(empty(v.vfPageName))}">
                     <button class="slds-button slds-button_brand" onclick="{!c.sendEmail}">Send Email</button>
-                </aura:if>
+                </aura:if>-->
             </footer>
         </section>
     </aura:set>

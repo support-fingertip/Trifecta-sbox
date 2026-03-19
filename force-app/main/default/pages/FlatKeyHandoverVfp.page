@@ -79,8 +79,6 @@
                 }
                 
                 .signature-block-title {
-                margin-top: 10px;
-                margin-bottom: 5px;
                 font-weight: bold;
                 }
                 
@@ -146,13 +144,11 @@
                 
                 
                 <!-- COMPANY NAME -->
-                <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+                <div class="company-name">{!bookingWrapper.projectName}</div>
                 
                 <!-- ADDRESS -->
                 <div class="address">
-                    Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
-                    <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
-                    Web: www.trifectaprojects.com
+                    {!bookingWrapper.projectAddress}
                 </div>
                 <hr class="header-line" />
                 
@@ -164,9 +160,14 @@
                 <!-- Address To -->
                 <div class="content-block">
                     <p style="margin-top: 20px;">To,</p>
-                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}</p>
-                    <p style="margin-top: 10px;">FLAT NO - {!booking.Unit_Number__c}</p>
-                    <p style="margin-top: 10px;"><span >SUB:</span> FLAT KEYS HANDOVER</p>
+                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}
+                    <!-- Co Applicant if exists -->
+                    <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                        , {!firstCoApplicant.Name}
+                    </apex:outputPanel></p>
+                    <p style="margin-top: 10px;">Project Name - {!bookingWrapper.projectName}</p>
+                    <p style="margin-top: 10px;">Flat No - {!booking.Unit_Number__c}</p>
+                    <p style="margin-top: 10px;"><span >Sub:</span> FLAT KEYS HANDOVER</p>
                 </div>
                 
                 <br/>
@@ -181,26 +182,26 @@
                     <tr>
                         <td>1</td>
                         <td>Main Door &amp; Sensor</td>
-                        <td></td>
-                        <td>2 + 2</td>
+                        <td>{!bookingWrapper.mainDoorSensorKeyNo}</td>
+                        <td>{!bookingWrapper.mainDoorSensorNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>2</td>
                         <td>Master Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.masterBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.masterBedroomNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>3</td>
                         <td>Children Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.childrenBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.childrenBedroomNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>4</td>
                         <td>Common Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.commonBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.commonBedroomNoOfKeys}</td>
                     </tr>
                 </table>
                 <br/>
@@ -222,10 +223,8 @@
                 <!-- Flat Owner Acknowledgement -->
                 <div class="content-block">
                     <p>Flat Owner's Acknowledgement:</p>
-                    <br/><br/>
+                    <br/>
                     <p><u>Customer Signature:</u></p>
-                    
-                    
                 </div>
                 
             </div>

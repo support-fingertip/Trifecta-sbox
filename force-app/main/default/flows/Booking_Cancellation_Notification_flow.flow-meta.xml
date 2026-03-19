@@ -133,27 +133,6 @@
                 <elementReference>$Record.CRM_Manager__r.Id</elementReference>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>RecepientIds</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>$Record.Project_Sales_Head__r.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>RecepientIds</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>$Record.Sales_User__r.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>RecepientIds</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>$Record.CRM_Head__r.Id</elementReference>
-            </value>
-        </assignmentItems>
         <connector>
             <targetReference>custom_notification_type</targetReference>
         </connector>

@@ -71,7 +71,6 @@
             .subj {
             margin-top: 6px; /* Reduced margin */
             margin-bottom: 8px;
-            text-align:center;
             }
             
             .subj b {
@@ -117,6 +116,46 @@
             font-weight: normal;
             text-transform: none;
             }
+            .header-block {
+            margin-bottom: 6px;
+            }
+            
+            .logo-right {
+            float: right;
+            }
+            
+            .logo-right img {
+            width: 60px;
+            height: 60px;
+            }
+            
+            /* ── Divider ── */
+            .divider {
+            border: none;
+            border-top: 1px solid #555555;
+            margin-bottom: 10px;
+            clear: both;
+            }
+            
+            /* ── Company name ── */
+            .company-name {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            }
+            
+            /* ── Address ── */
+            .address {
+            text-align: center;
+            font-size: 12.5px;
+            font-weight: bold;
+            line-height: 1.7;
+            margin-bottom: 4px;
+            }
+            
             
             /* Removed spacer classes as they're not needed */
         </style>
@@ -124,7 +163,29 @@
     
     
     <div class="page-wrapper">
+              
+        <!-- HEADER: logo floats right -->
+        <div class="header-block">
+            <div class="logo-right">
+                <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                            styleClass="logo-img"
+                            style="width:60px; height:60px;"/>
+            </div>
+        </div>
         
+        
+        
+        <!-- COMPANY NAME -->
+        <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
+        
+        <!-- ADDRESS -->
+        <div class="address">
+            Trifecta <span class="ul">Adatto</span>, 11th Floor, Survey No. 66/2, 67/1, Whitefield Main Road,<br/>
+            <span class="ul">Garudacharpalya</span>, <span class="ul">Mahadevapura</span> Post, Bangalore &#8211; 560048, Karnataka.<br/>
+            Web: www.trifectaprojects.com
+        </div>
+        <!-- DIVIDER -->
+        <hr class="divider"/>
         <!-- Center title -->
         <div class="main-title">POSSESSION CERTIFICATE</div>
         <br/><br/>

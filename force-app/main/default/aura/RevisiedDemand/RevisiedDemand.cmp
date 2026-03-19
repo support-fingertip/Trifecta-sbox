@@ -29,12 +29,16 @@
     <aura:html tag="style">
         .slds-modal__container{ 
         max-width: 90rem !important;
-        width:100% !important;
+        width: 100% !important;
         } 
-        .slds-modal__content
-        {
-        	min-height: fit-content;
+        
+        .slds-modal__content {
+        min-height: 200px !important;
+        max-height: 400px !important;
+        height: auto !important;
+        overflow-y: auto !important;
         }
+        
         .panel.slds-modal > .modal-container {
         width: 75%;
         max-width: 70rem;

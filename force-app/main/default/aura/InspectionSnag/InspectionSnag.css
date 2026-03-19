@@ -1,38 +1,10 @@
-/* MODAL BACKDROP - Fix for Quick Action */
-.THIS .slds-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
+.THIS .slds-modal__container {
+    padding:10px;
+    max-width: 90rem !important;
+    width: 100% !important;
 }
 
-/* MODAL CONTAINER */
-.THIS .custom-modal-container {
-    width: 95% !important;
-    max-width: 1600px !important;
-    min-width: 1200px !important;
-    height: auto !important;
-    max-height: 95vh !important;
-    min-height: 700px !important;
-    margin: 0 auto !important;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.2);
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    transition: all 0.3s ease-in-out;
-}
 
-.THIS .slds-modal {
-    position: fixed !important;
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    z-index: 9000 !important;
-}
 
 /* HEADER */
 .THIS .custom-header {
@@ -40,7 +12,7 @@
     padding: 0;
     border-radius: 0.5rem 0.5rem 0 0;
     position: relative;
-    min-height: 80px;
+    min-height: 60px;
 }
 
 .THIS .custom-close-btn {
@@ -54,10 +26,7 @@
     transition: all 0.2s ease;
 }
 
-.THIS .custom-close-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-}
+
 
 .THIS .header-content {
     padding: 1.5rem 2rem;
@@ -120,9 +89,6 @@
     border-radius: 10px;
 }
 
-.THIS .custom-modal-content::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
 
 /* DROPDOWN POSITIONING */
 .THIS .dropdown-container {
@@ -155,9 +121,6 @@
     outline: none !important;
 }
 
-.THIS .custom-select select:hover {
-    border-color: #0176d3 !important;
-}
 
 /* LOADING OVERLAY */
 .THIS .loading-overlay {
@@ -196,9 +159,7 @@
     transition: all 0.2s ease-in-out;
 }
 
-.THIS .section-container:hover {
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-}
+
 
 .THIS .section-header {
     background: linear-gradient(to right, #fafaf9 0%, #ffffff 100%);
@@ -306,11 +267,6 @@
     margin-bottom: 1.5rem;
 }
 
-.THIS .snag-card:hover {
-    border-color: #1b96ff;
-    box-shadow: 0 8px 16px rgba(27, 150, 255, 0.2);
-    transform: translateY(-3px);
-}
 
 .THIS .snag-card-header {
     background: linear-gradient(to right, #f8f9fb 0%, #ffffff 100%);
@@ -344,11 +300,7 @@
     padding: 0.5rem;
 }
 
-.THIS .delete-button:hover {
-    background: #fef1f2;
-    border-radius: 0.5rem;
-    transform: scale(1.1);
-}
+
 
 .THIS .snag-card-body {
     padding: 1.5rem;
@@ -371,10 +323,6 @@
     transition: all 0.2s ease;
 }
 
-.THIS .add-snag-button-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(27, 150, 255, 0.4);
-}
 
 /* FILE UPLOAD */
 .THIS .file-input {
@@ -386,10 +334,7 @@
     transition: all 0.2s ease;
 }
 
-.THIS .file-input:hover {
-    border-color: #1b96ff;
-    background: #f8f9fb;
-}
+
 
 .THIS .file-list {
     margin-top: 0.75rem;

@@ -133,7 +133,8 @@
                 });
                 navEvt.fire();
                 $A.get('e.force:refreshView').fire();
-            } else {
+            } 
+            else {
                 var errors = response.getError();
                 var message = 'Unknown error';
                 

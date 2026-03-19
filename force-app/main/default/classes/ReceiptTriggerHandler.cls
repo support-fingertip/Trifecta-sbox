@@ -32,11 +32,11 @@ public class ReceiptTriggerHandler {
      * Used From:
      * - Receipt__c Trigger (after insert)
     */
-    public static void afterInsert(List<Receipt__c> newReceiptList) {
-        set<Id> receiptsIds = new set<Id>();
+     public static void afterInsert(List<Receipt__c> newReceiptList) {
+    /*    set<Id> receiptsIds = new set<Id>();
         for(Receipt__c rcp : newReceiptList)
-        {
-            DocumentandEmailController.sendEmailGenerateReceiptfromTrigger(rcp.Id);
+       {
+           DocumentandEmailController.sendEmailGenerateReceiptfromTrigger(rcp.Id);
             receiptsIds.add(rcp.Id);
         }
         if(label.Enable_whatsapp_notifications == 'TRUE'){
@@ -45,8 +45,10 @@ public class ReceiptTriggerHandler {
                                          from Receipt__c where Id IN :receiptsIds];
             WhatsappController wactrl = new WhatsappController(receipts,'7');
             System.enqueueJob(wactrl);
-        }
+        }*/
    
     }
 
+    
+    
 }

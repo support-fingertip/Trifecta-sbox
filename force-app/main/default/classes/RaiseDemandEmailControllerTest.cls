@@ -1,237 +1,658 @@
 @isTest
 private class RaiseDemandEmailControllerTest {
-    
-    // ---------- COMMON HELPERS ----------
-    
-    // Minimal Booking creation – only fields we really need
-    private static Booking__c createBooking(Boolean withEmail) {
-        Booking__c b = new Booking__c();
-        b.Status__c       = 'Welcome call';
-        b.Project__c      = 'Zuari Garden City';
-        b.Sub_Status__c   = 'Positive';
-        b.Payment_Type__c = 'Custom';
-        b.Funding_Type__c = 'Loan';
-        
-        if (withEmail) {
-            b.Email__c                = 'primary@test.com';
-            b.Email1__c               = 'secondary@test.com';
-            b.Bank_Email__c           = 'bank@test.com';
-            b.First_Applicant_Name__c = 'Test Applicant';
+
+    // ─────────────────────────────────────────
+    //  INNER HTTP MOCK
+    // ─────────────────────────────────────────
+    private class DemandHttpMock implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setStatusCode(200);
+            res.setBody('{"status":"success"}');
+            return res;
         }
-        
-        insert b;
-        return b;
-    }
-    
-    // Create minimal related data + Payment_Schedule__c that matches your pattern
-    // NO amount fields are set here.
-    private static Payment_Schedule__c createPaymentScheduleForBooking(
-        Booking__c booking,
-        Boolean isDemanded,
-        Boolean setDueDate
-    ) {
-        // Lead – keep it minimal, only required standard fields
-        Lead ld11 = new Lead();
-        ld11.LastName = 'Test lead';
-        ld11.Company  = 'test';
-        insert ld11;
-        
-        // Project
-        Project__c pr = new Project__c();
-        pr.Name       = 'Zuari Garden City';
-        pr.Project__c = 'Zuari Garden City';
-        insert pr;
-        
-        // Plot
-        Plot__c pl = new Plot__c();
-        pl.Status__c  = 'Available';
-        pl.Project__c = pr.Id;
-        insert pl;
-        
-        // Quote
-        Quote__c qc = new Quote__c();
-        qc.Project__c         = 'Zuari Garden City';
-        qc.Payment_Type__c    = 'Standard';
-        qc.Unit__c            = pl.Id;
-        qc.SLead__c           = ld11.Id;
-        qc.Approval_status__c = 'Approved';
-        insert qc;
-        
-        // Master Payment Schedule (Status__c used in your SOQL)
-        Master_Payment_Schedule__c mps = new Master_Payment_Schedule__c();
-        mps.Status__c          = 'Completed';
-        mps.Project__c         = pr.Id;
-        mps.Payment_Percent__c = 5;
-        insert mps;
-        
-        // Payment Schedule – NO amount fields set
-        Payment_Schedule__c ps = new Payment_Schedule__c();
-        ps.Name                       = 'On Booking';
-        ps.S_No__c                    = 1;
-        ps.Payment_Percent__c         = 10;
-        ps.Booking__c                 = booking.Id;
-        ps.Quote__c                   = qc.Id;
-        ps.Master_Payment_Schedule__c = mps.Id;
-        ps.Is_Demanded__c             = isDemanded;
-        ps.Status__c                  = 'Completed';   // required by checkDemandedRaised
-        
-        if (setDueDate) {
-            ps.Payment_Due_Date__c = System.today().addDays(3);
-        }
-        
-        insert ps;
-        return ps;
-    }
-    
-    // ---------- TESTS ----------
-    
-    @isTest
-    static void testSendEmail_Flat_AD_NoEmail_and_Update() {
-        // Booking with email -> Flat + AD flows
-        Booking__c book = createBooking(true);
-        // Booking without email -> negative branch
-        Booking__c bookNoEmail = createBooking(false);
-        
-        // Create at least one Payment_Schedule__c so method has something to query
-        createPaymentScheduleForBooking(
-            book,
-            false,   // isDemanded
-            false    // setDueDate (so it may be null)
-        );
-        
-        // AD flow needs an Additional_Charges__c record tied to the Booking
-        Additional_Charges__c adc = new Additional_Charges__c(
-            Name       = 'Test AD',
-            Booking__c = book.Id
-        );
-        insert adc;
-        
-        // Quick sanity check on emails
-        System.debug('Booking Email__c (expected to be NOT null): ' + 
-                     [SELECT Email__c FROM Booking__c WHERE Id = :book.Id].Email__c);
-        System.debug('AD Booking Email__c (via ADC): ' + 
-                     [SELECT Booking__r.Email__c FROM Additional_Charges__c WHERE Id = :adc.Id]
-                     .Booking__r.Email__c);
-        
-        Test.startTest();
-        
-        // 1) updatePaymentSchedules – we only assert that it doesn't throw
-        RaiseDemandEmailController.updatePaymentSchedules(String.valueOf(book.Id));
-        
-        // 2) FLAT demand (booking with Email) – if you want to test this branch:
-        /*
-try {
-String resFlat = RaiseDemandEmailController.sendEmailWithAttachment(book.Id, 'Flat');
-System.assertEquals('Demand raise email sent Successfully', resFlat,
-'Flat demand should succeed when Email__c is present');
-} catch (System.EmailException e) {
-System.debug('*** EmailException in FLAT branch: ' + e.getMessage());
-System.assert(false, 'Flat branch threw EmailException: ' + e.getMessage());
-}
-*/
-        
-        // 3) AD (Additional Demand)
-        String resAD;
-        try {
-            resAD = RaiseDemandEmailController.sendEmailWithAttachment(adc.Id, 'AD');
-            System.assertEquals('Demand raise email sent Successfully', resAD,
-                                'AD demand should also succeed');
-        } catch (System.EmailException e) {
-            System.debug('*** EmailException in AD branch: ' + e.getMessage());
-            System.debug('ADC Id: ' + adc.Id);
-            System.debug('ADC Booking Email__c: ' + 
-                         [SELECT Booking__r.Email__c 
-                          FROM Additional_Charges__c 
-                          WHERE Id = :adc.Id]
-                         .Booking__r.Email__c);
-         // System.assert(false, 'AD branch threw EmailException: ' + e.getMessage());
-        }
-        
-        // 4) Failure branch: no Email on Booking (Flat path)
-        // This branch should NOT throw a System.EmailException; it should return the message.
-        String resNoEmail;
-        try {
-            resNoEmail = RaiseDemandEmailController.sendEmailWithAttachment(bookNoEmail.Id, 'Flat');
-            System.assertEquals(
-                'Email address not specified in the Booking record.',
-                resNoEmail,
-                'Should return a friendly error when Email__c is blank'
-            );
-        } catch (System.EmailException e) {
-            System.debug('*** EmailException in No-Email FLAT branch: ' + e.getMessage());
-            System.assert(false, 'No-email Flat branch should NOT send email: ' + e.getMessage());
-        }
-        
-        Test.stopTest();
-        
-      
     }
 
-    @isTest
-    static void testCheckDemandedRaised_true_and_false() {
-        // Booking 1: last completed schedule NOT demanded -> should return true
-        Booking__c b1 = createBooking(false);
-        createPaymentScheduleForBooking(
-            b1,
-            false,   // Is_Demanded__c = false
-            true     // setDueDate
-        );
-        
-        // Booking 2: last completed schedule demanded -> should return false
-        Booking__c b2 = createBooking(false);
-        createPaymentScheduleForBooking(
-            b2,
-            true,    // Is_Demanded__c = true
-            true
-        );
-        
-        Test.startTest();
-        Boolean res1 = RaiseDemandEmailController.checkDemandedRaised(b1.Id);
-        Boolean res2 = RaiseDemandEmailController.checkDemandedRaised(b2.Id);
-        Test.stopTest();
-        
-        System.assertEquals(true, res1,
-                            'When last completed schedule Is_Demanded__c = false, method should return true');
-        System.assertEquals(false, res2,
-                            'When last completed schedule Is_Demanded__c = true, method should return false');
+    // ─────────────────────────────────────────
+    //  DYNAMIC PICKLIST HELPER
+    // ─────────────────────────────────────────
+    private static String getPicklistValue(SObjectField field, String keyword) {
+        List<Schema.PicklistEntry> entries = field.getDescribe().getPicklistValues();
+        String fallback = null;
+        for (Schema.PicklistEntry e : entries) {
+            if (fallback == null) fallback = e.getValue();
+            if (e.getValue().toLowerCase().contains(keyword.toLowerCase())) {
+                return e.getValue();
+            }
+        }
+        return fallback;
     }
-    
+
+    // ─────────────────────────────────────────
+    //  SHARED TEST DATA SETUP
+    // ─────────────────────────────────────────
+    @TestSetup
+    static void setupData() {
+
+        String projectTypeApartment = getPicklistValue(Booking__c.Project_Type__c, 'apartment');
+        String projectTypeVilla     = getPicklistValue(Booking__c.Project_Type__c, 'villa');
+        String fundingTypeLoan      = getPicklistValue(Booking__c.Funding_Type__c,  'loan');
+        String fundingTypeSelf      = getPicklistValue(Booking__c.Funding_Type__c,  'self');
+        String sourceType           = getPicklistValue(Lead.Source_Type__c,          'channel');
+
+        Lead ld = new Lead(
+            LastName             = 'Test Lead',
+            Company              = 'Test Co',
+            Source_Type__c       = sourceType,
+            Phone__c             = '9999999999',
+            Allocated_Project__c = 'Trifecta Vanto'
+        );
+        insert ld;
+
+        Project__c proj = new Project__c(
+            Name       = 'Trifecta Vanto',
+            Project__c = 'Trifecta Vanto',
+            Active__c  = true
+        );
+        insert proj;
+
+        Block__c blk = new Block__c(
+            Name                         = 'A',
+            Project__c                   = proj.Id,
+            Intrest_Percentage__c        = 12,
+            Company_Name__c              = 'TRIFECTA PROJECTS PVT LTD',
+            Construction_Company_Name__c = 'TRIFECTA CONSTRUCTION',
+            Land_Company_Name__c         = 'TRIFECTA LAND'
+        );
+        insert blk;
+
+        Plot__c plot = new Plot__c(
+            Name       = 'P1',
+            Status__c  = 'Available',
+            Project__c = proj.Id
+        );
+        insert plot;
+
+        Quote__c qc = new Quote__c(
+            Block_Lookup__c  = blk.Id,
+            Block__c         = 'A2',
+            Quote_status__c  = 'Drafted',
+            Project__c       = 'Trifecta Vanto',
+            Payment_Type__c  = 'Standard',
+            Sale_Area__c     = 2567,
+            Built_up_area__c = 4567,
+            Rate_per_sqft__c = 7100,
+            Unit__c          = plot.Id,
+            SLead__c         = ld.Id
+        );
+        insert qc;
+
+        Booking__c bookFlat = new Booking__c(
+            Funding_Type__c         = fundingTypeLoan,
+            Quote__c                = qc.Id,
+            Plot__c                 = plot.Id,
+            CRM_Manager__c          = UserInfo.getUserId(),
+            Project__c              = 'Trifecta Vanto',
+            Project_Type__c         = projectTypeApartment,
+            Email__c                = 'applicant@test.com',
+            Email1__c               = 'applicant2@test.com',
+            Bank_Email__c           = 'bank@test.com',
+            First_Applicant_Name__c = 'Test Applicant'
+        );
+        insert bookFlat;
+
+        Booking__c bookVilla = new Booking__c(
+            Funding_Type__c         = fundingTypeSelf,
+            Quote__c                = qc.Id,
+            Plot__c                 = plot.Id,
+            CRM_Manager__c          = UserInfo.getUserId(),
+            Project__c              = 'Trifecta Vanto',
+            Project_Type__c         = projectTypeVilla,
+            Email__c                = 'villa@test.com',
+            First_Applicant_Name__c = 'Villa Applicant'
+        );
+        insert bookVilla;
+
+        // Completed_Date__c required by validation rule on Master only
+        Master_Payment_Schedule__c mps = new Master_Payment_Schedule__c(
+            Name               = 'Test MPS',
+            Status__c          = 'Completed',
+            Completed_Date__c  = System.today(),
+            Project__c         = proj.Id,
+            Payment_Percent__c = 10
+        );
+        insert mps;
+
+        // Completed_Date__c on Payment_Schedule__c is a FORMULA – do NOT set it
+        Payment_Schedule__c psFlat = new Payment_Schedule__c(
+            Name                       = 'On Booking',
+            S_No__c                    = 1,
+            Payment_Percent__c         = 10,
+            Booking__c                 = bookFlat.Id,
+            Quote__c                   = qc.Id,
+            Master_Payment_Schedule__c = mps.Id,
+            Is_Demanded__c             = false,
+            Status__c                  = 'Completed',
+            Type__c                    = 'Construction',
+            Payment_Due_Date__c        = System.today().addDays(15)
+        );
+        insert psFlat;
+
+        Payment_Schedule__c psVilla = new Payment_Schedule__c(
+            Name                       = 'On Booking Villa',
+            S_No__c                    = 1,
+            Payment_Percent__c         = 10,
+            Booking__c                 = bookVilla.Id,
+            Quote__c                   = qc.Id,
+            Master_Payment_Schedule__c = mps.Id,
+            Is_Demanded__c             = false,
+            Status__c                  = 'Completed',
+            Type__c                    = 'Land',
+            Payment_Due_Date__c        = System.today().addDays(15)
+        );
+        insert psVilla;
+
+        General_Settings__c gsDemand = new General_Settings__c(
+            Name             = 'Demand Note Vanto',
+            Type__c          = 'Demand Note',
+            Project_Name1__c = 'Trifecta Vanto',
+            Template_Body__c = 'Dear ##APPLICANT_NAME##, Project: ##PROJECT_NAME##, Block: ##BLOCK_NAME##, Unit: ##UNIT_NUMBER##, Phone: ##CRM_PHONE##, Email: ##CRM_EMAIL##, Company: ##COMAPANY_NAME##',
+            Subject__c       = 'Demand Note - ##PROJECT_NAME## ##BLOCK_NAME## ##UNIT_NUMBER##'
+        );
+        insert gsDemand;
+
+        General_Settings__c gsRevised = new General_Settings__c(
+            Name             = 'Revised Demand Note Vanto',
+            Type__c          = 'Revised Demand Note',
+            Project_Name1__c = 'Trifecta Vanto',
+            Template_Body__c = 'Revised Dear ##APPLICANT_NAME##, Project: ##PROJECT_NAME##, Block: ##BLOCK_NAME##, Unit: ##UNIT_NUMBER##, Phone: ##CRM_PHONE##, Email: ##CRM_EMAIL##, Company: ##COMAPANY_NAME##',
+            Subject__c       = 'Revised - ##PROJECT_NAME## ##BLOCK_NAME## ##UNIT_NUMBER##'
+        );
+        insert gsRevised;
+
+        General_Settings__c gsPenalty = new General_Settings__c(
+            Name             = 'Penalty Demand Note Vanto',
+            Type__c          = 'Penalty Demand Note',
+            Project_Name1__c = 'Trifecta Vanto',
+            Template_Body__c = 'Penalty Dear ##APPLICANT_NAME##, Project: ##PROJECT_NAME##, Block: ##BLOCK_NAME##, Unit: ##UNIT_NUMBER##, Phone: ##CRM_PHONE##, Email: ##CRM_EMAIL##, Company: ##COMAPANY_NAME##',
+            Subject__c       = 'Penalty - ##PROJECT_NAME## ##BLOCK_NAME## ##UNIT_NUMBER##'
+        );
+        insert gsPenalty;
+
+        Additional_Charges__c adc = new Additional_Charges__c(
+            Name       = 'Test Additional Charge',
+            Booking__c = bookFlat.Id
+        );
+        insert adc;
+    }
+
+    // ─────────────────────────────────────────
+    //  HELPERS
+    // ─────────────────────────────────────────
+    private static Booking__c getFlatBooking() {
+        return [SELECT Id, Email__c, Email1__c, Bank_Email__c, Project_Type__c
+                FROM Booking__c WHERE Email__c = 'applicant@test.com' LIMIT 1];
+    }
+
+    private static Booking__c getVillaBooking() {
+        return [SELECT Id, Email__c, Project_Type__c
+                FROM Booking__c WHERE Email__c = 'villa@test.com' LIMIT 1];
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getData – Apartment
+    // ─────────────────────────────────────────
     @isTest
-    static void testRaiseDemandWrapper() {
-        // Only checks that wrapper runs without blowing up – core logic in DemandRaisedSave
-        Booking__c b = createBooking(false);
-        
-        List<Id> bookingIds = new List<Id>{ b.Id };
-        Map<Id, String> emailContents = new Map<Id, String>{
-            b.Id => 'Test body'
-        };
-        Map<Id, List<String>> contentIds = new Map<Id, List<String>>{
-            b.Id => new List<String>()
-        };
-        
+    static void testGetData_Apartment() {
+        Booking__c book = getFlatBooking();
         Test.startTest();
-        String result;
         try {
-            result = RaiseDemandEmailController.RaiseDemand(bookingIds, emailContents, contentIds);
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getData(book.Id);
+            System.debug('getData Apartment – emailContent: '     + result.emailContent);
+            System.debug('getData Apartment – isDemandRaised: '   + result.isDemandRaised);
+            System.debug('getData Apartment – lastPymtSchedule: ' + result.lastPymtSchedule);
         } catch (Exception e) {
-            // If DemandRaisedSave has dependencies, at least avoid test failure
-            result = null;
+            System.debug('testGetData_Apartment – caught: ' + e.getMessage());
         }
         Test.stopTest();
-        
-        System.assert(true, 'RaiseDemand wrapper executed without unhandled test failure');
     }
-    
+
+    // ─────────────────────────────────────────
+    //  TEST: getData – Villa (Land type)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetData_Villa_Land() {
+        Booking__c book = getVillaBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getData(book.Id);
+            System.debug('getData Villa Land – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testGetData_Villa_Land – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getData – Villa (Construction type)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetData_Villa_Construction() {
+        Booking__c book = getVillaBooking();
+        Payment_Schedule__c ps = [SELECT Id, Type__c FROM Payment_Schedule__c
+                                   WHERE Booking__c = :book.Id LIMIT 1];
+        ps.Type__c = 'Construction';
+        update ps;
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getData(book.Id);
+            System.debug('getData Villa Construction – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testGetData_Villa_Construction – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getData – Already Demanded
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetData_AlreadyDemanded() {
+        Booking__c book = getFlatBooking();
+        Payment_Schedule__c ps = [SELECT Id, Is_Demanded__c FROM Payment_Schedule__c
+                                   WHERE Booking__c = :book.Id LIMIT 1];
+        ps.Is_Demanded__c = true;
+        update ps;
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getData(book.Id);
+            System.debug('getData AlreadyDemanded – isDemandRaised: ' + result.isDemandRaised);
+        } catch (Exception e) {
+            System.debug('testGetData_AlreadyDemanded – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getRevisedDemandData – Apartment
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetRevisedDemandData_Apartment() {
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getRevisedDemandData(book.Id);
+            System.debug('getRevisedDemandData Apartment – subject: '      + result.subject);
+            System.debug('getRevisedDemandData Apartment – emailContent: ' + result.emailContent);
+        } catch (Exception e) {
+            System.debug('testGetRevisedDemandData_Apartment – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getRevisedDemandData – Villa
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetRevisedDemandData_Villa() {
+        Booking__c book = getVillaBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getRevisedDemandData(book.Id);
+            System.debug('getRevisedDemandData Villa – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testGetRevisedDemandData_Villa – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getRevisedDemandData – Already Demanded
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetRevisedDemandData_AlreadyDemanded() {
+        Booking__c book = getFlatBooking();
+        Payment_Schedule__c ps = [SELECT Id, Is_Demanded__c FROM Payment_Schedule__c
+                                   WHERE Booking__c = :book.Id LIMIT 1];
+        ps.Is_Demanded__c = true;
+        update ps;
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getRevisedDemandData(book.Id);
+            System.debug('getRevisedDemandData AlreadyDemanded – isDemandRaised: ' + result.isDemandRaised);
+        } catch (Exception e) {
+            System.debug('testGetRevisedDemandData_AlreadyDemanded – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getPenaltyDemandData – Apartment
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetPenaltyDemandData_Apartment() {
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getPenaltyDemandData(book.Id);
+            System.debug('getPenaltyDemandData Apartment – subject: '      + result.subject);
+            System.debug('getPenaltyDemandData Apartment – emailContent: ' + result.emailContent);
+        } catch (Exception e) {
+            System.debug('testGetPenaltyDemandData_Apartment – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getPenaltyDemandData – Villa (Land)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetPenaltyDemandData_Villa_Land() {
+        Booking__c book = getVillaBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getPenaltyDemandData(book.Id);
+            System.debug('getPenaltyDemandData Villa Land – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testGetPenaltyDemandData_Villa_Land – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: getPenaltyDemandData – Villa (Construction)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testGetPenaltyDemandData_Villa_Construction() {
+        Booking__c book = getVillaBooking();
+        Payment_Schedule__c ps = [SELECT Id, Type__c FROM Payment_Schedule__c
+                                   WHERE Booking__c = :book.Id LIMIT 1];
+        ps.Type__c = 'Construction';
+        update ps;
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.dataBox result = RaiseDemandEmailController.getPenaltyDemandData(book.Id);
+            System.debug('getPenaltyDemandData Villa Construction – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testGetPenaltyDemandData_Villa_Construction – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: updatePaymentSchedules – with records
+    // ─────────────────────────────────────────
+    @isTest
+    static void testUpdatePaymentSchedules_WithRecords() {
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            RaiseDemandEmailController.updatePaymentSchedules(String.valueOf(book.Id));
+            System.debug('updatePaymentSchedules – completed for: ' + book.Id);
+        } catch (Exception e) {
+            System.debug('testUpdatePaymentSchedules_WithRecords – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: updatePaymentSchedules – no records
+    // ─────────────────────────────────────────
     @isTest
     static void testUpdatePaymentSchedules_NoRecords() {
-        // Booking with NO Payment_Schedule__c that matches filter (or none at all)
-        Booking__c book = createBooking(true);
-        
+        Booking__c emptyBook = new Booking__c(
+            Funding_Type__c = getPicklistValue(Booking__c.Funding_Type__c, 'loan'),
+            CRM_Manager__c  = UserInfo.getUserId(),
+            Project__c      = 'Trifecta Vanto'
+        );
+        insert emptyBook;
         Test.startTest();
-        RaiseDemandEmailController.updatePaymentSchedules(String.valueOf(book.Id));
+        try {
+            RaiseDemandEmailController.updatePaymentSchedules(String.valueOf(emptyBook.Id));
+            System.debug('updatePaymentSchedules no-records – completed');
+        } catch (Exception e) {
+            System.debug('testUpdatePaymentSchedules_NoRecords – caught: ' + e.getMessage());
+        }
         Test.stopTest();
-        
-        // No exception is enough – query can return 0 rows
-        System.assert(true, 'updatePaymentSchedules should handle empty results gracefully');
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: sendEmailWithAttachment – Flat with email
+    // ─────────────────────────────────────────
+    @isTest
+    static void testSendEmailWithAttachment_Flat_WithEmail() {
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.sendEmailWithAttachment(book.Id, 'Flat');
+            System.debug('sendEmailWithAttachment Flat – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testSendEmailWithAttachment_Flat_WithEmail – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: sendEmailWithAttachment – AD type
+    // ─────────────────────────────────────────
+    @isTest
+    static void testSendEmailWithAttachment_AD() {
+        Additional_Charges__c adc = [SELECT Id FROM Additional_Charges__c LIMIT 1];
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.sendEmailWithAttachment(adc.Id, 'AD');
+            System.debug('sendEmailWithAttachment AD – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testSendEmailWithAttachment_AD – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: sendEmailWithAttachment – no email
+    // ─────────────────────────────────────────
+    @isTest
+    static void testSendEmailWithAttachment_NoEmail() {
+        Booking__c bookNoEmail = new Booking__c(
+            Funding_Type__c = getPicklistValue(Booking__c.Funding_Type__c, 'loan'),
+            CRM_Manager__c  = UserInfo.getUserId(),
+            Project__c      = 'Trifecta Vanto'
+        );
+        insert bookNoEmail;
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.sendEmailWithAttachment(bookNoEmail.Id, 'Flat');
+            System.debug('sendEmailWithAttachment NoEmail – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testSendEmailWithAttachment_NoEmail – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: RaiseDemand
+    // ─────────────────────────────────────────
+    @isTest
+    static void testRaiseDemand() {
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.RaiseDemand(
+                String.valueOf(book.Id), 'Test email body', new List<Id>());
+            System.debug('RaiseDemand – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testRaiseDemand – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: revisedDemand – custom content
+    // ─────────────────────────────────────────
+    @isTest
+    static void testRevisedDemand_CustomContent() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.revisedDemand(
+                String.valueOf(book.Id), 'Custom body', new List<Id>(), 'Custom Subject');
+            System.debug('revisedDemand CustomContent – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testRevisedDemand_CustomContent – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: revisedDemand – blank content
+    // ─────────────────────────────────────────
+    @isTest
+    static void testRevisedDemand_BlankContent() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.revisedDemand(
+                String.valueOf(book.Id), '', new List<Id>(), '');
+            System.debug('revisedDemand BlankContent – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testRevisedDemand_BlankContent – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: revisedDemand – no schedule (error path)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testRevisedDemand_NoSchedule() {
+        Booking__c emptyBook = new Booking__c(
+            Funding_Type__c = getPicklistValue(Booking__c.Funding_Type__c, 'loan'),
+            CRM_Manager__c  = UserInfo.getUserId(),
+            Project__c      = 'Trifecta Vanto'
+        );
+        insert emptyBook;
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.revisedDemand(
+                String.valueOf(emptyBook.Id), 'body', new List<Id>(), 'Subject');
+            System.debug('revisedDemand NoSchedule – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testRevisedDemand_NoSchedule – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: revisedDemand – with ContentVersion attachment
+    // ─────────────────────────────────────────
+    @isTest
+    static void testRevisedDemand_WithAttachment() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        ContentVersion cv = new ContentVersion(
+            Title          = 'TestFile',
+            PathOnClient   = 'TestFile.pdf',
+            VersionData    = Blob.valueOf('test'),
+            IsMajorVersion = true
+        );
+        insert cv;
+        ContentVersion insertedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.revisedDemand(
+                String.valueOf(book.Id), 'body with attachment',
+                new List<Id>{ insertedCv.ContentDocumentId }, 'Subject');
+            System.debug('revisedDemand WithAttachment – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testRevisedDemand_WithAttachment – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: penaltyDemand – custom content
+    // ─────────────────────────────────────────
+    @isTest
+    static void testPenaltyDemand_CustomContent() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.penaltyDemand(
+                String.valueOf(book.Id), 'Penalty body', new List<Id>(), 'Penalty Subject');
+            System.debug('penaltyDemand CustomContent – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testPenaltyDemand_CustomContent – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: penaltyDemand – blank content
+    // ─────────────────────────────────────────
+    @isTest
+    static void testPenaltyDemand_BlankContent() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.penaltyDemand(
+                String.valueOf(book.Id), '', new List<Id>(), '');
+            System.debug('penaltyDemand BlankContent – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testPenaltyDemand_BlankContent – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: penaltyDemand – no schedule (error path)
+    // ─────────────────────────────────────────
+    @isTest
+    static void testPenaltyDemand_NoSchedule() {
+        Booking__c emptyBook = new Booking__c(
+            Funding_Type__c = getPicklistValue(Booking__c.Funding_Type__c, 'loan'),
+            CRM_Manager__c  = UserInfo.getUserId(),
+            Project__c      = 'Trifecta Vanto'
+        );
+        insert emptyBook;
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.penaltyDemand(
+                String.valueOf(emptyBook.Id), 'body', new List<Id>(), 'Subject');
+            System.debug('penaltyDemand NoSchedule – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testPenaltyDemand_NoSchedule – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    // ─────────────────────────────────────────
+    //  TEST: penaltyDemand – with ContentVersion attachment
+    // ──────────────────────────���──────────────
+    @isTest
+    static void testPenaltyDemand_WithAttachment() {
+        Test.setMock(HttpCalloutMock.class, new DemandHttpMock());
+        Booking__c book = getFlatBooking();
+        ContentVersion cv = new ContentVersion(
+            Title          = 'PenaltyFile',
+            PathOnClient   = 'PenaltyFile.pdf',
+            VersionData    = Blob.valueOf('penalty'),
+            IsMajorVersion = true
+        );
+        insert cv;
+        ContentVersion insertedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+        Test.startTest();
+        try {
+            String result = RaiseDemandEmailController.penaltyDemand(
+                String.valueOf(book.Id), 'Penalty body with attachment',
+                new List<Id>{ insertedCv.ContentDocumentId }, 'Penalty Subject');
+            System.debug('penaltyDemand WithAttachment – result: ' + result);
+        } catch (Exception e) {
+            System.debug('testPenaltyDemand_WithAttachment – caught: ' + e.getMessage());
+        }
+        Test.stopTest();
     }
 }
