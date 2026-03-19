@@ -96,6 +96,31 @@ public with sharing class FileUploadController {
                 bk.DD_Uploaded__c = true;
                 bk.DD_Uploaded_Date__c = Date.today();
             }
+            else if(mainDocName == 'Possession Certificate')
+            {
+                bk.Possession_Certificate_Uploaded__c = true;
+                bk.Possession_Date__c = Date.today();
+            }
+            else if(mainDocName == 'Commencement Certificate')
+            {
+                bk.Commencement_Certificate_Uploaded__c = true;
+            }
+            else if(mainDocName == 'Panchayati License')
+            {
+                bk.Panchayati_License_Uploaded__c = true;
+            }
+            else if(mainDocName == 'Building Plan')
+            {
+                bk.Building_Plan_Uploaded__c = true;
+            }
+            else if(mainDocName == 'Khata Document')
+            {
+                bk.Khata_Document_Uploaded__c = true;
+            }
+            else if(mainDocName == 'Tax Receipt')
+            {
+                bk.Tax_Receipt_Uploaded__c = true;
+            }
             update bk;
             return newDocId;
             

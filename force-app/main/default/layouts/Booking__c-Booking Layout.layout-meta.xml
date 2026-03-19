@@ -82,6 +82,14 @@
                 <behavior>Edit</behavior>
                 <field>DD_Uploaded_Date__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Commencement_Certificate_Uploaded__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Panchayati_License_Uploaded__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

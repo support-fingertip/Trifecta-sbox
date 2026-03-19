@@ -1,31 +1,35 @@
 public class TicketClosureEmailService {
 
     public static void sendClosureEmails(List<Id> ticketIds) {
-
+        
         List<Ticket__c> tickets = [
             SELECT Id,
-                   Name,
-                   Description__c,
-                   Category__c,
-                   Priority__c,
-                   Raised_Date__c,
-                   Actual_Resolution_Date__c,
-                   Resolution_Remarks__c,
-                   Unit__r.Name,
-                   Project__r.Name,
-                   Block__c,
-                   Booking__r.Email__c,
-                   Booking__r.First_Applicant_Name__c
+            Name,
+            Description__c,
+            Category__c,
+            Priority__c,
+            Raised_Date__c,
+            Actual_Resolution_Date__c,
+            Resolution_Remarks__c,
+            Unit__r.Name,
+            Project__r.Name,
+            Block__c,
+            Block__r.Name,
+            Booking__r.Email__c,
+            Booking__r.First_Applicant_Name__c
             FROM   Ticket__c
             WHERE  Id IN :ticketIds
         ];
-
-        List<Messaging.SingleEmailMessage> emailsToSend =
-            new List<Messaging.SingleEmailMessage>();
-
-        List<Ticket__c> ticketsToUpdate =
-            new List<Ticket__c>();
-
+        
+        List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+        
+        List<Ticket__c> ticketsToUpdate = new List<Ticket__c>();
+        
+        // Set OrgWideEmailAddress
+        List<OrgWideEmailAddress> orgWideEmail = [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
+        
+        
+        
         for (Ticket__c ticket : tickets) {
 
             String toEmail = ticket.Booking__r?.Email__c;
@@ -42,6 +46,10 @@ public class TicketClosureEmailService {
             mail.setSubject(buildSubject(ticket));
             mail.setHtmlBody(buildHtmlBody(ticket));
             mail.setSaveAsActivity(true);
+            mail.setWhatId(ticket.Id);
+            if (!orgWideEmail.isEmpty()) {
+                mail.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+            }
 
             emailsToSend.add(mail);
 
@@ -96,7 +104,7 @@ public class TicketClosureEmailService {
         String unitName     = ticket.Unit__r?.Name != null
                               ? ticket.Unit__r.Name : '';
         String block        = ticket.Block__c != null
-                              ? ticket.Block__c : '';
+                              ? ticket.Block__r.Name : '';
         String raisedDate   = ticket.Raised_Date__c != null
                               ? ticket.Raised_Date__c.format() : '';
         String resolvedDate = ticket.Actual_Resolution_Date__c != null
@@ -246,6 +254,7 @@ public class TicketClosureEmailService {
             + '<div class="footer">'
             + '  <p>'
             + '    <strong>CRM Team — ' + projectName + '</strong><br/>'
+            + ' <strong>Trifecta Projects Pvt Ltd</strong><br/>'
             + '    This is a system-generated email. '
             + '    Please do not reply directly to this email.'
             + '  </p>'

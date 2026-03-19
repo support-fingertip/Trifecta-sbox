@@ -4,8 +4,7 @@ public class TicketTriggerHandler {
         List<Ticket__c> newList,
         Map<Id, Ticket__c> oldMap
     ) {
-        // Collect ticket IDs where status just changed to Completed
-        // and closure email has NOT been sent yet
+        // ...existing handleAfterUpdate code...
         List<Id> ticketIdsToEmail = new List<Id>();
 
         for (Ticket__c ticket : newList) {
@@ -25,7 +24,34 @@ public class TicketTriggerHandler {
         }
 
         if (!ticketIdsToEmail.isEmpty()) {
-            //TicketClosureEmailService.sendClosureEmails(ticketIdsToEmail);
+            TicketClosureEmailService.sendClosureEmails(ticketIdsToEmail);
+        }
+    }
+
+    // --- ADD THIS NEW METHOD BELOW ---
+    public static void beforeInsert(List<Ticket__c> newTickets) {
+        Set<Id> bookingIds = new Set<Id>();
+        for (Ticket__c ticket : newTickets) {
+            if (ticket.Booking__c != null) {
+                bookingIds.add(ticket.Booking__c);
+            }
+        }
+        if (bookingIds.isEmpty()) return;
+
+        // Query related Booking__c records
+        Map<Id, Booking__c> bookingMap = new Map<Id, Booking__c>(
+            [SELECT Id, Block_Id__c, Project1__c, Plot__c FROM Booking__c WHERE Id IN :bookingIds]
+        );
+
+        Date today = System.today();
+        for (Ticket__c ticket : newTickets) {
+            Booking__c booking = bookingMap.get(ticket.Booking__c);
+            if (booking != null) {
+                ticket.Block__c       = booking.Block_Id__c;
+                ticket.Project__c     = booking.Project1__c;
+                ticket.Unit__c        = booking.Plot__c;
+                ticket.Raised_date__c = today;
+            }
         }
     }
 }

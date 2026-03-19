@@ -2,17 +2,34 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Registration_Section</fullName>
     <active>true</active>
-    <errorConditionFormula>AND(
-  ISPICKVAL(Stage__c, &quot;Possession / Handover&quot;),
-  OR(
-    ISBLANK(Sale_Deed_Date__c),
-    NOT(Signed_Sales_Deed_Uploaded__c),
-    ISBLANK(Registration_Number__c),
+    <errorConditionFormula>OR(
     AND(
-      ISPICKVAL(Funding_Type__c, &quot;Loan&quot;),
-      NOT(DD_Uploaded__c)
+        ISCHANGED(Stage__c),
+        ISPICKVAL(Stage__c, &apos;Possession / Handover&apos;),
+        OR(
+            ISBLANK(Sale_Deed_Date__c),
+            NOT(Signed_Sales_Deed_Uploaded__c),
+            ISBLANK(Registration_Number__c),
+            AND(
+                ISPICKVAL(Funding_Type__c, &apos;Loan&apos;),
+                NOT(DD_Uploaded__c)
+            )
+        )
+    ),
+    AND(
+        ISCHANGED(Stage_Status__c),
+        ISPICKVAL(Stage_Status__c, &apos;Completed&apos;),
+        ISPICKVAL(Stage__c, &apos;Registration&apos;),
+        OR(
+            ISBLANK(Sale_Deed_Date__c),
+            NOT(Signed_Sales_Deed_Uploaded__c),
+            ISBLANK(Registration_Number__c),
+            AND(
+                ISPICKVAL(Funding_Type__c, &apos;Loan&apos;),
+                NOT(DD_Uploaded__c)
+            )
+        )
     )
-  )
 )</errorConditionFormula>
     <errorMessage>Please fill all the mandatory fields in Registration Section</errorMessage>
 </ValidationRule>
