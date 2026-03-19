@@ -21,6 +21,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
     private List<Lead> leads;
     private List<Site_Visit__c> visits;
      private List<Booking__c> bookings;
+    private List<Receipt__c> receipts;
     
     // Constructor to pass leads to the queueable class
     public SMSHandler(List<Lead> leads, String act) {
@@ -38,6 +39,12 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         this.bookings = bookings;
         this.ACTION = act;
     }
+
+    // Constructor to pass receipts to the queueable class
+    public SMSHandler(List<Receipt__c> receipts, String act) {
+        this.receipts = receipts;
+        this.ACTION = act;
+    }
     
     // The execute method where the actual callout will happen
     public void execute(QueueableContext context) {
@@ -52,7 +59,8 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         if(this.ACTION == '4') sendSVConfirmedMsg(this.visits);
         if(this.ACTION == '5') sendSVDoneMsg(this.visits);
         if(this.ACTION == '6') sendBookingDoneMsg(this.bookings);
-      
+        if(this.ACTION == '7') sendPaymentReceiptMsg(this.receipts);
+
     }
     
     // Method to send WELCOME SMS message to multiple leads
@@ -261,6 +269,38 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         
     }
     
+    // Method to send PAYMENT RECEIPT SMS message to customers
+    public void sendPaymentReceiptMsg(List<Receipt__c> receipts) {
+
+        // Fetch SMS configuration from Custom Metadata
+        SMS_Setting__mdt config = getSMSConfig('Payment_Receipt');
+
+        if(config == null){
+            System.debug('Template not found: No Active SMS template is available!');
+            return;
+        }
+
+        // Loop through the receipts and send a message to each one
+        for (Receipt__c receipt : receipts) {
+            String customerPhoneNumber = receipt.Booking__r.Mobile__c;
+            String customerName = receipt.Booking__r.First_Applicant_Name__c;
+            String amount = String.valueOf(receipt.Amount_Received__c);
+            String flatNo = receipt.Booking__r.Plot__r.Name;
+            String projectName = receipt.Booking__r.Project1__r.Name;
+
+            if (String.isBlank(customerPhoneNumber)) {
+                continue; // Skip to the next receipt if no phone number
+            }
+
+            String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+amount+'&var3='+flatNo+'&var4='+projectName;
+
+            // Send the message
+            Boolean res = sendTextMessage(config, vars);
+
+        }
+
+    }
+
       // Helper method to fetch Text settings from Custom Metadata
     private SMS_Setting__mdt getSMSConfig(String templateName) {
         // Query the custom metadata record (assuming only one configuration record exists)
