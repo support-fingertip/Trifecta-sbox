@@ -136,6 +136,7 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             System.enqueueJob(controller);
             SMSHandler smsctrl = new SMSHandler(bookingList, '9');
             System.enqueueJob(smsctrl);
+            
 
             String reminderType =
                 determineReminderTypeForBooking(schedules, today);
