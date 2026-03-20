@@ -17,11 +17,16 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
     public String COMPANY_NAME = 'Trifecta Projects Pvt. Ltd.';
     public String ACTION = '';
     
-         public static Boolean disableSMS = false;
+    public static Boolean disableSMS = false;
     private List<Lead> leads;
     private List<Site_Visit__c> visits;
-     private List<Booking__c> bookings;
+    private List<Booking__c> bookings;
     private List<Receipt__c> receipts;
+    
+    private List<Demand_Raised__c> demands;
+    private Booking__c booking;
+    private Decimal demandAmount;
+    private Date demandDueDate;
     
     // Constructor to pass leads to the queueable class
     public SMSHandler(List<Lead> leads, String act) {
@@ -60,7 +65,11 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         if(this.ACTION == '5') sendSVDoneMsg(this.visits);
         if(this.ACTION == '6') sendBookingDoneMsg(this.bookings);
         if(this.ACTION == '7') sendPaymentReceiptMsg(this.receipts);
-
+        if(this.ACTION == '8') sendDemandRaisedMsg(this.demands);
+        if(this.ACTION == '9') sendDemandReminderMsg(this.bookings);
+        if(this.ACTION == '10') sendRevisedDemandMsg(this.booking, this.demandAmount, this.demandDueDate);
+        if(this.ACTION == '11') sendWelcomeMail(this.booking);
+        
     }
     
     // Method to send WELCOME SMS message to multiple leads
@@ -104,10 +113,10 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         }
     }
     
-     // Method to send NOTCONNECTED Text message to multiple leads
+    // Method to send NOTCONNECTED Text message to multiple leads
     public void sendNotConnectedMsg(List<Lead> leads) {
         
-         // Fetch SMS configuration from Custom Metadata
+        // Fetch SMS configuration from Custom Metadata
         SMS_Setting__mdt config = getSMSConfig('Not_Connected');
         
         if(config == null){
@@ -134,7 +143,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         
     }
     
-      // Method to send SVPROPOSED Text message to multiple leads
+    // Method to send SVPROPOSED Text message to multiple leads
     public void sendSVProposedMsg(List<Site_Visit__c> visits) {
         
         // Fetch SMS configuration from Custom Metadata
@@ -156,7 +165,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
                 continue; // Skip to the next lead if no phone number
             }
             
-             String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+svdatetime;
+            String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+svdatetime;
             
             // Send the message
             Boolean res = sendTextMessage(config, vars);
@@ -165,7 +174,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         
     }
     
-	  // Method to send SVCONFIRMED Text message to multiple leads
+    // Method to send SVCONFIRMED Text message to multiple leads
     public void sendSVConfirmedMsg(List<Site_Visit__c> visits) {
         
         // Fetch SMS configuration from Custom Metadata
@@ -193,7 +202,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
                 continue; // Skip to the next lead if no phone number
             }
             
-             String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+svdatetime+'&var4='+loc;
+            String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+svdatetime+'&var4='+loc;
             
             // Send the message
             Boolean res = sendTextMessage(config, vars);
@@ -213,19 +222,19 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
             return;
         }
         
-         // Loop through the leads and send a message to each one
+        // Loop through the leads and send a message to each one
         for (Site_Visit__c sv : visits) {
             String customerPhoneNumber = sv.SLead__r.Phone__c;
             String customerName = sv.SLead__r.Name;
             String projectName = sv.Project__c;
             String executiveName = sv.Owner.Name;
-          
+            
             
             if (String.isBlank(customerPhoneNumber)) {
                 continue; // Skip to the next lead if no phone number
             }
             
-             String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+executiveName;
+            String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+projectName+'&var3='+executiveName;
             
             // Send the message
             Boolean res = sendTextMessage(config, vars);
@@ -234,10 +243,10 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         
     }
     
-     // Method to send BOOKINGDONE WhatsApp message to multiple leads
+    // Method to send BOOKINGDONE WhatsApp message to multiple leads
     public void sendBookingDoneMsg(List<Booking__c> bookings) {
         
-         // Fetch SMS configuration from Custom Metadata
+        // Fetch SMS configuration from Custom Metadata
         SMS_Setting__mdt config = getSMSConfig('SV_Done');
         
         if(config == null){
@@ -245,7 +254,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
             return;
         }
         
-    
+        
         // Loop through the leads and send a message to each one
         for (Booking__c book : bookings) {
             String customerPhoneNumber = book.Mobile__c;
@@ -271,15 +280,15 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
     
     // Method to send PAYMENT RECEIPT SMS message to customers
     public void sendPaymentReceiptMsg(List<Receipt__c> receipts) {
-
+        
         // Fetch SMS configuration from Custom Metadata
-        SMS_Setting__mdt config = getSMSConfig('Payment_Receipt');
-
+        SMS_Setting__mdt config = getSMSConfig('Payment Receipt');
+        
         if(config == null){
             System.debug('Template not found: No Active SMS template is available!');
             return;
         }
-
+        
         // Loop through the receipts and send a message to each one
         for (Receipt__c receipt : receipts) {
             String customerPhoneNumber = receipt.Booking__r.Mobile__c;
@@ -287,30 +296,198 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
             String amount = String.valueOf(receipt.Amount_Received__c);
             String flatNo = receipt.Booking__r.Plot__r.Name;
             String projectName = receipt.Booking__r.Project1__r.Name;
-
+            
             if (String.isBlank(customerPhoneNumber)) {
                 continue; // Skip to the next receipt if no phone number
             }
-
+            
             String vars = 'mobileNos='+customerPhoneNumber+'&templateid='+config.Template_Id__c+'&var1='+customerName+'&var2='+amount+'&var3='+flatNo+'&var4='+projectName;
-
+            
             // Send the message
             Boolean res = sendTextMessage(config, vars);
-
+            
         }
-
+        
     }
-
-      // Helper method to fetch Text settings from Custom Metadata
+    
+    
+    // Method to send DEMAND RAISED WhatsApp message
+    public void sendDemandRaisedMsg(List<Demand_Raised__c> demands) {
+        
+        // Fetch WhatsApp configuration from Custom Metadata
+        SMS_Setting__mdt config = getSMSConfig('Demand Note');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+        // Collect all Booking Ids from demands
+        Set<Id> bookingIds = new Set<Id>();
+        for (Demand_Raised__c demand : demands) {
+            if (demand.Booking__c != null) {
+                bookingIds.add(demand.Booking__c);
+            }
+        }
+        
+        // Query latest Receipt for each Booking
+        Map<Id, Receipt__c> bookingToReceiptMap = new Map<Id, Receipt__c>();
+        for (Receipt__c rec : [SELECT Id, Booking__c, Total_Received_Amount__c, Project_Block_Name__c
+                               FROM Receipt__c
+                               WHERE Booking__c IN :bookingIds
+                               ORDER BY CreatedDate DESC]) {
+                                   // Store only the latest receipt per booking (first one due to DESC order)
+                                   if (!bookingToReceiptMap.containsKey(rec.Booking__c)) {
+                                       bookingToReceiptMap.put(rec.Booking__c, rec);
+                                   }
+                               }
+        
+        // Loop through the demands and send a message to each one
+        for (Demand_Raised__c demand : demands) {
+            String customerPhoneNumber = demand.Booking__r.Mobile__c;
+            String customerName  = demand.Booking__r.First_Applicant_Name__c;
+            String unit = demand.Booking__r.Unit_No__c;
+            String dueDate  = demand.Payment_Due_Date__c != null 
+                ? String.valueOf(demand.Payment_Due_Date__c.format())
+                : 'N/A';
+            String crmExecutivePhone   = demand.Booking__r.CRM_Executive_Contact_No__c;
+            
+            // Fetch amount and projectandBlockName from Receipt via Booking
+            Decimal amount             = demand.Grand_Total__c;
+            String projectandBlockName = demand.Project_Block_Name__c ;
+            
+            if (String.isBlank(customerPhoneNumber)) {
+                continue; // Skip if no phone number
+            }
+            
+            // Construct the dynamic JSON body
+            // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date], 6 - [phone]
+            String vars = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+dueDate+'"},{"type":"text","text":"'+crmExecutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            
+            // Send the message
+            Boolean res = sendTextMessage(config, vars);
+        }
+    }
+    
+    // Method to send DEMAND REMINDER WhatsApp message
+    public void sendDemandReminderMsg(List<Booking__c> bookings) {
+        SMS_Setting__mdt config = getSMSConfig('REMINDER -1');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+        // Loop through the demands and send a message to each one
+        for (Booking__c book : bookings) {
+            String customerPhoneNumber = book.Mobile__c;
+            String customerName = book.First_Applicant_Name__c;
+            String crmExecutivePhone = book.CRM_Executive_Contact_No__c;
+            
+            if (String.isBlank(customerPhoneNumber)) {
+                continue; // Skip if no phone number
+            }
+            
+            // Construct the dynamic JSON body
+            // 1 - [Name], 2 - [Phone]
+            String vars = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+crmExecutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            
+            // Send the message
+            Boolean res = sendTextMessage(config, vars);
+        }
+    }
+    
+    // Method to send REVISED DEMAND WhatsApp message - Single Booking
+    public void sendRevisedDemandMsg(Booking__c booking, Decimal amount, Date dueDate) {
+        
+        // Fetch WhatsApp configuration from Custom Metadata
+        SMS_Setting__mdt config = getSMSConfig('Revised Demand Note');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+        String customerPhoneNumber = booking.Mobile__c;
+        String customerName        = booking.First_Applicant_Name__c;
+        String unit                = booking.Unit_No__c;
+        String projectandBlockName = booking.Project_Block_Name__c;
+        String crmExecutivePhone   = booking.CRM_Executive_Contact_No__c;
+        String dueDateStr          = dueDate != null 
+            ? String.valueOf(dueDate.format())
+            : 'N/A';
+        String amountStr           = amount != null ? String.valueOf(amount) : '0';
+        
+        if (String.isBlank(customerPhoneNumber)) {
+            System.debug('No phone number found for booking: ' + booking.Id);
+            return;
+        }
+        
+        // Construct the dynamic JSON body
+        // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date]
+        String vars = '{"mobileNumbers":"'+customerPhoneNumber+'",'
+            + '"senderId":"'+config.Sender_ID__c+'",'
+            + '"component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template",'
+            + '"template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},'
+            + '"components":[{"type":"body","index":0,"parameters":['
+            + '{"type":"text","text":"'+customerName+'"},'
+            + '{"type":"text","text":"'+amountStr+'"},'
+            + '{"type":"text","text":"'+unit+'"},'
+            + '{"type":"text","text":"'+projectandBlockName+'"},'
+            + '{"type":"text","text":"'+dueDateStr+'"}'
+            + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+        
+        // Send the message
+        Boolean res = sendTextMessage(config, vars);
+        System.debug('Revised Demand Message Sent: ' + res);
+    }
+    
+    // Method to send REVISED DEMAND WhatsApp message - Single Booking
+    public void sendWelcomeMail(Booking__c booking) {
+        
+        // Fetch WhatsApp configuration from Custom Metadata
+        SMS_Setting__mdt config = getSMSConfig('Welcome Template');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+        String customerPhoneNumber = booking.Mobile__c;
+        String customerName        = booking.First_Applicant_Name__c;
+        String crmExecututiveName = booking.Owner_Full_Name__c;
+        
+        if (String.isBlank(customerPhoneNumber)) {
+            System.debug('No phone number found for booking: ' + booking.Id);
+            return;
+        }
+        
+        // Construct the dynamic JSON body
+        // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date]
+        String vars = '{"mobileNumbers":"'+customerPhoneNumber+'",'
+            + '"senderId":"'+config.Sender_ID__c+'",'
+            + '"component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template",'
+            + '"template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},'
+            + '"components":[{"type":"body","index":0,"parameters":['
+            + '{"type":"text","text":"'+customerName+'"},'
+            + '{"type":"text","text":"'+crmExecututiveName+'"}'
+            + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+        
+        // Send the message
+        Boolean res = sendTextMessage(config, vars);
+        System.debug('Revised Demand Message Sent: ' + res);
+    }
+    
+    
+    
+    // Helper method to fetch Text settings from Custom Metadata
     private SMS_Setting__mdt getSMSConfig(String templateName) {
         // Query the custom metadata record (assuming only one configuration record exists)
         List<SMS_Setting__mdt> config = [SELECT Template_Id__c,Template_Name__c, Sender_ID__c,  Authentication_Key__c, URL__c ,Route_Id__c
-                                              FROM SMS_Setting__mdt where Template_Name__c = :templateName and Active__c = true LIMIT 1];
+                                         FROM SMS_Setting__mdt where Template_Name__c = :templateName and Active__c = true LIMIT 1];
         return config.size() > 0 ? config[0] : null;
     }
-    
-    
-    
+   
     private Boolean sendTextMessage(SMS_Setting__mdt config, String vars) {
         Apex_Log__c log = new Apex_Log__c();
         
@@ -357,7 +534,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         req.setEndpoint(apiUrl);
         req.setMethod('GET');
         
-         // Initialize the HTTP client
+        // Initialize the HTTP client
         Http http = new Http();
         HttpResponse res = http.send(req);
         
@@ -379,6 +556,5 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         Database.insert(log,false);
         return false;
     }
-
-
+    
 }
