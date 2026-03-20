@@ -494,6 +494,11 @@ public without sharing class RaiseDemandEmailController {
             WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '10');
             System.enqueueJob(controller);
             
+            
+            SMSHandler smsctrl = new SMSHandler(book, Amount, psRecord.PaymentDueDate__c, '10');
+            System.enqueueJob(smsctrl);
+            
+            
             return 'Revised Demand sent successfully.';
             
         } catch (Exception e) {

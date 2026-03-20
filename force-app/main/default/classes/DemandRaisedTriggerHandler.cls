@@ -19,5 +19,10 @@ public class DemandRaisedTriggerHandler {
 
         WhatsappController controller = new WhatsappController(demandsWithBooking, '8');
         System.enqueueJob(controller);
+        
+        
+        SMSHandler smsctrl = new SMSHandler(demandsWithBooking,'8');
+        System.enqueueJob(smsctrl);
+        
     }
 }
