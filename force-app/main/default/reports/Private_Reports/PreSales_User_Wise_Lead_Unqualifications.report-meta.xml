@@ -25,7 +25,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Lead_Unqualification__c</reportType>
+    <reportType>CustomEntity$Lead_Unqualification__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <timeFrameFilter>

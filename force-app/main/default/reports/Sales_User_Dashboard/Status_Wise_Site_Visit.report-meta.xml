@@ -24,7 +24,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Site_Visit__c</reportType>
+    <reportType>CustomEntity$Site_Visit__c</reportType>
     <scope>user</scope>
     <showDetails>true</showDetails>
     <timeFrameFilter>

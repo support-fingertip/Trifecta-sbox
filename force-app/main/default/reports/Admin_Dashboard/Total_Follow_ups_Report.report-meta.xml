@@ -37,7 +37,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Follow_up__c</reportType>
+    <reportType>CustomEntity$Follow_up__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <timeFrameFilter>

@@ -40,7 +40,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Receipt__c</reportType>
+    <reportType>CustomEntity$Receipt__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <timeFrameFilter>

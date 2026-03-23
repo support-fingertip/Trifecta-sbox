@@ -37,7 +37,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Demand_Raised__c</reportType>
+    <reportType>CustomEntity$Demand_Raised__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <timeFrameFilter>
