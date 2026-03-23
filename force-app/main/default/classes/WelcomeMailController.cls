@@ -350,9 +350,13 @@ public without sharing class WelcomeMailController {
             }
             
             List<Messaging.SendEmailResult> results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-            system.debug(results);   
+            system.debug(results);
+            
             WhatsappController controller = new WhatsappController(bk, '11');
             System.enqueueJob(controller);
+            
+            SMSHandler smsctrl = new SMSHandler(bk,'11');
+            System.enqueueJob(smsctrl);
             
             bk.Welcome_Mail_Sent_Time__c = system.now();
             bk.Welcome_Email_Sent_to_Customer__c = true;

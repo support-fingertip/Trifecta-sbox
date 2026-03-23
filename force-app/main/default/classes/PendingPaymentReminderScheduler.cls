@@ -40,7 +40,8 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             Booking__r.Block_Name__c,
             Booking__r.Disable_Automatic_Payment_Reminders__c,
             Booking__r.Company_Name__c,
-            Booking__r.Owner_Phone__c
+            Booking__r.Owner_Phone__c,
+            Booking__r.Mobile__c
             FROM Payment_Schedule__c
             WHERE Is_Demanded__c = true
             AND Pending_Amount__c > 0
@@ -133,7 +134,9 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             List<Booking__c> bookingList = new List<Booking__c>{ booking };
                 WhatsappController controller = new WhatsappController(bookingList, '9');
             System.enqueueJob(controller);
-
+            SMSHandler smsctrl = new SMSHandler(bookingList, '9');
+            System.enqueueJob(smsctrl);
+            
 
             String reminderType =
                 determineReminderTypeForBooking(schedules, today);
