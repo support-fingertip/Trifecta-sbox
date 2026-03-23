@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
-    <columns>CASE_NUMBER</columns>
-    <columns>SUBJECT</columns>
-    <columns>STATUS</columns>
-    <columns>PRIORITY</columns>
-    <columns>CREATED_DATE</columns>
-    <columns>CLOSED_DATE</columns>
+    <columns>
+        <field>CASE_NUMBER</field>
+    </columns>
+    <columns>
+        <field>SUBJECT</field>
+    </columns>
+    <columns>
+        <field>STATUS</field>
+    </columns>
+    <columns>
+        <field>PRIORITY</field>
+    </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
+    <columns>
+        <field>CLOSED_DATE</field>
+    </columns>
     <description>Which of my cases were resolved in the past 48 hours?</description>
     <format>TABULAR</format>
     <name>My Resolved Cases</name>
@@ -18,6 +30,6 @@
     <showDetails>true</showDetails>
     <timeFrameFilter>
         <dateColumn>CLOSED_DATE</dateColumn>
-        <interval>INTERVAL_LAST2</interval>
+        <interval>INTERVAL_CUSTOM</interval>
     </timeFrameFilter>
 </Report>

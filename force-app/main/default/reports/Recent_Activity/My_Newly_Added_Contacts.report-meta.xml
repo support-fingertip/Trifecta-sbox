@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
-    <columns>FIRST_NAME</columns>
-    <columns>LAST_NAME</columns>
-    <columns>ACCOUNT_NAME</columns>
-    <columns>PHONE1</columns>
-    <columns>EMAIL</columns>
-    <columns>CREATED_DATE</columns>
+    <columns>
+        <field>FIRST_NAME</field>
+    </columns>
+    <columns>
+        <field>LAST_NAME</field>
+    </columns>
+    <columns>
+        <field>ACCOUNT_NAME</field>
+    </columns>
+    <columns>
+        <field>PHONE1</field>
+    </columns>
+    <columns>
+        <field>EMAIL</field>
+    </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Which contacts were added to accounts I own in the past 48 hours?</description>
     <format>TABULAR</format>
     <name>My Newly Added Contacts</name>
@@ -18,6 +30,6 @@
     <showDetails>true</showDetails>
     <timeFrameFilter>
         <dateColumn>CREATED_DATE</dateColumn>
-        <interval>INTERVAL_LAST2</interval>
+        <interval>INTERVAL_CUSTOM</interval>
     </timeFrameFilter>
 </Report>
