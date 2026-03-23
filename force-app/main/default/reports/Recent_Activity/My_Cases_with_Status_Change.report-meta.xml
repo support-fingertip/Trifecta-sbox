@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>CASE_NUMBER</columns>
+    <columns>SUBJECT</columns>
+    <columns>STATUS</columns>
+    <columns>PRIORITY</columns>
+    <columns>CREATED_DATE</columns>
+    <description>Which of my cases had a status change in the past 48 hours?</description>
+    <format>TABULAR</format>
+    <name>My Cases with Status Change</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CaseList</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>LAST_UPDATE</dateColumn>
+        <interval>INTERVAL_LAST2</interval>
+    </timeFrameFilter>
+</Report>

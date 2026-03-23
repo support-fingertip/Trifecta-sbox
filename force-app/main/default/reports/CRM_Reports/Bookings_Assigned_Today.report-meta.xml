@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Applicant_Name__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Project__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Block_Name__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Unit_No__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Status__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Booking_Date__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Booking_Amount__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.CRM_executive__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Sales_User__c</field>
+    </columns>
+    <description>Bookings Assigned Today</description>
+    <filter>
+        <criteriaItems>
+            <column>Booking__c.Booking_Date__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>TODAY</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>Bookings Assigned Today</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Booking__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Booking__c.Booking_Date__c</dateColumn>
+        <interval>INTERVAL_TODAY</interval>
+    </timeFrameFilter>
+</Report>

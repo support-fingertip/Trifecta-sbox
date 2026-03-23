@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Lead__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Call_Type__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Duration_in_Minutes__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Start_Time__c</field>
+    </columns>
+    <description>Today&apos;s Answer Call</description>
+    <filter>
+        <criteriaItems>
+            <column>Call_Detail__c.Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Answered</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>Today&apos;s Answer Call</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Call_Detail__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Call_Detail__c.Start_Time__c</dateColumn>
+        <interval>INTERVAL_TODAY</interval>
+    </timeFrameFilter>
+</Report>

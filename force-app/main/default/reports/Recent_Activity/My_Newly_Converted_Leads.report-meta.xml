@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>FIRST_NAME</columns>
+    <columns>LAST_NAME</columns>
+    <columns>COMPANY</columns>
+    <columns>STATUS</columns>
+    <columns>LEAD_SOURCE</columns>
+    <columns>CONVERTED_DATE</columns>
+    <description>Which of my leads were converted in the past 48 hours?</description>
+    <filter>
+        <criteriaItems>
+            <column>STATUS</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Closed - Converted</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>My Newly Converted Leads</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>LeadList</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CONVERTED_DATE</dateColumn>
+        <interval>INTERVAL_LAST2</interval>
+    </timeFrameFilter>
+</Report>

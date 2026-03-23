@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>CASE_NUMBER</columns>
+    <columns>SUBJECT</columns>
+    <columns>STATUS</columns>
+    <columns>OWNER</columns>
+    <columns>CREATED_DATE</columns>
+    <description>Which cases were reassigned in the past 48 hours?</description>
+    <format>TABULAR</format>
+    <name>Reassigned Cases</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CaseList</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>LAST_UPDATE</dateColumn>
+        <interval>INTERVAL_LAST2</interval>
+    </timeFrameFilter>
+</Report>

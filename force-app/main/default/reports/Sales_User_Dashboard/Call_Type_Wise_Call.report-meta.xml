@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Lead__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Duration_in_Minutes__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Start_Time__c</field>
+    </columns>
+    <columns>
+        <field>Call_Detail__c.Status__c</field>
+    </columns>
+    <format>SUMMARY</format>
+    <groupingsDown>
+        <dateGranularity>DAY</dateGranularity>
+        <field>Call_Detail__c.Call_Type__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Call Type Wise Call</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Call_Detail__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
