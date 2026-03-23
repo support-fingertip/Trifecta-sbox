@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c.Lead_Name__c</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c.Project__c</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c.Event_Date__c</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c.Site_Visit_Happened__c</field>
+    </columns>
+    <description>Pending Site Visit</description>
+    <filter>
+        <criteriaItems>
+            <column>Site_Visit__c.Site_Visit_Happened__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>0</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>Pending Site Visit</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Site_Visit__c</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

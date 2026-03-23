@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>ACCOUNT_NAME</columns>
+    <columns>ACCOUNT_OWNER</columns>
+    <columns>TYPE</columns>
+    <columns>PHONE1</columns>
+    <columns>CREATED_DATE</columns>
+    <description>Which accounts were reassigned in the past 48 hours?</description>
+    <format>TABULAR</format>
+    <name>Reassigned Accounts</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>AccountList</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>LAST_UPDATE</dateColumn>
+        <interval>INTERVAL_LAST2</interval>
+    </timeFrameFilter>
+</Report>

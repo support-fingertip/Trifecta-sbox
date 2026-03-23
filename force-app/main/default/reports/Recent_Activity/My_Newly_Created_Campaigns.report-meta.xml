@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>CAMPAIGN_NAME</columns>
+    <columns>TYPE</columns>
+    <columns>STATUS</columns>
+    <columns>START_DATE</columns>
+    <columns>END_DATE</columns>
+    <description>Which campaigns were created by me in the past week?</description>
+    <format>TABULAR</format>
+    <name>My Newly Created Campaigns</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CampaignList</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_THISWEEK</interval>
+    </timeFrameFilter>
+</Report>

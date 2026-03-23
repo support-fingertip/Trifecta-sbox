@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Lead_Id__c</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Subject__c</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Status__c</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Scheduled_Date__c</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Completed_Date__c</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c.Project_Name__c</field>
+    </columns>
+    <description>Total Follow ups Report</description>
+    <format>TABULAR</format>
+    <name>Total Follow ups Report</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Follow_up__c</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
