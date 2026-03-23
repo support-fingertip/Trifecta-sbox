@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
-    <columns>CASE_NUMBER</columns>
-    <columns>SUBJECT</columns>
-    <columns>STATUS</columns>
-    <columns>PRIORITY</columns>
-    <columns>CREATED_DATE</columns>
+    <columns>
+        <field>CASE_NUMBER</field>
+    </columns>
+    <columns>
+        <field>SUBJECT</field>
+    </columns>
+    <columns>
+        <field>STATUS</field>
+    </columns>
+    <columns>
+        <field>PRIORITY</field>
+    </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Which open cases are assigned to me?</description>
     <filter>
         <criteriaItems>

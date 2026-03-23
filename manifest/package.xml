@@ -70,6 +70,10 @@
     </types>
     <types>
         <members>*</members>
+        <name>ReportFolder</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>Dashboard</name>
     </types>
     <types>

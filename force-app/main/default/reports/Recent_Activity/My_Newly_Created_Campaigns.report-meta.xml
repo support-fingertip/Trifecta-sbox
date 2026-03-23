@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
-    <columns>CAMPAIGN_NAME</columns>
-    <columns>TYPE</columns>
-    <columns>STATUS</columns>
-    <columns>START_DATE</columns>
-    <columns>END_DATE</columns>
+    <columns>
+        <field>CAMPAIGN_NAME</field>
+    </columns>
+    <columns>
+        <field>TYPE</field>
+    </columns>
+    <columns>
+        <field>STATUS</field>
+    </columns>
+    <columns>
+        <field>START_DATE</field>
+    </columns>
+    <columns>
+        <field>END_DATE</field>
+    </columns>
     <description>Which campaigns were created by me in the past week?</description>
     <format>TABULAR</format>
     <name>My Newly Created Campaigns</name>
