@@ -3,7 +3,7 @@
     <folderShares>
         <accessLevel>Manage</accessLevel>
         <sharedTo>AllInternalUsers</sharedTo>
-        <sharedToType>Role</sharedToType>
+        <sharedToType>Group</sharedToType>
     </folderShares>
     <name>Marketing Dashboard</name>
 </DashboardFolder>

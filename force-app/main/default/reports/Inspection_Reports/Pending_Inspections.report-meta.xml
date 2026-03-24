@@ -27,7 +27,6 @@
     <columns>
         <field>Inspection__c$Owner</field>
     </columns>
-    <dateColumn>Inspection__c$Inspection_Date__c</dateColumn>
     <filter>
         <criteriaItems>
             <column>Inspection__c$Status__c</column>

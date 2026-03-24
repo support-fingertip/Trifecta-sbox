@@ -27,7 +27,6 @@
     <columns>
         <field>Refund__c$Unit_No__c</field>
     </columns>
-    <dateColumn>Refund__c$Refund_Date__c</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
