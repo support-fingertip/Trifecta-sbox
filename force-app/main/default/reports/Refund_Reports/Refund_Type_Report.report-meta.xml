@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Refund__c$Name</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Booking__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Customer_Name__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Refund_Amount__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Refund_Date__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Refund_Type__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Payment_Mode__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Reason__c</field>
+    </columns>
+    <columns>
+        <field>Refund__c$Unit_No__c</field>
+    </columns>
+    <dateColumn>Refund__c$Refund_Date__c</dateColumn>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Refund__c$Refund_Type__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Refund Type Report</name>
+    <reportType>CustomEntity$Refund__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Refund__c$Refund_Date__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

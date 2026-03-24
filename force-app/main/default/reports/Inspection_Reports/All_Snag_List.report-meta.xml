@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Snag_List__c$Name</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c$Inspection__c</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c$Category__c</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c$Priority__c</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c$Status__c</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c$Expected_Completed_Date__c</field>
+    </columns>
+    <dateColumn>Snag_List__c$CreatedDate</dateColumn>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Snag_List__c$Status__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>All Snag List</name>
+    <reportType>CustomEntity$Snag_List__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Snag_List__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

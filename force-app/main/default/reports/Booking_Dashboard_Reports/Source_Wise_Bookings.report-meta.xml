@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Booking__c$Name</field>
+    </columns>
+    <columns>
+        <field>Booking__c$First_Applicant_Name__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c$Project__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c$Plot__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c$Stage__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c$Booking_Date__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c$Total_Amount__c</field>
+    </columns>
+    <description>Source Wise Bookings</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Booking__c$Credit_Source__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Source Wise Bookings</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Booking__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Booking__c$Booking_Date__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
