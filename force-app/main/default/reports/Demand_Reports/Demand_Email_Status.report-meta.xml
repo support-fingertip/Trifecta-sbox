@@ -33,7 +33,6 @@
     <columns>
         <field>Demand_Raised__c$Demand_Email_Send__c</field>
     </columns>
-    <dateColumn>Demand_Raised__c$Demanded_Date__c</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

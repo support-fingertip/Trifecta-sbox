@@ -30,7 +30,6 @@
     <columns>
         <field>Demand_Raised__c$Payment_Due_Date__c</field>
     </columns>
-    <dateColumn>Demand_Raised__c$Demanded_Date__c</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

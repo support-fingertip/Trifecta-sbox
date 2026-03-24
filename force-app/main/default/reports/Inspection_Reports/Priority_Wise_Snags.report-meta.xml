@@ -18,7 +18,6 @@
     <columns>
         <field>Snag_List__c$Expected_Completed_Date__c</field>
     </columns>
-    <dateColumn>Snag_List__c$CreatedDate</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

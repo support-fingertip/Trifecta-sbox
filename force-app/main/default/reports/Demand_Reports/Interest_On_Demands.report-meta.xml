@@ -36,7 +36,6 @@
     <columns>
         <field>Demand_Raised__c$Interest_Till_Now__c</field>
     </columns>
-    <dateColumn>Demand_Raised__c$Demanded_Date__c</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

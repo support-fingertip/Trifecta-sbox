@@ -27,7 +27,6 @@
     <columns>
         <field>Receipt__c$Type__c</field>
     </columns>
-    <dateColumn>Receipt__c$Receipt_Date__c</dateColumn>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
