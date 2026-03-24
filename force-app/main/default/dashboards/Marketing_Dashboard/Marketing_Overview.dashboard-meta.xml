@@ -158,9 +158,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Channel Partners</header>
+            <header>Source Wise Leads</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Channel_Partner_Reports/Type_Wise_Channel_Partners</report>
+            <report>Marketing_Dashboard_Reports/Source_Wise_Leads_Marketing</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>

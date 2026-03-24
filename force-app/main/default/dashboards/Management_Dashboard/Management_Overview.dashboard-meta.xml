@@ -124,9 +124,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Ticket Status</header>
+            <header>Lead Conversion</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Ticket_Reports/Status_Wise_Tickets</report>
+            <report>Trifecta_Reports/Lead_Status_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
@@ -158,9 +158,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Property Availability</header>
+            <header>All Bookings</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Property_Reports/All_Units</report>
+            <report>Trifecta_Reports/All_Bookings_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
