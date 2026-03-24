@@ -124,9 +124,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>All Demands</header>
+            <header>All Bookings</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Demand_Reports/All_Demands_Raised</report>
+            <report>Trifecta_Reports/All_Bookings_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
@@ -141,9 +141,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Pending Demands</header>
+            <header>Payment Collection</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Demand_Reports/Pending_Demands</report>
+            <report>Trifecta_Reports/Payment_Collection_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
@@ -158,9 +158,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Project Wise Demands</header>
+            <header>Cancellation Report</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Demand_Reports/Project_Wise_Demands</report>
+            <report>Trifecta_Reports/Booking_Cancellation_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>

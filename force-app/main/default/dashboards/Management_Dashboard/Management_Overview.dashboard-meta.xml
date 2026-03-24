@@ -70,9 +70,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Monthly Collections</header>
+            <header>Payment Collection</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Finance_Dashboard_Reports/Monthly_Collection_Report</report>
+            <report>Trifecta_Reports/Payment_Collection_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
@@ -87,9 +87,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Payment Status</header>
+            <header>Site Visits</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Finance_Dashboard_Reports/Pending_Payment_Report</report>
+            <report>Trifecta_Reports/Site_Visit_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
@@ -104,9 +104,9 @@
             <drillToDetailEnabled>true</drillToDetailEnabled>
             <enableHover>true</enableHover>
             <expandOthers>false</expandOthers>
-            <header>Refund Summary</header>
+            <header>Cancellation Report</header>
             <legendPosition>Bottom</legendPosition>
-            <report>Refund_Reports/Refund_Type_Report</report>
+            <report>Trifecta_Reports/Booking_Cancellation_Report</report>
             <showPercentage>false</showPercentage>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
