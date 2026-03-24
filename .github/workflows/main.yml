@@ -57,6 +57,21 @@ jobs:
           done
           EXISTING_FILES=$(echo "$EXISTING_FILES" | xargs)
 
+          # For dashboards and reports, include parent folder meta file
+          EXTRA_FILES=""
+          for f in $EXISTING_FILES; do
+            PARENT_DIR=$(dirname "$f")
+            FOLDER_META="${PARENT_DIR}-meta.xml"
+            if [ -f "$FOLDER_META" ]; then
+              case "$EXTRA_FILES" in
+                *"$FOLDER_META"*) ;;  # already added
+                *) EXTRA_FILES="$EXTRA_FILES $FOLDER_META" ;;
+              esac
+            fi
+          done
+          EXISTING_FILES="$EXISTING_FILES $EXTRA_FILES"
+          EXISTING_FILES=$(echo "$EXISTING_FILES" | xargs)
+
           echo "Files to deploy:"
           echo "$EXISTING_FILES"
 
