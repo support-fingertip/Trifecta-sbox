@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Site_Visit__c$Name</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c$CreatedDate</field>
+    </columns>
+    <columns>
+        <field>Site_Visit__c$Owner</field>
+    </columns>
+    <description>Status Wise Site visits (Pre Sal &amp; Sale)</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Site_Visit__c$Owner</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Status Wise Site visits (Pre Sal &amp; Sale)</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Site_Visit__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Site_Visit__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

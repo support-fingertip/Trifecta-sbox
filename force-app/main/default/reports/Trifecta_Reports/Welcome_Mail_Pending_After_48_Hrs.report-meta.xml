@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Booking__c.Name</field>
+    </columns>
+    <columns>
+        <field>Booking__c.First_Applicant_Name__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Project__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Plot__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Booking_Date__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.CRM_executive__c</field>
+    </columns>
+    <columns>
+        <field>Booking__c.Applicant_Mobile_Number__c</field>
+    </columns>
+    <description>Bookings where welcome mail is pending after 48 hours</description>
+    <filter>
+        <criteriaItems>
+            <column>Booking__c.Welcome_Mail_Sent__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>0</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <name>Welcome Mail Pending After 48 Hrs</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Booking__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Booking__c.Booking_Date__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

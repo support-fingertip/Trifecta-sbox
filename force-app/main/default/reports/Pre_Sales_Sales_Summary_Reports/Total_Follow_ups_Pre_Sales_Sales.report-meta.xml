@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Follow_up__c$Name</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c$CreatedDate</field>
+    </columns>
+    <columns>
+        <field>Follow_up__c$Owner</field>
+    </columns>
+    <description>Total Follow ups (Pre Sales &amp; Sales )</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Follow_up__c$Owner</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Total Follow ups (Pre Sales &amp; Sales )</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Follow_up__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Follow_up__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

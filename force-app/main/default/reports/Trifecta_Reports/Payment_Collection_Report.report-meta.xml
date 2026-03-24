@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Payment_schedule__c.Name</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Booking__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Project__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Amount__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Received_Amount__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Pending_Amount__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.Payment_Due_Date__c</field>
+    </columns>
+    <columns>
+        <field>Payment_schedule__c.status__c</field>
+    </columns>
+    <description>Payment schedule report grouped by status</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Payment_schedule__c.status__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Payment Collection Report</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Payment_schedule__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Payment_schedule__c.Payment_Due_Date__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
