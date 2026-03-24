@@ -6,7 +6,7 @@
     <lightning:card title="Booking Documents" iconName="custom:custom14" class="slds-p-around_small">
         <div class="slds-p-vertical_xx-small">      
             <c:GenricFileUploadComponent recordId="{!v.recordId}" 
-                                         picklistValues="Government Photo Identity,Pan Card, Applicant Photo,Address Proof,Signed Agreement,Cancellation Agreement,Signed Sales Deed,Final NOC" />
+                                         picklistValues="Government Photo Identity,Pan Card, Applicant Photo,Address Proof,Signed Agreement,Cancellation Agreement,Signed Sales Deed,DD,Final NOC,Possession Certificate,Key Handover Letter,Commencement Certificate,Panchayati License,Building Plan,Khata Document,Tax Receipt" />
         </div> 
     </lightning:card>
 </aura:component>

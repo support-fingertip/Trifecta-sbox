@@ -1,32 +1,34 @@
 public with sharing class InspectionController{
-    
     @AuraEnabled
-    public static String saveInspectionWithSnags( String bookingId,  Date inspectionDate,   String inspectionDescription,  String snagListJson) {
+    public static String saveInspectionWithSnags(String bookingId, Date inspectionDate, String inspectionDescription, String snagListJson) 
+    {
         try {
             // Validate Booking exists
             if (String.isBlank(bookingId)) {
                 throw new AuraHandledException('Booking ID is required');
             }
-            
             // Verify booking exists
-            List<Booking__c> bookings = [SELECT Id,Project1__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
+            List<Booking__c> bookings = [SELECT Id, Project1__c,Block_Id__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
             if (bookings.isEmpty()) {
                 throw new AuraHandledException('Booking not found');
             }
-              Project__c prj = [select id,Inspection_Executive__c from Project__c Where id =: bookings[0].Project1__c];
-          
+            
+            Block__c block = [SELECT Id, Inspection_Executive__c,Inspection_Executive__r.ManagerId FROM Block__c WHERE Id = :bookings[0].Block_Id__c];
+            
+       
             // Create Inspection record
             Inspection__c inspection = new Inspection__c();
             inspection.Booking__c = bookingId;
             inspection.Inspection_Date__c = inspectionDate;
             inspection.Description__c = inspectionDescription;
-            inspection.OwnerId = prj.Inspection_Executive__c;
+            inspection.OwnerId = block.Inspection_Executive__c;
+            inspection.Approver__c = block.Inspection_Executive__c != null  ? block.Inspection_Executive__r.ManagerId  : null;
             insert inspection;
+            
             System.debug('Inspection created with ID: ' + inspection.Id);
             
             // Parse snag list JSON
             List<Object> snagDataList = (List<Object>) JSON.deserializeUntyped(snagListJson);
-            
             List<String> snagIds = new List<String>();
             
             // Create Snag List records
@@ -39,36 +41,100 @@ public with sharing class InspectionController{
                     Snag_List__c snag = new Snag_List__c();
                     snag.Inspection__c = inspection.Id;
                     snag.Description__c = (String) snagData.get('Description__c');
-                    snag.Status__c = (String) snagData.get('Status__c');
-                    snag.Priority__c = (String) snagData.get('Priority__c');
+                    snag.Status__c     = (String) snagData.get('Status__c');
+                    snag.Priority__c   = (String) snagData.get('Priority__c');
                     snag.Inspection_Type__c = (String) snagData.get('Inspection_Type__c');
                     snags.add(snag);
                 }
                 
                 insert snags;
-                
                 System.debug('Created ' + snags.size() + ' snag records');
                 
-                // Get the IDs of created snags
                 for (Snag_List__c snag : snags) {
                     snagIds.add(snag.Id);
-                    System.debug('Snag ID: ' + snag.Id);
                 }
             }
             
-            // Return inspection ID and snag IDs
+            Inspection__c inspectionRecord = [select Id,Name,Inspection_Date__c,Description__c from Inspection__c where Id =:inspection.Id ];
+            
+            // ── Send notifications to the Inspection Owner 
+            sendInspectionNotifications(inspectionRecord, block.Inspection_Executive__c);
+            
+            // Return result
             Map<String, Object> result = new Map<String, Object>();
             result.put('inspectionId', inspection.Id);
             result.put('snagIds', snagIds);
             
             System.debug('Returning result: ' + JSON.serialize(result));
-            
             return JSON.serialize(result);
             
         } catch (Exception e) {
             System.debug('Error in saveInspectionWithSnags: ' + e.getMessage());
             System.debug('Stack trace: ' + e.getStackTraceString());
             throw new AuraHandledException('Error saving inspection: ' + e.getMessage());
+        }
+    }
+    
+    private static void sendInspectionNotifications(Inspection__c inspection, Id ownerId) {
+        
+        // ── 1. EMAIL NOTIFICATION ────────────────────────────────────────────────
+        try {
+            // Fetch owner's email address
+            User owner = [SELECT Id, Email, Name FROM User WHERE Id = :ownerId LIMIT 1];
+            
+            if (String.isNotBlank(owner.Email)) {
+                Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+                mail.setToAddresses(new List<String>{ owner.Email });
+                mail.setSubject('New Inspection Assigned: ' + inspection.Name);
+                mail.setPlainTextBody(
+                    'Dear ' + owner.Name + ',\n\n' +
+                    'A new Inspection has been created and assigned to you.\n\n' +
+                    'Inspection Name : ' + inspection.Name + '\n' +
+                    'Inspection Date : ' + inspection.Inspection_Date__c + '\n' +
+                    'Description     : ' + (String.isNotBlank(inspection.Description__c)
+                                            ? inspection.Description__c : 'N/A') + '\n\n' +
+                    'Please log in to Salesforce to review the details.\n\n' +
+                    'Thank you.'
+                );
+                mail.setSaveAsActivity(false);
+                Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
+                System.debug('Email notification sent to: ' + owner.Email);
+            }
+        } catch (Exception e) {
+            // Log but don't block the main flow
+            System.debug('Email notification failed: ' + e.getMessage());
+        }
+        
+        // ── 2. SALESFORCE IN-APP (BELL) NOTIFICATION ─────────────────────────────
+        try {
+            // Retrieve the Custom Notification Type — create one named
+            // 'Inspection_Notification' in Setup → Notification Builder if absent
+            CustomNotificationType notifType = [
+                SELECT Id
+                FROM CustomNotificationType
+                WHERE DeveloperName = 'Inspection_Notification'
+                LIMIT 1
+            ];
+            
+            Messaging.CustomNotification notification = new Messaging.CustomNotification();
+            notification.setTitle('New Inspection Assigned: ' + inspection.Name);
+            notification.setBody(
+                'Inspection ' + inspection.Name +
+                ' has been created and assigned to you. Date: ' +
+                String.valueOf(inspection.Inspection_Date__c)
+            );
+            notification.setNotificationTypeId(notifType.Id);
+            
+            // Target page — opens the Inspection record when clicked
+            notification.setTargetId(inspection.Id);
+            
+            // Send to the owner
+            notification.send(new Set<String>{ ownerId });
+            System.debug('In-app notification sent to owner: ' + ownerId);
+            
+        } catch (Exception e) {
+            // Log but don't block the main flow
+            System.debug('In-app notification failed: ' + e.getMessage());
         }
     }
     
@@ -130,31 +196,47 @@ public with sharing class InspectionController{
             throw new AuraHandledException('Error uploading file: ' + e.getMessage());
         }
     }
-     @AuraEnabled
-    public static String requestSwapApproval(Id bookingId, Date reason) {
-        Inspection__c bk = [SELECT Id,Extended_Completed_Date__c,OwnerId FROM Inspection__c WHERE Id = :bookingId];
+    @AuraEnabled
+    public static String requestInspectionApproval(
+        Id     inspectionId, 
+        Date   extendedDate,
+        String extensionReason    // NEW param
+    ) {
+        Inspection__c ins = [
+            SELECT Id, Extended_Completed_Date__c, OwnerId, Extended_Completion_Reason__c
+            FROM Inspection__c 
+            WHERE Id = :inspectionId
+        ];
         
-        // Mark swap request
-        bk.Extended_Completed_Date__c=reason;
-        update bk;
-        List<Snag_List__c> snglist = [select id,Expected_Completed_Date__c from Snag_List__c where Inspection__c	=: bookingId];
-        List<Snag_List__c> updatelist = new List<Snag_List__c>();
+        // ── Update Inspection ───────────────────────────────────────────────────
+        ins.Extended_Completed_Date__c      = extendedDate;
+        ins.Extended_Completion_Reason__c   = extensionReason;   // NEW
+        update ins;
         
-        for(Snag_List__c sg : snglist){
-            sg.Expected_Completed_Date__c = reason;
-            updatelist.add(sg);
+        // ── Update related Snag List Expected Dates ─────────────────────────────
+        List<Snag_List__c> snagList = [
+            SELECT Id, Expected_Completed_Date__c 
+            FROM Snag_List__c 
+            WHERE Inspection__c = :inspectionId
+        ];
+        
+        List<Snag_List__c> updateList = new List<Snag_List__c>();
+        for (Snag_List__c sg : snagList) {
+            sg.Expected_Completed_Date__c = extendedDate;
+            updateList.add(sg);
         }
-        if(!updatelist.IsEmpty()){
-            update updatelist;
+        if (!updateList.isEmpty()) {
+            update updateList;
         }
+        
+        // ── Submit for Approval ─────────────────────────────────────────────────
         Approval.ProcessSubmitRequest req = new Approval.ProcessSubmitRequest();
-        req.setObjectId(bookingId);
-            req.setSubmitterId(bk.OwnerId); 
-        req.setProcessDefinitionNameOrId('Inspection_Extended_Date_Approval_new'); // Ensure this process exists
-        
+        req.setObjectId(inspectionId);
+        req.setSubmitterId(ins.OwnerId);
+        req.setProcessDefinitionNameOrId('Extended_Completion_Date_Approval');
+        req.setComments(extensionReason);   // ← reason also visible in approval history
         
         Approval.ProcessResult res = Approval.process(req);
-        return res.getInstanceId(); 
+        return res.getInstanceId();
     }
-   
 }

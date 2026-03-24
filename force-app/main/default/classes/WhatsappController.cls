@@ -523,41 +523,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         Boolean res = sendWhatsAppMessage(jsonBody, config);
         System.debug('Revised Demand Message Sent: ' + res);
     }
-    // Method to send REVISED DEMAND WhatsApp message - Single Booking
-    public void sendRevisedDemandMsg(Booking__c booking) {
-        
-        // Fetch WhatsApp configuration from Custom Metadata
-        Whatsapp_Setting__mdt config = getWhatsAppConfig('trifecta_revised_demand');
-        
-        if(config == null){
-            System.debug('Template not found: No Active Whatsapp template is available!');
-            return;
-        }
-        
-        String customerPhoneNumber = booking.Mobile__c;
-        String customerName        = booking.First_Applicant_Name__c;
-        String crmExecututiveName = booking.Owner_Full_Name__c;
-    
-        if (String.isBlank(customerPhoneNumber)) {
-            System.debug('No phone number found for booking: ' + booking.Id);
-            return;
-        }
-        
-        // Construct the dynamic JSON body
-        // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date]
-        String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'",'
-            + '"senderId":"'+config.Sender_ID__c+'",'
-            + '"component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template",'
-            + '"template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},'
-            + '"components":[{"type":"body","index":0,"parameters":['
-            + '{"type":"text","text":"'+customerName+'"},'
-            + '{"type":"text","text":"'+crmExecututiveName+'"}'
-            + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
-        
-        // Send the message
-        Boolean res = sendWhatsAppMessage(jsonBody, config);
-        System.debug('Revised Demand Message Sent: ' + res);
-    }
+  
     // Method to send REVISED DEMAND WhatsApp message - Single Booking
     public void sendWelcomeMail(Booking__c booking) {
         

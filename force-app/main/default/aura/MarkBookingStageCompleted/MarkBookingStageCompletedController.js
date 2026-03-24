@@ -3,8 +3,13 @@
         component.set("v.isButtonDisabled", false);
     },
     markStageCompleted : function(component, event, helper){
-        component.set("v.isButtonDisabled", true);
         var comments = component.get("v.newNote");
+        if(!comments)
+        {
+            helper.showToast("Error", "Please enter Comments", "Error");
+            return;
+        }
+
         component.set("v.isButtonDisabled", true);
         var action = component.get("c.markStageAsCompleted");
         action.setParams({ 
@@ -26,6 +31,37 @@
                 });
                 navEvt.fire();
                 $A.get('e.force:refreshView').fire();
+            }
+            else {
+                component.set("v.isButtonDisabled", false);
+                var errors = response.getError();
+                var message = 'Unknown error';
+                
+                if (errors && errors[0] && errors[0].message) {
+                    
+                    message = errors[0].message;
+                    
+                    // Extract only custom validation message
+                    if (message.includes('FIELD_CUSTOM_VALIDATION_EXCEPTION,')) {
+                        message = message.split('FIELD_CUSTOM_VALIDATION_EXCEPTION,')[1];
+                    }
+                    
+                    // Remove trailing brackets []
+                    message = message.replace(/\[\]/g, '');
+                    
+                    //  Remove trailing colon if present
+                    message = message.replace(/:\s*$/, '');
+                    
+                    message = message.trim();
+                }
+                
+                $A.get("e.force:showToast").setParams({
+                    title: "Error",
+                    message: message,
+                    type: "error"
+                }).fire();
+                
+                
             }
         });
         $A.enqueueAction(action);

@@ -385,6 +385,16 @@
                 <identifier>RecordCRM_Head_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Inspection_Executive__c</fieldItem>
+                <identifier>RecordInspection_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-b6b26ad6-90a2-4efb-8f27-8026c8e009d6</name>
         <type>Facet</type>
     </flexiPageRegions>

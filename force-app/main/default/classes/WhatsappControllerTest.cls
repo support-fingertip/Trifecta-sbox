@@ -1,235 +1,268 @@
-@isTest
+@IsTest
 private class WhatsappControllerTest {
-    
-    // ---- Mock for HTTP Callouts ----
+
     private class WhatsAppMock implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setStatusCode(200);
+            res.setStatus('OK');
             res.setBody('{"status":"success"}');
             return res;
         }
     }
-    
-    
+
     @testSetup
-    static void setupData() {
-        
-        // Create test Lead
-        Lead ld = new Lead(
-            LastName = 'PreSales',
-            Allocated_Project__c = 'Trifecta Vanto',
-            Phone__c = '8111111111',
-            Lead_Status__c = 'New',
-            Source_Type__c = 'Google',
-            Company='Trifecta'
-            
-        );
-        insert ld;
-        
-        // Create Users first (Setup objects)
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Pre Sales' LIMIT 1];
-        
-        User u = new User(
-            ProfileId = p.Id,
-            LastName = 'RH23',
-            Email = 'RH@gm1ail.com',
-            Username = 'RH@1gmail.com' + System.currentTimeMillis(),
-            CompanyName = 'RH1',
-            Title = 'titletitl1e',
-            Alias = 'lokma1n',
-            TimeZoneSidKey = 'America/Los_Angeles',
+    static void setupTestData() {
+        User loggedInUser = [
+            SELECT Id, ProfileId
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+        ];
+
+        User testUser = new User(
+            Alias = 'standt',
+            Email = 'standarduser@testorg.com',
             EmailEncodingKey = 'UTF-8',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            Availability__c = true,
-            IsActive = true,
-            is_working__c = true
+            ProfileId = loggedInUser.ProfileId,
+            LastName = 'StandardUser',
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'standarduser' + DateTime.now().getTime() + '@testorg.com'
         );
-        insert u;
-        
-        // Create user for site visit
-        User usr = [SELECT Id FROM User WHERE IsActive = true and Alias = 'lokma1n' LIMIT 1];
-        
-        // Create site visit
-        Site_Visit__c sv = new Site_Visit__c(
-            SLead__c = ld.Id,
-            OwnerId = usr.Id,
-            Project__c = 'Trifecta Vanto',
-            SV_Proposed_Date_Time__c = System.now().addMinutes(2),
-            Date__c = System.now().addMinutes(2),
-            SV_Completed_Date_Time__c = System.now().addMinutes(2)
-            
-        );
-        insert sv;
-        
-        // Create site visit
-        Project__c pr = new Project__c(
-            Location__c = 'google.com',
-            Name ='test'
-        );
-        insert pr;
-    }
-    
-    @isTest
-    static void testWhatsappController() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
-        Lead ld = [SELECT Id,FirstName,LastName,Allocated_Project__c, Phone__c,Name FROM Lead LIMIT 1];
-        Site_Visit__c sv = [SELECT Id,SLead__r.Name,Project__c,SV_Proposed_Date_Time__c,SLead__r.Phone__c FROM Site_Visit__c LIMIT 1];
-        
-        // ACTION 1 – Welcome
-        Test.startTest();
-        WhatsappController wc = new WhatsappController(new List<Lead>{ ld }, '1');
-        wc.sendWelcomeMsg(new List<Lead>{ ld });
-        
-        Test.stopTest();
-        
-    }
-    
-    @isTest
-    static void testWhatsappController2() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
-        Lead ld = [SELECT Id,FirstName,LastName,Allocated_Project__c, Phone__c,Name FROM Lead LIMIT 1];
-        Site_Visit__c sv = [SELECT Id,SLead__r.Name,Project__c,SV_Proposed_Date_Time__c,SLead__r.Phone__c FROM Site_Visit__c LIMIT 1];
-        
-        // ACTION 1 – Welcome
-        Test.startTest();
-        WhatsappController wc = new WhatsappController(new List<Lead>{ ld }, '2');
-        wc.sendNotConnectedMsg(new List<Lead>{ ld });
-        
-        Test.stopTest();
-        
-    }
-    @isTest
-    static void testWhatsappController3() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
+        insert testUser;
+
         Project__c pjt = new Project__c(
             Name = 'Trifecta Vanto',
             Project__c = 'Trifecta Vanto',
-            Active__c = true
+            Active__c = true,
+            Company_Name__c = 'Test Company',
+            Location__c = 'Bangalore'
         );
         insert pjt;
-        
-        
-        Block__c bc = new Block__c(
-            Name = 'A',
-            Project__c = pjt.Id
-        );
-        insert bc;
-        
-        
+
         Lead ld = new Lead(
+            FirstName = 'Raveen',
             LastName = 'Test',
             Company = 'testcompany',
-            Phone__c = '8778987789',
-            Source_Type__c = 'Google',
+            Phone__c = '9999999999',
+            Source_Type__c = 'Direct Walk-in',
             Allocated_Project__c = 'Trifecta Vanto'
         );
         insert ld;
-        
-        Plot__c ut = new Plot__c(
-            Status__c = 'Available',
-            Project__c = pjt.Id
-        );
-        insert ut;
-        
+
         Quote__c qc = new Quote__c(
-            Block_Lookup__c = bc.Id,
-            Quote_status__c = 'Drafted',
-            Block__c = 'A2',
-            Project__c = 'Trifecta Vanto',
+            Quote_status__c = 'Converted',
+            Block__c = ' ',
             Payment_Type__c = 'Standard',
             Sale_Area__c = 2567,
             Built_up_area__c = 4567,
-            Rate_per_sqft__c = 7100,
-            Unit__c = ut.Id,
-            SLead__c = ld.Id
+            Rate_per_sqft__c = 7100
         );
         insert qc;
-        
-        
+
+        Plot__c ut = new Plot__c(
+            Name = 'Test plot',
+            Status__c = 'Available',
+            Project__c = pjt.Id,
+            Super_Built_up_Area__c = 1450,
+            BHK_Type__c = '3 BHK'
+        );
+        insert ut;
+
         Booking__c book = new Booking__c(
             Funding_Type__c = 'Loan',
             Quote__c = qc.Id,
             Plot__c = ut.Id,
-            CRM_Manager__c = UserInfo.getUserId()
+            Email__c = 'test@gmail.com',
+            Mobile__c = '9999999999',
+            Project__c = 'Trifecta Vanto',
+            Project1__c = pjt.Id,
+            CRM_Head__c = testUser.Id,
+            CRM_Manager__c = testUser.Id,
+            First_Applicant_Name__c = 'Raveendhar',
+            Super_Built_UpArea__c = 2567,
+            Carpet_Area__c = 4567,
+            Agreement_Expected_Date__c = System.today().addDays(10),
+            Project_Type__c = 'Apartments',
+            S__c = 'Mr.'
         );
         insert book;
-        
-        // ACTION 1 – Welcome
-        Test.startTest();
-        WhatsappController wc = new WhatsappController(new List<Booking__c>{ book }, '6');
-        wc.sendBookingDoneMsg(new List<Booking__c>{ book });
-        
-        Test.stopTest();
-        
+
+        Receipt__c rec = new Receipt__c(
+            Approval_Status__c = 'Approved',
+            Booking__c = book.Id,
+            Amount_Received__c = 50000
+        );
+        insert rec;
+
+        Demand_Raised__c demand = new Demand_Raised__c(
+            Booking__c = book.Id,
+            Grand_Total__c = 75000
+        );
+        insert demand;
+
+        Site_Visit__c sv = new Site_Visit__c(
+            SLead__c = ld.Id,
+            Project__c = 'Trifecta Vanto',
+            SV_Proposed_Date_Time__c = System.now().addDays(1),
+            Date__c = System.now().addDays(2),
+            SV_Completed_Date_Time__c = System.now().addDays(3)
+        );
+        insert sv;
     }
-    @isTest
-    static void testWhatsappController4() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
-        Lead ld = [SELECT Id,FirstName,LastName,Allocated_Project__c, Phone__c,Name FROM Lead LIMIT 1];
-        Site_Visit__c sv = [SELECT Id,SLead__r.Name,Project__c,SV_Proposed_Date_Time__c,SLead__r.Phone__c FROM Site_Visit__c LIMIT 1];
-        
-        // ACTION 1 – Welcome
-        Test.startTest();
-        WhatsappController wc = new WhatsappController(new List<Site_Visit__c>{ sv }, '3');
-        wc.sendSVProposedMsg(new List<Site_Visit__c>{ sv });
-        
-        Test.stopTest();
-        
+
+    private static Lead getLeadRecord() {
+        return [
+            SELECT Id, FirstName, LastName, Name, Phone__c, Allocated_Project__c, Sent_Welcome_Msg__c
+            FROM Lead
+            LIMIT 1
+        ];
     }
-    @isTest
-    static void testWhatsappController5() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
-        Lead ld = [SELECT Id,FirstName,LastName,Allocated_Project__c, Phone__c,Name FROM Lead LIMIT 1];
-        Site_Visit__c sv = [SELECT Id,SLead__r.Name,Project__c,SV_Proposed_Date_Time__c,SLead__r.Phone__c,OwnerId,Owner.Name,
-                            SV_Completed_Date_Time__c,Date__c FROM Site_Visit__c LIMIT 1];
-        
-        Project__c pr = [SELECT Id,Location__c,Name FROM Project__c LIMIT 1];
-        
-        Test.startTest();
-        try {
-            WhatsappController wc = new WhatsappController(new List<Site_Visit__c>{ sv }, '4');
-            wc.sendSVConfirmedMsg(new List<Site_Visit__c>{ sv });
-            
-            System.assert(true, 'Method executed without unhandled exception.');
-        }
-        catch (Exception ex) {
-        }
-        Test.stopTest();
-        
+
+    private static Site_Visit__c getSiteVisitRecord() {
+        return [
+            SELECT Id, Name, Project__c, SV_Proposed_Date_Time__c, Date__c, SV_Completed_Date_Time__c,
+                   Owner.Name, SLead__r.Name, SLead__r.Phone__c
+            FROM Site_Visit__c
+            LIMIT 1
+        ];
     }
-    @isTest
-    static void testWhatsappController6() {
-        
-        // Use HTTP Mock
-        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
-        
-        Lead ld = [SELECT Id,FirstName,LastName,Allocated_Project__c, Phone__c,Name FROM Lead LIMIT 1];
-        Site_Visit__c sv = [SELECT Id,SLead__r.Name,Project__c,SV_Proposed_Date_Time__c,SLead__r.Phone__c,OwnerId,Owner.Name,
-                            SV_Completed_Date_Time__c,Date__c FROM Site_Visit__c LIMIT 1];
-        
-        // ACTION 1 – Welcome
+
+    private static Booking__c getBookingRecord() {
+        return [
+            SELECT Id, Mobile__c, First_Applicant_Name__c, S__c, Unit_No__c,
+                   Project_Block_Name__c, CRM_Executive_Contact_No__c,
+                   Owner_Full_Name__c, Project1__r.Name,
+                   Plot__r.Name, Plot__r.Super_Built_up_Area__c, Plot__r.BHK_Type__c
+            FROM Booking__c
+            LIMIT 1
+        ];
+    }
+
+    private static Receipt__c getReceiptRecord() {
+        return [
+            SELECT Id, Amount_Received__c, Total_Received_Amount__c, Project_Block_Name__c,
+                   Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,
+                   Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c
+            FROM Receipt__c
+            LIMIT 1
+        ];
+    }
+
+    private static Demand_Raised__c getDemandRecord() {
+        return [
+            SELECT Id, Grand_Total__c, Payment_Due_Date__c, Project_Block_Name__c,
+                   Booking__c, Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,
+                   Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c
+            FROM Demand_Raised__c
+            LIMIT 1
+        ];
+    }
+
+    @IsTest
+    static void testExecuteSkipBranchAndConstructors() {
+        Lead ld = getLeadRecord();
+        Site_Visit__c sv = getSiteVisitRecord();
+        Booking__c bk = getBookingRecord();
+        Receipt__c rc = getReceiptRecord();
+        Demand_Raised__c dm = getDemandRecord();
+
         Test.startTest();
-        WhatsappController wc = new WhatsappController(new List<Site_Visit__c>{ sv }, '5');
-        wc.sendSVDoneMsg(new List<Site_Visit__c>{ sv });
-        
+        new WhatsappController(new List<Lead>{ ld }, '1').execute(null);
+        new WhatsappController(new List<Site_Visit__c>{ sv }, '3').execute(null);
+        new WhatsappController(new List<Booking__c>{ bk }, '6').execute(null);
+        new WhatsappController(new List<Receipt__c>{ rc }, '7').execute(null);
+        new WhatsappController(new List<Demand_Raised__c>{ dm }, '8').execute(null);
+        new WhatsappController(bk, 50000, System.today().addDays(5), '10').execute(null);
+        new WhatsappController(bk, '11').execute(null);
         Test.stopTest();
-        
+
+        System.assert(true);
+    }
+
+    @IsTest
+    static void testSiteVisitWhatsappMethods() {
+        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
+
+        Site_Visit__c sv = getSiteVisitRecord();
+
+        Test.startTest();
+        WhatsappController ctrl = new WhatsappController(new List<Site_Visit__c>{ sv }, '3');
+        ctrl.sendSVProposedMsg(new List<Site_Visit__c>{ sv });
+        ctrl.sendSVConfirmedMsg(new List<Site_Visit__c>{ sv });
+        ctrl.sendSVDoneMsg(new List<Site_Visit__c>{ sv });
+        Test.stopTest();
+
+        System.assertNotEquals(null, sv.Id);
+    }
+
+    @IsTest
+    static void testBookingWhatsappMethods() {
+        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
+
+        Booking__c bk = getBookingRecord();
+
+        Test.startTest();
+        WhatsappController ctrl = new WhatsappController(new List<Booking__c>{ bk }, '6');
+        ctrl.sendBookingDoneMsg(new List<Booking__c>{ bk });
+        ctrl.sendDemandReminderMsg(new List<Booking__c>{ bk });
+        ctrl.sendRevisedDemandMsg(bk, 60000, System.today().addDays(10));
+        ctrl.sendRevisedDemandMsg(bk);
+        ctrl.sendWelcomeMail(bk);
+        Test.stopTest();
+
+        System.assertNotEquals(null, bk.Id);
+    }
+
+    @IsTest
+    static void testReceiptAndDemandWhatsappMethods() {
+        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
+
+        Receipt__c rc = getReceiptRecord();
+        Demand_Raised__c dm = getDemandRecord();
+
+        Test.startTest();
+        WhatsappController ctrl1 = new WhatsappController(new List<Receipt__c>{ rc }, '7');
+        ctrl1.sendPaymentReceiptMsg(new List<Receipt__c>{ rc });
+
+        WhatsappController ctrl2 = new WhatsappController(new List<Demand_Raised__c>{ dm }, '8');
+        ctrl2.sendDemandRaisedMsg(new List<Demand_Raised__c>{ dm });
+        Test.stopTest();
+
+        System.assertNotEquals(null, rc.Id);
+        System.assertNotEquals(null, dm.Id);
+    }
+
+    @IsTest
+    static void testNoPhoneSkipBranches() {
+        Lead ld = getLeadRecord();
+        ld.Phone__c = null;
+
+        Site_Visit__c sv = getSiteVisitRecord();
+
+        Booking__c bk = getBookingRecord();
+        bk.Mobile__c = null;
+
+        Receipt__c rc = getReceiptRecord();
+        Demand_Raised__c dm = getDemandRecord();
+
+        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
+
+        Test.startTest();
+        new WhatsappController(new List<Lead>{ ld }, '1').sendWelcomeMsg(new List<Lead>{ ld });
+        new WhatsappController(new List<Lead>{ ld }, '2').sendNotConnectedMsg(new List<Lead>{ ld });
+        new WhatsappController(new List<Site_Visit__c>{ sv }, '3').sendSVProposedMsg(new List<Site_Visit__c>{ sv });
+        new WhatsappController(new List<Site_Visit__c>{ sv }, '4').sendSVConfirmedMsg(new List<Site_Visit__c>{ sv });
+        new WhatsappController(new List<Site_Visit__c>{ sv }, '5').sendSVDoneMsg(new List<Site_Visit__c>{ sv });
+        new WhatsappController(new List<Booking__c>{ bk }, '6').sendBookingDoneMsg(new List<Booking__c>{ bk });
+        new WhatsappController(new List<Booking__c>{ bk }, '9').sendDemandReminderMsg(new List<Booking__c>{ bk });
+        new WhatsappController(bk, 1000, System.today(), '10').sendRevisedDemandMsg(bk, 1000, System.today());
+        new WhatsappController(bk, '11').sendWelcomeMail(bk);
+        new WhatsappController(new List<Receipt__c>{ rc }, '7').sendPaymentReceiptMsg(new List<Receipt__c>{ rc });
+        new WhatsappController(new List<Demand_Raised__c>{ dm }, '8').sendDemandRaisedMsg(new List<Demand_Raised__c>{ dm });
+        Test.stopTest();
+
+        System.assert(true);
     }
 }

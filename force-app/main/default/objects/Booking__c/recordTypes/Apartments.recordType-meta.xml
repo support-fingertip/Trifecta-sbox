@@ -280,17 +280,6 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>Possession_Certificate_Uploaded__c</picklist>
-        <values>
-            <fullName>No</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Yes</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
         <picklist>Project_Type__c</picklist>
         <values>
             <fullName>Apartments</fullName>
@@ -441,10 +430,6 @@
         </values>
         <values>
             <fullName>Demands %26 Progressive Collections</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Maintenance</fullName>
             <default>false</default>
         </values>
         <values>

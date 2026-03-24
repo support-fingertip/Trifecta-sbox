@@ -1,4 +1,6 @@
-<apex:page sidebar="false"
+<apex:page standardController="Booking__c"
+           extensions="FlatKeyHandoverVfpController"
+           sidebar="false"
            showHeader="false"
            applyBodyTag="false"
            applyHtmlTag="false"
@@ -8,7 +10,7 @@
     <html>
         <head>
             <style type="text/css">
-                  @page {
+                @page {
                 size: A4;
                 margin: 12mm;
                 border: 0.5px solid #000;
@@ -31,8 +33,7 @@
                 }
                 
                 .heading-address {
-                margin-top: 10px;
-                font-size: 16px;
+                font-size: 10pt;
                 text-align: center;
                 }
                 
@@ -78,8 +79,6 @@
                 }
                 
                 .signature-block-title {
-                margin-top: 10px;
-                margin-bottom: 5px;
                 font-weight: bold;
                 }
                 
@@ -96,17 +95,58 @@
                 margin-top: 20px;
                 margin-bottom: 30px;
                 }
+                
+                /* ── Header: logo floated right ── */
+                .header-block {
+                margin-bottom: 6px;
+                }
+                
+                .logo-right {
+                float: right;
+                }
+                
+                .logo-right img {
+                width: 60px;
+                height: 60px;
+                }
+                /* ── Company name ── */
+                .company-name {
+                text-align: center;
+                font-size: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+                }
+                
+                /* ── Address ── */
+                .address {
+                text-align: center;
+                font-size: 12.5px;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 4px;
+                }
             </style>
         </head>
         <body>
             <div class="page-wrapper">
                 
-                <!-- Project Header -->
-                <div class="heading-project">
-                    TRIFECTA VERDE EN RESPLANDOR VILLA PHASE -3
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
                 </div>
-                <div class="heading-address">
-                    Thirumenahalli, Mandur post, Bengaluru, Karnataka -560049
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">{!bookingWrapper.projectName}</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    {!bookingWrapper.projectAddress}
                 </div>
                 
                 <hr class="header-line" />
@@ -119,10 +159,16 @@
                 <!-- Address To -->
                 <div class="content-block">
                     <p style="margin-top: 20px;">To,</p>
-                    <span style="margin-top: 20px;" >Mr.____________ </span><span style="margin-top: 20px;">Mrs.____________ </span>
-                    <p style="margin-top: 10px;">VILLA NO - </p>
-                    <p style="margin-top: 10px;"><span >SUB:</span>VILLA KEYS HANDOVER</p>
+                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}
+                        <!-- Co Applicant if exists -->
+                        <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                            , {!firstCoApplicant.Name}
+                        </apex:outputPanel></p>
+                    <p style="margin-top: 10px;">Project Name - {!bookingWrapper.projectName}</p>
+                    <p style="margin-top: 10px;">Flat No - {!booking.Unit_Number__c}</p>
+                    <p style="margin-top: 10px;"><span >Sub:</span>ROW HOUSE KEYS HANDOVER</p>
                 </div>
+                
                 
                 <br/>
                 Please sign this Letter as a token of acceptance of the following:
@@ -137,38 +183,38 @@
                     <tr>
                         <td style="text-align: left;">1</td>
                         <td style="text-align: left;">Main Door &amp; Sensor</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">2 + 2</td>
+                        <th style="text-align: left;">{!bookingWrapper.mainDoorSensorKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.mainDoorSensorNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left;">2</td>
                         <td style="text-align: left;">Guest Bedroom Bedroom</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">3</td>
+                        <th style="text-align: left;">{!bookingWrapper.guestBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.guestBedroomNoOfKey}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left;">3</td>
                         <td style="text-align: left;">Master Bedroom Bedroom</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">3</td>
+                        <th style="text-align: left;">{!bookingWrapper.masterBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.masterBedroomKeyNo}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left;">4</td>
                         <td style="text-align: left;">Children Bedroom</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">3</td>
+                        <th style="text-align: left;">{!bookingWrapper.childrenBedroomKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.childrenBedroomNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left;">5</td>
                         <td style="text-align: left;">Sit Out</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">4</td>
+                        <th style="text-align: left;">{!bookingWrapper.sitOutKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.sitOutNoOfKey}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left;">6</td>
                         <td style="text-align: left;">Second floor</td>
-                        <th style="text-align: left;"></th>
-                        <td style="text-align: left;">3</td>
+                        <th style="text-align: left;">{!bookingWrapper.secondFloorKeyNo}</th>
+                        <td style="text-align: left;">{!bookingWrapper.secondFloorNoOfKey}</td>
                     </tr>
                 </table>
                 
@@ -180,22 +226,19 @@
                     Key Handed Over By
                     <div class="signature-block-title">
                         <br/>
-                        <p>Name:</p>
+                        <p>Name: {!handoverByName}</p>
                         
-                        <p>Designation: Support help</p>
+                        <p>Designation: {!handoverByDesignation}</p>
                         
-                        <p>Mobile Number:</p>
+                        <p>Mobile Number: {!handoverByMobile}</p>
                     </div>
                 </div>
                 <br/><br/>
                 <!-- Flat Owner Acknowledgement -->
                 <div class="content-block">
-                    <p>Row House Owner’s Acknowledgment:  </p>
-                    <br/><br/>
-                    <p style="border-bottom: 1px solid black; padding-bottom: 1px; display: inline-block;">Customer Signature:</p>
-
-                    
-                    
+                    <p>Villa Owner's Acknowledgement:</p>
+                    <br/>
+                    <p><u>Customer Signature:</u></p>
                 </div>
                 
             </div>

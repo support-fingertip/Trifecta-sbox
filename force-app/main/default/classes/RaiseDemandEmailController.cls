@@ -388,9 +388,9 @@ public without sharing class RaiseDemandEmailController {
     
     
     /**
-    * Main method that executes the revised demand use case.
-    * Sends email (as before) and enqueues WhatsApp notification.
-    */
+* Main method that executes the revised demand use case.
+* Sends email (as before) and enqueues WhatsApp notification.
+*/
     @AuraEnabled
     public static String revisedDemand(String bookingId, String emailContent, List<Id> contentIds, String subject) {
         try {
@@ -494,6 +494,11 @@ public without sharing class RaiseDemandEmailController {
             WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '10');
             System.enqueueJob(controller);
             
+            
+            SMSHandler smsctrl = new SMSHandler(book, Amount, psRecord.PaymentDueDate__c, '10');
+            System.enqueueJob(smsctrl);
+            
+            
             return 'Revised Demand sent successfully.';
             
         } catch (Exception e) {
@@ -587,6 +592,236 @@ public without sharing class RaiseDemandEmailController {
         }
         return template;
     }
-    
-    
+    @AuraEnabled
+    public static dataBox getPenaltyDemandData(Id bookingId) {
+        dataBox dt = new dataBox();
+        Boolean lastPymtSchedule = false;
+        
+        Payment_Schedule__c lastCompletedPaymentSchedule = [
+            SELECT Id, Is_Demanded__c, Type__c, S_No__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :bookingId AND Status__c = 'Completed'
+            ORDER BY S_No__c DESC
+            LIMIT 1
+        ];
+        
+        Payment_Schedule__c LastPaymentschedule = [
+            SELECT Id, Is_Demanded__c, Type__c, S_No__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :bookingId
+            ORDER BY S_No__c DESC
+            LIMIT 1
+        ];
+        
+        Booking__c bk = [
+            SELECT Id, Name, Franking_Amount__c, First_Applicant_Name__c, Swap_Unit_Status__c, Owner_Phone_Number__c,
+            Application_Amount__c, Unit_No__c, Owner_Phone__c, Project__c, Plot__r.Name, Booking_Amount__c, Owner_Email__c,
+            Project1__r.Company_Name__c, S__c, Super_Built_UpArea__c, Carpet_Area__c, Agreement_Expected_Date__c, Company_Name__c,
+            Block_Name__c, Owner_Full_Name__c, Email__c, Project_Type__c, Block_Id__c
+            FROM Booking__c
+            WHERE Id = :bookingId
+            LIMIT 1
+        ];
+        
+        Block__c block = bk.Block_Id__c != null
+            ? [
+                SELECT Id, Name, Email__c, Project_Address__c, Company_Name__c,
+                Construction_Company_Name__c, Land_Company_Name__c,
+                Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c,
+                Bank_Name__c
+                FROM Block__c
+                WHERE Id = :bk.Block_Id__c
+                LIMIT 1
+            ]
+            : null;
+        
+        if (lastCompletedPaymentSchedule.S_No__c == LastPaymentschedule.S_No__c) {
+            lastPymtSchedule = true;
+        }
+        
+        Boolean isDemandRaised = false;
+        if (lastCompletedPaymentSchedule != null && lastCompletedPaymentSchedule.Is_Demanded__c) {
+            isDemandRaised = false;
+        } else {
+            isDemandRaised = true;
+        }
+        
+        dt.isDemandRaised = isDemandRaised;
+        dt.lastPymtSchedule = lastPymtSchedule;
+        
+        String companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if (bk.Project_Type__c == 'Villas') {
+            if (lastCompletedPaymentSchedule.Type__c == 'Land') {
+                companyName = (block != null && block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            } else if (lastCompletedPaymentSchedule.Type__c == 'Construction') {
+                companyName = (block != null && block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c : '';
+            }
+        } else {
+            companyName = (block != null && block.Company_Name__c != null) ? block.Company_Name__c : '';
+        }
+        
+        General_Settings__c temp = [
+            SELECT Template_Body__c, Type__c, Subject__c
+            FROM General_Settings__c
+            WHERE Project_Name1__c INCLUDES (:bk.Project__c)
+            AND Type__c = 'Penalty Demand Note'
+            LIMIT 1
+        ];
+        
+        String template = temp.Template_Body__c;
+        String subject = temp.Subject__c;
+        
+        template = template.replace('##APPLICANT_NAME##', bk.First_Applicant_Name__c != null ? bk.First_Applicant_Name__c : '');
+        template = template.replace('##PROJECT_NAME##', bk.Project__c != null ? bk.Project__c : '');
+        template = template.replace('##BLOCK_NAME##', bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : '');
+        template = template.replace('##UNIT_NUMBER##', bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : '');
+        template = template.replace('##CRM_PHONE##', bk.Owner_Phone_Number__c != null ? String.valueOf(bk.Owner_Phone_Number__c) : '');
+        template = template.replace('##CRM_EMAIL##', bk.Owner_Email__c != null ? String.valueOf(bk.Owner_Email__c) : '');
+        template = template.replace('##COMAPANY_NAME##', companyName != null ? String.valueOf(companyName) : '');
+        
+        dt.emailContent = template;
+        
+        subject = subject.replace('##PROJECT_NAME##', bk.Project__c != null ? bk.Project__c : '');
+        subject = subject.replace('##BLOCK_NAME##', bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : '');
+        subject = subject.replace('##UNIT_NUMBER##', bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : '');
+        
+        dt.subject = subject;
+        
+        return dt;
+    }
+    @AuraEnabled
+    public static String penaltyDemand(String bookingId, String emailContent, List<Id> contentIds, String subject) {
+        try {
+            Payment_Schedule__c psRecord = getLatestCompletedSchedule(bookingId);
+            if (psRecord == null) {
+                throw new AuraHandledException('No completed Payment Schedule found.');
+            }
+            
+            Booking__c book = [
+                SELECT Id, Applicant_Name__c, First_Applicant_Name__c, Plot__r.Name, Total__c, Name,
+                Project__c, Project1__r.Name, GST__c, RecordType.DeveloperName, Mobile__c, Project_Block_Name__c,
+                Quote__r.Agreement_Value_Before_GST__c, Total_Amount__c, Block_Name__c, CRM_Executive_Contact_No__c,
+                Unit_No__c, Owner_Phone_Number__c, Company_Name__c,
+                Email__c, Owner.Email, CRM_Head_Manager_Email__c
+                FROM Booking__c
+                WHERE Id = :psRecord.Booking__c
+                LIMIT 1
+            ];
+            
+            String template = String.isBlank(emailContent)
+                ? getPenaltyDemandEmailTemplate(book)
+                : emailContent;
+            
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            List<String> toList = new List<String>();
+            if (!String.isBlank(book.Email__c)) {
+                toList.add(book.Email__c);
+            }
+            email.setToAddresses(toList);
+            
+            List<String> ccList = new List<String>();
+            if (!String.isBlank(book.Owner.Email)) {
+                ccList.add(book.Owner.Email);
+            }
+            if (!String.isBlank(book.CRM_Head_Manager_Email__c)) {
+                ccList.add(book.CRM_Head_Manager_Email__c);
+            }
+            if (!ccList.isEmpty()) {
+                email.setCcAddresses(ccList);
+            }
+            
+            String rawSubject = String.isNotBlank(subject)
+                ? subject
+                : 'Penalty Demand Note for Completion of ' + psRecord.Name +
+                    ' In ' + (book.Project1__r != null ? book.Project1__r.Name : '');
+            
+            email.setSubject(rawSubject);
+            
+            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                + template +
+                '</body></html>';
+            email.setHtmlBody(htmlBody);
+            
+            List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
+            
+            PageReference vfPage = Page.PenaltyDemandNote;
+            vfPage.getParameters().put('id', book.Id);
+            vfPage.getParameters().put('reminderType', 'PENALTY DEMAND NOTE');
+            
+            Blob pdfBlob = !Test.isRunningTest() ? vfPage.getContentAsPDF() : Blob.valueOf('testblob');
+            
+            Messaging.EmailFileAttachment pdfAttach = new Messaging.EmailFileAttachment();
+            pdfAttach.setFileName('Penalty Demand Note.pdf');
+            pdfAttach.setBody(pdfBlob);
+            emailAttachments.add(pdfAttach);
+            
+            if (contentIds != null && !contentIds.isEmpty()) {
+                for (ContentVersion cv : [
+                    SELECT Title, FileExtension, VersionData
+                    FROM ContentVersion
+                    WHERE ContentDocumentId IN :contentIds
+                    AND IsLatest = true
+                ]) {
+                    Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
+                    contentAttach.setFileName(cv.Title + '.' + cv.FileExtension);
+                    contentAttach.setBody(cv.VersionData);
+                    emailAttachments.add(contentAttach);
+                }
+            }
+            
+            email.setFileAttachments(emailAttachments);
+            
+            if (!Test.isRunningTest() && !String.isBlank(psRecord.CreatedBy.Email)) {
+                List<OrgWideEmailAddress> orgWideEmail = [
+                    SELECT Id
+                    FROM OrgWideEmailAddress
+                    WHERE DisplayName = 'Trifecta Admin'
+                    LIMIT 1
+                ];
+                if (!orgWideEmail.isEmpty()) {
+                    email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
+                }
+            }
+            
+            email.setSaveAsActivity(true);
+            email.setWhatId(book.Id);
+            
+            try {
+                Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
+                System.debug('Penalty email sent successfully.');
+            } catch (Exception ex) {
+                System.debug('Error sending penalty email: ' + ex.getMessage());
+            }
+            
+            Decimal Amount = calculateGrandTotal(psRecord, book);
+            WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '10');
+            System.enqueueJob(controller);
+            
+            return 'Penalty Demand sent successfully.';
+        } catch (Exception e) {
+            throw new AuraHandledException('Error sending Penalty Demand: ' + e.getMessage());
+        }
+    }
+    private static String getPenaltyDemandEmailTemplate(Booking__c book) {
+        List<General_Settings__c> temps = [
+            SELECT Template_Body__c
+            FROM General_Settings__c
+            WHERE Project_Name1__c INCLUDES (:book.Project__c)
+            AND Type__c = 'Penalty Demand Note'
+            LIMIT 1
+        ];
+        
+        String template = temps.isEmpty() ? '' : temps[0].Template_Body__c;
+        
+        if (!String.isBlank(template)) {
+            template = template.replace('##APPLICANT_NAME##', book.First_Applicant_Name__c != null ? book.First_Applicant_Name__c : '');
+            template = template.replace('##PROJECT_NAME##', book.Project__c != null ? book.Project__c : '');
+            template = template.replace('##BLOCK_NAME##', book.Block_Name__c != null ? String.valueOf(book.Block_Name__c) : '');
+            template = template.replace('##UNIT_NUMBER##', book.Unit_No__c != null ? String.valueOf(book.Unit_No__c) : '');
+            template = template.replace('##CRM_PHONE##', book.Owner_Phone_Number__c != null ? String.valueOf(book.Owner_Phone_Number__c) : '');
+            template = template.replace('##COMAPANY_NAME##', book.Company_Name__c != null ? String.valueOf(book.Company_Name__c) : '');
+        }
+        
+        return template;
+    }
 }

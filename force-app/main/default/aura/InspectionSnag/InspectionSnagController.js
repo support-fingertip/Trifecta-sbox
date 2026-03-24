@@ -13,16 +13,16 @@
         }]);
         
         // Add this line after setting snagRows
-helper.attachScrollListener();
+        helper.attachScrollListener();
     },
     
-
-handleScroll: function(component, event, helper) {
-    var openDropdowns = document.querySelectorAll('.slds-combobox.slds-is-open');
-    openDropdowns.forEach(function(el) {
-        el.classList.remove('slds-is-open');
-    });
-},
+    
+    handleScroll: function(component, event, helper) {
+        var openDropdowns = document.querySelectorAll('.slds-combobox.slds-is-open');
+        openDropdowns.forEach(function(el) {
+            el.classList.remove('slds-is-open');
+        });
+    },
     
     addSnagRow: function(component, event, helper) {
         let snagRows = component.get("v.snagRows");
@@ -186,10 +186,10 @@ handleScroll: function(component, event, helper) {
         snagRows.forEach((snag, index) => {
             if (!snag.Description__c || !snag.Status__c) {
             isValid = false;
-                errorMessage = `Please fill in all fields for Snag #${index + 1}`;
-                
-            }
-        });
+            errorMessage = `Please fill in all fields for Snag #${index + 1}`;
+            
+        }
+                         });
         
         if (!isValid) {
             helper.showToast('Error', errorMessage, 'error');
@@ -200,12 +200,12 @@ handleScroll: function(component, event, helper) {
         
         const snagListData = snagRows.map(snag => {
             return {
-                Description__c: snag.Description__c,
-                Status__c: snag.Status__c,
+            Description__c: snag.Description__c,
+            Status__c: snag.Status__c,
             Inspection_Type__c:snag.Inspection_Type__c,
-                Priority__c: snag.Priority__c
-            };
-        });
+            Priority__c: snag.Priority__c
+        };
+                                          });
         
         const action = component.get("c.saveInspectionWithSnags");
         action.setParams({

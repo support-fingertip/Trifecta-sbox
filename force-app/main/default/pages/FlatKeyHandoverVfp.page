@@ -1,4 +1,6 @@
-<apex:page sidebar="false"
+<apex:page standardController="Booking__c"
+           extensions="FlatKeyHandoverVfpController"
+           sidebar="false"
            showHeader="false"
            applyBodyTag="false"
            applyHtmlTag="false"
@@ -77,8 +79,6 @@
                 }
                 
                 .signature-block-title {
-                margin-top: 10px;
-                margin-bottom: 5px;
                 font-weight: bold;
                 }
                 
@@ -95,19 +95,61 @@
                 margin-top: 20px;
                 margin-bottom: 30px;
                 }
+                 
+                /* ── Header: logo floated right ── */
+                .header-block {
+                margin-bottom: 6px;
+                }
+                
+                .logo-right {
+                float: right;
+                }
+                
+                .logo-right img {
+                width: 60px;
+                height: 60px;
+                }
+                 /* ── Company name ── */
+                .company-name {
+                text-align: center;
+                font-size: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+                }
+                
+                /* ── Address ── */
+                .address {
+                text-align: center;
+                font-size: 12.5px;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 4px;
+                }
             </style>
         </head>
         <body>
             <div class="page-wrapper">
                 
-                <!-- Project Header -->
-                <div class="heading-project">
-                    TRIFECTA VANTO
-                </div>
-                <div class="heading-address">
-                    Kodathi Village, Varthur Hobli, Bangalore-560035 Karnataka Sarjapur,
+                <!-- HEADER: logo floats right -->
+                <div class="header-block">
+                    <div class="logo-right">
+                        <apex:image url="{!URLFOR($Resource.TrifectaLogo)}"
+                                    styleClass="logo-img"
+                                    style="width:60px; height:60px;"/>
+                    </div>
                 </div>
                 
+                
+                
+                <!-- COMPANY NAME -->
+                <div class="company-name">{!bookingWrapper.projectName}</div>
+                
+                <!-- ADDRESS -->
+                <div class="address">
+                    {!bookingWrapper.projectAddress}
+                </div>
                 <hr class="header-line" />
                 
                 <!-- Main Title -->
@@ -118,9 +160,14 @@
                 <!-- Address To -->
                 <div class="content-block">
                     <p style="margin-top: 20px;">To,</p>
-                    <span style="margin-top: 20px;" >Mr.____________ </span><span style="margin-top: 20px;">Mrs.____________ </span>
-                    <p style="margin-top: 10px;">FLAT NO - </p>
-                    <p style="margin-top: 10px;"><span >SUB:</span> FLAT KEYS HANDOVER</p>
+                    <p style="margin-top: 20px;">{!booking.First_Applicant_Name__c}
+                    <!-- Co Applicant if exists -->
+                    <apex:outputPanel rendered="{!NOT(ISNULL(firstCoApplicant))}">
+                        , {!firstCoApplicant.Name}
+                    </apex:outputPanel></p>
+                    <p style="margin-top: 10px;">Project Name - {!bookingWrapper.projectName}</p>
+                    <p style="margin-top: 10px;">Flat No - {!booking.Unit_Number__c}</p>
+                    <p style="margin-top: 10px;"><span >Sub:</span> FLAT KEYS HANDOVER</p>
                 </div>
                 
                 <br/>
@@ -135,26 +182,26 @@
                     <tr>
                         <td>1</td>
                         <td>Main Door &amp; Sensor</td>
-                        <td></td>
-                        <td>2 + 2</td>
+                        <td>{!bookingWrapper.mainDoorSensorKeyNo}</td>
+                        <td>{!bookingWrapper.mainDoorSensorNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>2</td>
                         <td>Master Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.masterBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.masterBedroomNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>3</td>
                         <td>Children Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.childrenBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.childrenBedroomNoOfKeys}</td>
                     </tr>
                     <tr>
                         <td>4</td>
                         <td>Common Bedroom</td>
-                        <td></td>
-                        <td>3</td>
+                        <td>{!bookingWrapper.commonBedroomKeyNo}</td>
+                        <td>{!bookingWrapper.commonBedroomNoOfKeys}</td>
                     </tr>
                 </table>
                 <br/>
@@ -165,21 +212,19 @@
                     Key Handed Over By
                     <div class="signature-block-title">
                         <br/>
-                        <p>Name:</p>
+                        <p>Name: {!handoverByName}</p>
                         
-                        <p>Designation:Support help</p>
+                        <p>Designation: {!handoverByDesignation}</p>
                         
-                        <p>Mobile Number:</p>
+                        <p>Mobile Number: {!handoverByMobile}</p>
                     </div>
                 </div>
                 <br/><br/>
                 <!-- Flat Owner Acknowledgement -->
                 <div class="content-block">
                     <p>Flat Owner's Acknowledgement:</p>
-                    <br/><br/>
+                    <br/>
                     <p><u>Customer Signature:</u></p>
-                    
-                    
                 </div>
                 
             </div>

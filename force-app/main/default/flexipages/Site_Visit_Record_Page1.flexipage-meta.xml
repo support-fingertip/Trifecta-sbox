@@ -122,6 +122,12 @@
                 <identifier>RecordLead_Stage_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Credit_Source__c</fieldItem>
+                <identifier>RecordCredit_Source__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-0dcab3a1-52a5-438d-8e6d-499a400babf6</name>
         <type>Facet</type>
     </flexiPageRegions>
