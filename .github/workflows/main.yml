@@ -43,14 +43,28 @@ jobs:
             CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep '^force-app/' || true)
           fi
       
-          echo "Changed files:"
+          echo "Changed files (from git diff):"
           echo "$CHANGED_FILES"
-          
-          if [ -z "$CHANGED_FILES" ]; then
+
+          # Filter out deleted files - only keep files that exist on disk
+          EXISTING_FILES=""
+          for f in $CHANGED_FILES; do
+            if [ -f "$f" ]; then
+              EXISTING_FILES="$EXISTING_FILES $f"
+            else
+              echo "Skipping deleted file: $f"
+            fi
+          done
+          EXISTING_FILES=$(echo "$EXISTING_FILES" | xargs)
+
+          echo "Files to deploy:"
+          echo "$EXISTING_FILES"
+
+          if [ -z "$EXISTING_FILES" ]; then
             echo "No Salesforce metadata changes found. Skipping deploy."
           else
             sf project deploy start \
-              --source-dir $CHANGED_FILES \
+              --source-dir $EXISTING_FILES \
               --target-org deployment-org \
               --wait 30
           fi
