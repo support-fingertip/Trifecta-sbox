@@ -33,6 +33,9 @@
     <columns>
         <field>Inspection__c.Snags_Completion_Email_Sent__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Inspection schedules and completions grouped by status</description>
     <format>SUMMARY</format>
     <groupingsDown>

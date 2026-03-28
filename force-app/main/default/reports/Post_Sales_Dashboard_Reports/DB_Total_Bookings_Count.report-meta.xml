@@ -8,6 +8,9 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Booking_Amount__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Total bookings count with sum of amounts by stage - dashboard metric</description>
     <format>SUMMARY</format>
     <groupingsDown>

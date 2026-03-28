@@ -36,6 +36,9 @@
     <columns>
         <field>Booking__c.CRM_executive__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Bookings with incomplete KYC documents - missing Aadhaar, Photo, or Co-Applicant documents</description>
     <filter>
         <booleanFilter>1 OR 2 OR 3 OR 4</booleanFilter>

@@ -20,6 +20,9 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Booking_Amount__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Track booking creation trends over time by month</description>
     <format>SUMMARY</format>
     <groupingsDown>

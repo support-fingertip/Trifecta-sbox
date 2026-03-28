@@ -21,6 +21,9 @@
     <columns>
         <field>Snag_List__c.Inspection_Type__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Snags grouped by status and category for tracking resolution</description>
     <format>SUMMARY</format>
     <groupingsDown>

@@ -19,6 +19,9 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Total_Amount__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Bookings per CRM executive across all stages - workload distribution</description>
     <format>SUMMARY</format>
     <groupingsDown>
