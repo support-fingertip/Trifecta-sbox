@@ -7,6 +7,9 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Agreement_Value__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Agreement status distribution for donut chart</description>
     <filter>
         <criteriaItems>

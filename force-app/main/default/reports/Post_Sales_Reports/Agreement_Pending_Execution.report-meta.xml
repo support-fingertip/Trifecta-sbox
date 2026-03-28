@@ -33,6 +33,9 @@
     <columns>
         <field>Booking__c.Agreement_CRM_Executive__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Agreements not yet executed - pending, scheduled, or rescheduled</description>
     <filter>
         <booleanFilter>1 AND (2 OR 3 OR 4)</booleanFilter>

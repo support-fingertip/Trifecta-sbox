@@ -30,6 +30,9 @@
     <columns>
         <field>Ticket__c.Resolution_Remarks__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Open or in-progress tickets past their expected resolution date</description>
     <filter>
         <booleanFilter>1 AND (2 OR 3)</booleanFilter>

@@ -44,6 +44,9 @@
     <columns>
         <field>Payment_schedule__c.X2nd_Reminder_Date__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Overdue payment schedules with days delayed grouped by project</description>
     <filter>
         <criteriaItems>

@@ -7,6 +7,9 @@
     <columns>
         <field>Payment_schedule__c.No_of_Days_Delayed__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Overdue payment schedules per project for bar chart</description>
     <filter>
         <criteriaItems>

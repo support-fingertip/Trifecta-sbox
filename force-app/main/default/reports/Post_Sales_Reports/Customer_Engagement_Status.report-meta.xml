@@ -30,6 +30,9 @@
     <columns>
         <field>Booking__c.Booking_Form_Sent__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Welcome mail and call engagement status grouped by CRM executive for Booked stage</description>
     <filter>
         <criteriaItems>

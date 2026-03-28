@@ -22,6 +22,9 @@
     <columns>
         <field>Booking__c.Agreement_Status__c</field>
     </columns>
+    <columns>
+        <field>CREATED_DATE</field>
+    </columns>
     <description>Cancellation analysis per project</description>
     <filter>
         <criteriaItems>
