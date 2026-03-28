@@ -110,7 +110,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>BulkLeadReassignmentController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BulkRaiseDemandController</apexClass>
@@ -378,7 +378,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>InspectionCompletionMailController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>InspectionController</apexClass>
@@ -1939,6 +1939,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Booking__c.Is_Swapped__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Key_Handover_Letter_Uploaded_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Key_Handover_Letter_Uploaded__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3794,6 +3804,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Inspection__c.Priority__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Inspection__c.Snags_Completion_Email_Sent_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Inspection__c.Snags_Completion_Email_Sent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5942,6 +5962,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Tds__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Payment_schedule__c.Tentative_TimeLine__c</field>
         <readable>true</readable>
@@ -7824,6 +7849,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Receipt__c.Project_Block_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt__c.Receipt_Amount_Without_Tds__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -10212,11 +10242,11 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Call_Detail__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Channel_Partner__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Co_Applicant__c</tab>
@@ -10228,11 +10258,11 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Follow_up__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>GRE_Form</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>General_Settings__c</tab>
@@ -10256,23 +10286,23 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Lead_Global_Search</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Lead_Unqualification__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>MCUBE_Object_Api__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>M_Cube_Setup_Configuration</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Marketing_Campaign__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Master_Payment_Schedule__c</tab>
@@ -10284,7 +10314,7 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Plot__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Project__c</tab>
@@ -10292,7 +10322,7 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Quote__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Receipt__c</tab>
@@ -10304,11 +10334,11 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Round_Robin__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Site_Visit__c</tab>
-        <visibility>DefaultOn</visibility>
+        <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Snag_List__c</tab>

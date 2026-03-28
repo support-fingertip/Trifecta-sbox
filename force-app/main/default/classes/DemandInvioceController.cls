@@ -43,6 +43,9 @@ public class DemandInvioceController {
         public String ifscCode { get; set; }
         public String typeOfAccount { get; set; }
         public String branch { get; set; }
+        
+        public decimal interstPercent { get; set; }
+        public decimal tdsPercent { get; set; }
     }
 
     /** ===================== PUBLIC VARIABLES ===================== **/
@@ -144,7 +147,7 @@ public class DemandInvioceController {
         firstCoApplicant = !coapplicants.isEmpty() ? coapplicants[0] : null;
 
         /** ===================== GET LATEST COMPLETED MILESTONE ===================== **/
-        List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,Type__c,
+        List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,Type__c,Tds__c,Interest_Percent__c,
                                                   Last_Payment_Schedule__c, AmountB__c, Pending_Amount__c, PaymentDueDate__c,Default_Due_Date_in_days__c
                                                   FROM Payment_Schedule__c WHERE Status__c = 'Completed' 
                                                   AND Booking__c = :booking.Id ORDER BY S_No__c DESC];
@@ -157,6 +160,9 @@ public class DemandInvioceController {
         }
 
         Payment_Schedule__c psRecord = psRecordList[0];
+        bookingInfo.tdsPercent = psRecord.Tds__c/100;
+        bookingInfo.interstPercent = psRecord.Interest_Percent__c;
+        
         currentCompletedStage = psRecord.Name;
         if(psRecord.PaymentDueDate__c != null)
         {

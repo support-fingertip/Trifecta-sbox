@@ -9,21 +9,11 @@
                         <valueListItems>
                             <value>Booking__c.Update_Stage_Executive</value>
                             <visibilityRule>
-                                <booleanFilter>((1 AND 2 AND 3 ) OR 4 )AND 5</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Stage_Status__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Completed</rightValue>
-                                </criteria>
+                                <booleanFilter>(1 OR 2 OR 4) And 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>NE</operator>
-                                    <rightValue>CRM Executive</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Move_to_Next_Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
+                                    <rightValue>CRM Manager</rightValue>
                                 </criteria>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
@@ -35,12 +25,17 @@
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>CRM Head</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Welcome_Mail</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -55,6 +50,11 @@
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Sales</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -87,7 +87,7 @@
                         <valueListItems>
                             <value>Booking__c.Booking_Form</value>
                             <visibilityRule>
-                                <booleanFilter>(1 OR 2 )AND 3</booleanFilter>
+                                <booleanFilter>(1 OR 2 ) AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -103,12 +103,17 @@
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Push_To_CRM__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Land_Booking_Form</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -118,13 +123,18 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Push_To_CRM__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Construction_Booking_Form</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Project_Type__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -134,6 +144,11 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Push_To_CRM__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -177,7 +192,7 @@
                         <valueListItems>
                             <value>Booking__c.Raise_Demand</value>
                             <visibilityRule>
-                                <booleanFilter>1 OR 2</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -187,6 +202,11 @@
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Demands &amp; Progressive Collections</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Pending_Amount__c}</leftValue>
+                                    <operator>GT</operator>
+                                    <rightValue>5</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -273,6 +293,27 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Booking__c.Request_Booking_Cancellation</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Cancellation</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>CRM Executive</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
@@ -305,22 +346,6 @@
                                     <leftValue>{!Record.Agreement_Status__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>Executed &amp; Registered</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Booking__c.Request_Booking_Cancellation</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Stage__c}</leftValue>
-                                    <operator>NE</operator>
-                                    <rightValue>Cancellation</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -1631,18 +1656,28 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Unit_Readiness_Date_Time__c</fieldItem>
-                <identifier>RecordUnit_Readiness_Date_Time_cField</identifier>
+                <fieldItem>Record.Unit_Readiness_Mail_Sent__c</fieldItem>
+                <identifier>RecordUnit_Readiness_Mail_Sent_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Possession_Date__c</fieldItem>
-                <identifier>RecordPossession_Date_cField</identifier>
+                <fieldItem>Record.Possession_Certificate_Uploaded__c</fieldItem>
+                <identifier>RecordPossession_Certificate_Uploaded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Key_Handover_Letter_Uploaded__c</fieldItem>
+                <identifier>RecordKey_Handover_Letter_Uploaded_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-4b05d644-7518-4eb0-bb43-3356dd0a3a5d</name>
@@ -1655,18 +1690,28 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Unit_Readiness_Mail_Sent__c</fieldItem>
-                <identifier>RecordUnit_Readiness_Mail_Sent_cField</identifier>
+                <fieldItem>Record.Unit_Readiness_Date_Time__c</fieldItem>
+                <identifier>RecordUnit_Readiness_Date_Time_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Possession_Certificate_Uploaded__c</fieldItem>
-                <identifier>RecordPossession_Certificate_Uploaded_cField</identifier>
+                <fieldItem>Record.Possession_Date__c</fieldItem>
+                <identifier>RecordPossession_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Key_Handover_Letter_Uploaded_Date__c</fieldItem>
+                <identifier>RecordKey_Handover_Letter_Uploaded_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-f63cd1c1-e667-47df-8aa2-7ab3e7f571d4</name>

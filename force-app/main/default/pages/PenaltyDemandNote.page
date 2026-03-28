@@ -217,10 +217,10 @@
                         <th>Milestone Demand Note</th>
                         <th>Due Date</th>
                         <th>Pending Dues excluding TDS Carried Forward</th>
-                        <th>Pending Payment TDS @ 1%</th>
+                        <th>Pending Payment TDS</th>
                         <th>Current Milestone Excluding the TDS</th>
-                        <th>Current TDS @ 1%</th>
-                        <th>Interest 12%</th>
+                        <th>Current TDS @ {!bookingInfo.tdsPercent}%</th>
+                        <th>Interest {!bookingInfo.interstPercent}%</th>
                         <th>Total Milestone Amount payable</th>
                     </tr>
                 </thead>
