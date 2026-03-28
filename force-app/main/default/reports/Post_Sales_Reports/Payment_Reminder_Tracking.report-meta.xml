@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Booking__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Demand_Name__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Amount_Demanded__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Pending_Dues_excluding_TDS__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Due_Date__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.X1st_Reminder_Date__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.X2nd_Reminder_Date__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Pre_Termination_Mail_Date__c</field>
+    </columns>
+    <columns>
+        <field>Demand_Raised__c.Termination_Mail_Date__c</field>
+    </columns>
+    <description>Track demands with pending dues and their reminder/termination mail dates</description>
+    <filter>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <criteriaItems>
+            <column>Demand_Raised__c.Demand_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Demand Raised</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Demand_Raised__c.Pending_Dues_excluding_TDS__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>greaterThan</operator>
+            <value>0</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>Payment Reminder Tracking</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Demand_Raised__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

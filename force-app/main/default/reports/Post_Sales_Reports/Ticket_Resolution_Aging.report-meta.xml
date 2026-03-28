@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Booking__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Project__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Unit__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Category__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Priority__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Status__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Raised_date__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Expected_Resolution_Date__c</field>
+    </columns>
+    <columns>
+        <field>Ticket__c.Resolution_Remarks__c</field>
+    </columns>
+    <description>Open or in-progress tickets past their expected resolution date</description>
+    <filter>
+        <booleanFilter>1 AND (2 OR 3)</booleanFilter>
+        <criteriaItems>
+            <column>Ticket__c.Expected_Resolution_Date__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>lessThan</operator>
+            <value>TODAY</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Ticket__c.Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Open</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Ticket__c.Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>In progress</value>
+        </criteriaItems>
+    </filter>
+    <format>TABULAR</format>
+    <name>Ticket Resolution Aging</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Ticket__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

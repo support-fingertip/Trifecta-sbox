@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Demand_Raised__c.Amount_Demanded__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Demand_Raised__c.Total_Amount_Paid__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Demand_Raised__c.Pending_Dues_excluding_TDS__c</field>
+    </columns>
+    <description>Total pending collections by project for dashboard metric</description>
+    <filter>
+        <criteriaItems>
+            <column>Demand_Raised__c.Demand_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Demand Raised</value>
+        </criteriaItems>
+    </filter>
+    <format>SUMMARY</format>
+    <groupingsDown>
+        <dateGranularity>DAY</dateGranularity>
+        <field>Demand_Raised__c.Project__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>DB Pending Collections</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Demand_Raised__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>CREATED_DATE</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
