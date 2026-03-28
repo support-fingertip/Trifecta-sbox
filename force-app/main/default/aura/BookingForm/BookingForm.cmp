@@ -38,23 +38,6 @@
         </footer>
         </aura:if>
     </section>
-    <aura:if isTrue="{!v.isPopup}">
-      
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-  
-                    <h2 id="modal-heading-01" class="slds-text-heading_medium">Confirmation</h2>
-                </header>
-                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                    Are you sure? you want to send the email?
-                </div>
-                <footer class="slds-modal__footer">
-                    <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">Cancel</button>
-                    <button class="slds-button slds-button_brand" onclick="{!c.send}">Send Email</button>
-                </footer>
-            </div>
-        </section>
-    </aura:if>
+
    
 </aura:component>

@@ -5,5 +5,5 @@
     <errorConditionFormula>(ISCHANGED(Stage__c)
 &amp;&amp; TEXT(Stage__c) = &apos;Demands &amp; Progressive Collections&apos;
 &amp;&amp; Signed_Agreement_Uploaded__c = false)</errorConditionFormula>
-    <errorMessage>Signed Agreement is not uploaded. Please upload the Signed Document to mark the Stage as &quot;Demands &amp; Progressive Collections&quot;.</errorMessage>
+    <errorMessage>Signed Agreement is not uploaded. Please upload the Signed Document to mark the Stage as Demands &amp; Progressive Collections.</errorMessage>
 </ValidationRule>

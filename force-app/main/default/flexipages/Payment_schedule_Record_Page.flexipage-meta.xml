@@ -237,8 +237,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Due_Date_Extension__c</fieldItem>
-                <identifier>RecordDue_Date_Extension_cField</identifier>
+                <fieldItem>Record.PaymentDueDate__c</fieldItem>
+                <identifier>RecordPaymentDueDate_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-a4bc5fd8-8c1e-4037-8afd-fab5889221b8</name>
@@ -253,16 +253,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Is_Demanded__c</fieldItem>
                 <identifier>RecordIs_Demanded_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.PaymentDueDate__c</fieldItem>
-                <identifier>RecordPaymentDueDate_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-924b9110-bd40-4239-b043-aa948a08e589</name>
@@ -307,7 +297,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Interest_Percent__c</fieldItem>
                 <identifier>RecordInterest_Percent_cField</identifier>

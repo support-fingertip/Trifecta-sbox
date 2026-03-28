@@ -7,7 +7,7 @@
         }
         component.set('v.showPdf',true);
     },
-    send: function(component,event,helper){
+    sendEmail: function(component,event,helper){
         var action = component.get("c.sendEmailtoCustomer");
         action.setParams({"recId":component.get("v.recordId"),
                           "projectType": component.get("v.projectType")});
@@ -47,10 +47,6 @@
     },
     close : function(component, event, helper) {
         $A.get("e.force:closeQuickAction").fire();
-    },
-    sendEmail : function(component, event, helper) {
-        
-        component.set("v.isPopup", true);
     },
     closeModal : function(component, event, helper) {
         // Close the confirmation modal

@@ -40,10 +40,7 @@
                 book.Plot_Land_Cost__c =  qt.Land_Cost__c; 
                 book.Extra_Land_Amount__c =  qt.Extra_Land_Amount__c;
                 
-                /*book.Aadhaar_Uploaded__c = true;
-                book.PAN_Uploaded__c = true;
-                book.Applicant_Photo_Uploaded__c = true; 
-                book.Proof_of_Address_Uploaded__c = true; */
+             
                 component.set('v.grandTotal', qt.Grand_Total_Amount__c);
 
                 component.set('v.book',book);
@@ -89,6 +86,13 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.fileName", fileName);
+        var book = component.get("v.book");
+        book.Aadhaar_Uploaded__c = true;
+        component.set('v.book',book);
+        
+   
+
+        
         
     },
     handleFilesChange2ndPhoto: function(component, event, helper) {
@@ -97,6 +101,9 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file2ndName", fileName);
+        var book = component.get("v.book");
+        book.Pan_Uploaded__c = true;
+        component.set('v.book',book);
         
     },
     handleFilesChange3rdPhoto: function(component, event, helper) {
@@ -106,6 +113,10 @@
         }
         component.set("v.file3rdName", fileName);
         
+        var book = component.get("v.book");
+        book.Applicant_Photo_Uploaded__c = true;
+        component.set('v.book',book);
+        
     },
     handleFilesChange4thPhoto: function(component, event, helper) {
         var fileName = 'Upload Proof of Address..';
@@ -113,6 +124,11 @@
             fileName = event.getSource().get("v.files")[0]['name'];
         }
         component.set("v.file4thName", fileName);
+        
+        
+        var book = component.get("v.book");
+        book.Proof_of_Address_Uploaded__c = true;
+        component.set('v.book',book);
         
     },
     

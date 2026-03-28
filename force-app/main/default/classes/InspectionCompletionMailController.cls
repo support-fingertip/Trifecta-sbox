@@ -104,6 +104,9 @@ public class InspectionCompletionMailController {
         List<Messaging.SendEmailResult> results = Messaging.sendEmail(
             new Messaging.SingleEmailMessage[] { mail }
         );
+        ins.Snags_Completion_Email_Sent_Date__c = system.today();
+        ins.Snags_Completion_Email_Sent__c = true;
+        update ins;
         System.debug('Inspection Email Results: ' + results);
     }
 }

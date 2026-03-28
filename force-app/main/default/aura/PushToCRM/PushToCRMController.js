@@ -16,16 +16,26 @@
             component.set("v.isButtonDisabled", true);
             var state = response.getState();
             if (state === 'SUCCESS') {
-                helper.showToast("Success", "Booking has been Submitted for Approval", "Success");
-                
-                var recordId = response.getReturnValue();
-                var navEvt = $A.get("e.force:navigateToSObject");
-                navEvt.setParams({
-                    "recordId": recordId,
-                    "slideDevName": "detail"
-                });
-                navEvt.fire();
-                $A.get('e.force:refreshView').fire();
+                component.set("v.isButtonDisabled", false);
+                var returnVal = response.getReturnValue();
+                if(returnVal == 'BookingFormNotSent')
+                {
+                    helper.showToast("Error", "Please send the booking form to the customer before pushing it to CRM.", "Error");
+                }
+                else
+                {
+                    helper.showToast("Success", "Booking has been Submitted for Approval", "Success");
+                    
+                    
+                    var navEvt = $A.get("e.force:navigateToSObject");
+                    navEvt.setParams({
+                        "recordId": returnVal,
+                        "slideDevName": "detail"
+                    });
+                    navEvt.fire();
+                    $A.get('e.force:refreshView').fire();
+                }
+           
             }
         });
         $A.enqueueAction(action);
