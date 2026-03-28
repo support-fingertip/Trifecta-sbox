@@ -7,17 +7,18 @@
         <field>Receipt__c.Receipt_No__c</field>
     </columns>
     <columns>
+        <field>Receipt__c.Project_Block_Name__c</field>
+    </columns>
+    <columns>
         <field>Receipt__c.Booking__c</field>
     </columns>
     <columns>
         <field>Receipt__c.Receipt_Date__c</field>
     </columns>
     <columns>
-        <aggregateTypes>Sum</aggregateTypes>
         <field>Receipt__c.Amount_Received__c</field>
     </columns>
     <columns>
-        <aggregateTypes>Sum</aggregateTypes>
         <field>Receipt__c.Total_Received_Amount__c</field>
     </columns>
     <columns>
@@ -26,13 +27,8 @@
     <columns>
         <field>Receipt__c.Approval_status__c</field>
     </columns>
-    <description>Receipt collections grouped by project block</description>
-    <format>SUMMARY</format>
-    <groupingsDown>
-        <dateGranularity>DAY</dateGranularity>
-        <field>Receipt__c.Project_Block_Name__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
+    <description>Receipt collections by project block</description>
+    <format>TABULAR</format>
     <name>Receipt Collection By Project</name>
     <params>
         <name>co</name>
@@ -41,5 +37,4 @@
     <reportType>CustomEntity$Receipt__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-
 </Report>
