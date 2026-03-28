@@ -8,9 +8,6 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Agreement_Value__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Revenue by project for bar chart dashboard component</description>
     <format>SUMMARY</format>
     <groupingsDown>

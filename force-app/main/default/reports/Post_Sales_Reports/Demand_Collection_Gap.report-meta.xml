@@ -36,9 +36,6 @@
     <columns>
         <field>Demand_Raised__c.Demanded_Date__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Demanded vs collected amounts with pending dues per project</description>
     <filter>
         <criteriaItems>

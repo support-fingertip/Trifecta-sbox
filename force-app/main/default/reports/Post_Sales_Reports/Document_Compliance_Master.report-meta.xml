@@ -63,9 +63,6 @@
     <columns>
         <field>Booking__c.Cancellation_Agreement_Uploaded__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Complete document upload tracker across all stages - all document checkboxes</description>
     <format>TABULAR</format>
     <name>Document Compliance Master</name>

@@ -39,10 +39,7 @@
         <field>Booking__c.Signed_Agreement_Uploaded__c</field>
     </columns>
     <columns>
-        <field>Booking__c.Agreement_CRM_Executive__c</field>
-    </columns>
-    <columns>
-        <field>CREATED_DATE</field>
+        <field>Booking__c.CRM_executive__c</field>
     </columns>
     <description>Agreement pipeline grouped by status for bookings in Agreement stage</description>
     <filter>

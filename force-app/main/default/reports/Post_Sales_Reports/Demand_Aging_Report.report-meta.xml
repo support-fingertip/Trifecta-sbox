@@ -43,9 +43,6 @@
     <columns>
         <field>Demand_Raised__c.Termination_Mail_Date__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Overdue demands with reminder tracking grouped by project</description>
     <filter>
         <criteriaItems>

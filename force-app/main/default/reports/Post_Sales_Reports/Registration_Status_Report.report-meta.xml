@@ -34,13 +34,10 @@
         <field>Booking__c.Registration_Number__c</field>
     </columns>
     <columns>
-        <field>Booking__c.Registration_CRM_Executive__c</field>
+        <field>Booking__c.CRM_executive__c</field>
     </columns>
     <columns>
         <field>Booking__c.All_Payment_Clear__c</field>
-    </columns>
-    <columns>
-        <field>CREATED_DATE</field>
     </columns>
     <description>Track NOC, Sale Deed, and Registration progress grouped by project</description>
     <filter>

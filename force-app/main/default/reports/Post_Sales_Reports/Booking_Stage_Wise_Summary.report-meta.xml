@@ -26,9 +26,6 @@
     <columns>
         <field>Booking__c.CRM_executive__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Booking count and amount summary grouped by project and stage</description>
     <format>SUMMARY</format>
     <groupingsDown>

@@ -7,9 +7,6 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Booking__c.Total_Amount__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Booking count per stage for funnel chart visualization</description>
     <format>SUMMARY</format>
     <groupingsDown>
