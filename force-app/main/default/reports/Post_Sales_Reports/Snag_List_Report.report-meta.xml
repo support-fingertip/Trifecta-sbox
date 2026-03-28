@@ -7,6 +7,12 @@
         <field>Snag_List__c.Inspection__c</field>
     </columns>
     <columns>
+        <field>Snag_List__c.Status__c</field>
+    </columns>
+    <columns>
+        <field>Snag_List__c.Category__c</field>
+    </columns>
+    <columns>
         <field>Snag_List__c.Description__c</field>
     </columns>
     <columns>
@@ -21,18 +27,8 @@
     <columns>
         <field>Snag_List__c.Inspection_Type__c</field>
     </columns>
-    <description>Snags grouped by status and category for tracking resolution</description>
-    <format>SUMMARY</format>
-    <groupingsDown>
-        <dateGranularity>DAY</dateGranularity>
-        <field>Snag_List__c.Status__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
-    <groupingsDown>
-        <dateGranularity>DAY</dateGranularity>
-        <field>Snag_List__c.Category__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
+    <description>Snag list with status and category for tracking resolution</description>
+    <format>TABULAR</format>
     <name>Snag List Report</name>
     <params>
         <name>co</name>
@@ -41,5 +37,4 @@
     <reportType>CustomEntity$Snag_List__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-
 </Report>

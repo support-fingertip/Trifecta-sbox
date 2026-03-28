@@ -32,7 +32,6 @@
     </columns>
     <description>Track demands with pending dues and their reminder/termination mail dates</description>
     <filter>
-        <booleanFilter>1 AND 2</booleanFilter>
         <criteriaItems>
             <column>Demand_Raised__c.Demand_Status__c</column>
             <columnToColumn>false</columnToColumn>
@@ -57,5 +56,4 @@
     <reportType>CustomEntity$Demand_Raised__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-
 </Report>
