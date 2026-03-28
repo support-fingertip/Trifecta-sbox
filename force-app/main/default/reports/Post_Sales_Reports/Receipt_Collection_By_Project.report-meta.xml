@@ -26,9 +26,6 @@
     <columns>
         <field>Receipt__c.Approval_status__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Receipt collections grouped by project block</description>
     <format>SUMMARY</format>
     <groupingsDown>

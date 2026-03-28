@@ -29,9 +29,6 @@
     <columns>
         <field>Payment_schedule__c.Interest_Percent__c</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Interest amounts across payment schedules grouped by project and booking</description>
     <filter>
         <criteriaItems>

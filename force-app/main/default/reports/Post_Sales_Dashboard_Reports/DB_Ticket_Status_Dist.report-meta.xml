@@ -3,9 +3,6 @@
     <columns>
         <field>CUST_NAME</field>
     </columns>
-    <columns>
-        <field>CREATED_DATE</field>
-    </columns>
     <description>Ticket status distribution for pie chart dashboard component</description>
     <format>SUMMARY</format>
     <groupingsDown>
