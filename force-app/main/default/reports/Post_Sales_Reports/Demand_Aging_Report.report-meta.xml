@@ -7,9 +7,6 @@
         <field>Demand_Raised__c.Booking__c</field>
     </columns>
     <columns>
-        <field>Demand_Raised__c.Project__c</field>
-    </columns>
-    <columns>
         <field>Demand_Raised__c.Demand_Name__c</field>
     </columns>
     <columns>
@@ -31,18 +28,9 @@
         <field>Demand_Raised__c.Payment_Due_Date__c</field>
     </columns>
     <columns>
-        <field>Demand_Raised__c.X1st_Reminder_Date__c</field>
+        <field>Demand_Raised__c.Demand_Status__c</field>
     </columns>
-    <columns>
-        <field>Demand_Raised__c.X2nd_Reminder_Date__c</field>
-    </columns>
-    <columns>
-        <field>Demand_Raised__c.Pre_Termination_Mail_Date__c</field>
-    </columns>
-    <columns>
-        <field>Demand_Raised__c.Termination_Mail_Date__c</field>
-    </columns>
-    <description>Overdue demands with reminder tracking</description>
+    <description>Demands with aging - due date and pending dues tracking</description>
     <filter>
         <criteriaItems>
             <column>Demand_Raised__c.Demand_Status__c</column>

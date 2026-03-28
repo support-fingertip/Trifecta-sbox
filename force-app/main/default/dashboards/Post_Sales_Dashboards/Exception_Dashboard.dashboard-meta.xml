@@ -52,8 +52,8 @@
             <autoselectColumnsFromReport>true</autoselectColumnsFromReport>
             <componentType>Table</componentType>
             <displayUnits>Auto</displayUnits>
-            <header>Open Snags</header>
-            <report>Post_Sales_Reports/Snag_List_Report</report>
+            <header>Demand Aging</header>
+            <report>Post_Sales_Reports/Demand_Aging_Report</report>
         </components>
     </rightSection>
     <textColor>#000000</textColor>

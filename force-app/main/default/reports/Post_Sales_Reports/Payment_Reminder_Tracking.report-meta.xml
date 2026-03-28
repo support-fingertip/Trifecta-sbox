@@ -19,18 +19,12 @@
         <field>Demand_Raised__c.Due_Date__c</field>
     </columns>
     <columns>
-        <field>Demand_Raised__c.X1st_Reminder_Date__c</field>
+        <field>Demand_Raised__c.Payment_Due_Date__c</field>
     </columns>
     <columns>
-        <field>Demand_Raised__c.X2nd_Reminder_Date__c</field>
+        <field>Demand_Raised__c.Demand_Status__c</field>
     </columns>
-    <columns>
-        <field>Demand_Raised__c.Pre_Termination_Mail_Date__c</field>
-    </columns>
-    <columns>
-        <field>Demand_Raised__c.Termination_Mail_Date__c</field>
-    </columns>
-    <description>Track demands with pending dues and their reminder/termination mail dates</description>
+    <description>Demands with pending dues for payment reminder tracking</description>
     <filter>
         <criteriaItems>
             <column>Demand_Raised__c.Demand_Status__c</column>
@@ -38,13 +32,6 @@
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Demand Raised</value>
-        </criteriaItems>
-        <criteriaItems>
-            <column>Demand_Raised__c.Pending_Dues_excluding_TDS__c</column>
-            <columnToColumn>false</columnToColumn>
-            <isUnlocked>true</isUnlocked>
-            <operator>greaterThan</operator>
-            <value>0</value>
         </criteriaItems>
     </filter>
     <format>TABULAR</format>
