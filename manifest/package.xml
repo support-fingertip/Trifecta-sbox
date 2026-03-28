@@ -78,6 +78,10 @@
     </types>
     <types>
         <members>*</members>
+        <name>DashboardFolder</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>CustomField</name>
     </types>
     <types>
