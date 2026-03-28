@@ -48,8 +48,5 @@
     <reportType>CustomEntity$Inspection__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-    <timeFrameFilter>
-        <dateColumn>Inspection__c.CreatedDate</dateColumn>
-        <interval>INTERVAL_CUSTOM</interval>
-    </timeFrameFilter>
+
 </Report>

@@ -51,8 +51,5 @@
     <reportType>CustomEntity$Ticket__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-    <timeFrameFilter>
-        <dateColumn>Ticket__c.CreatedDate</dateColumn>
-        <interval>INTERVAL_CUSTOM</interval>
-    </timeFrameFilter>
+
 </Report>
