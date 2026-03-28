@@ -36,8 +36,5 @@
     <reportType>CustomEntity$Demand_Raised__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-    <timeFrameFilter>
-        <dateColumn>Demand_Raised__c.CreatedDate</dateColumn>
-        <interval>INTERVAL_CUSTOM</interval>
-    </timeFrameFilter>
+
 </Report>

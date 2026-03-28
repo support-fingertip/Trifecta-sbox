@@ -41,8 +41,5 @@
     <reportType>CustomEntity$Receipt__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-    <timeFrameFilter>
-        <dateColumn>Receipt__c.CreatedDate</dateColumn>
-        <interval>INTERVAL_CUSTOM</interval>
-    </timeFrameFilter>
+
 </Report>
