@@ -118,26 +118,7 @@ public class InspectionTriggerHandler {
                 System.debug(openCount);
                 
                 if (openCount == 0) {
-                    System.debug('j');
                     
-                    // ── Email ────────────────────────────────────────────────────
-                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-                    email.toAddresses   = new String[]{ ins.Customer_Email__c };
-                        email.subject       = 'Inspection Completed – All Issues Resolved';
-                   String customerName = ins.Customer_Name__c;
-                    email.plainTextBody =
-                        'Dear '+customerName +',\n\n' +
-                        'We are pleased to inform you that the inspection of your property has been successfully completed.\n\n' +
-                        'All the issues (snags) that were reported have been carefully reviewed and resolved.\n\n' +
-                        'If you have any further concerns or require additional assistance, please feel free to reach out to us.\n\n' +
-                        'Thank you for your time and cooperation.\n\n' +
-                        'Warm Regards,\n' +
-                        'CRM Team,\n'+
-                        'Trifecta Projects Pvt Ltd';
-
-                    email.setSaveAsActivity(true);
-                    email.setWhatId(ins.Id);
-                    emails.add(email);
                     
                     // ── Bell Notification to Booking Owner ───────────────────────
                     if (inspectionToBooking.containsKey(ins.Id)) {

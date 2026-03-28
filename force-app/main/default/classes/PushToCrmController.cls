@@ -3,8 +3,13 @@ public class PushToCrmController {
     public static String moveToCRM(String bookingId,string comments){
         try {
             
-            Booking__c bk = [SELECT Id, Name,CRM_Manager__c, Push_To_CRM__c,OwnerId, Status__c,
+            Booking__c bk = [SELECT Id, Name,CRM_Manager__c, Push_To_CRM__c,OwnerId, Status__c,Booking_Form_Sent__c,
                              Assigned_by__c, Project__c,Quote__r.OwnerId FROM Booking__c WHERE Id = :bookingId];
+            if(bk.Booking_Form_Sent__c == false)
+            {
+                Return 'BookingFormNotSent';
+            }
+            
             
             if(bk != null && bk.Project__c != null) {
    				bk.Push_to_CRM_Comments__c = comments;

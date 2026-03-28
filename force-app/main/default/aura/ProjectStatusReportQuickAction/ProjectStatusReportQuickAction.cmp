@@ -126,9 +126,7 @@
                                                 </div>
                                             </div>   
                                         </article>
-                                        <div class="slds-p-around_xx-small slds-float_right slds-clear">
-                                            <lightning:button label="Generate" iconName="utility:forward" iconPosition="right" variant="brand" onclick="{! c.handleGenerate }" />
-                                        </div>
+                                  
                                     </div>
                                     <div style="background-color:#FAFAFB" class="slds-welcome-mat__tiles slds-size_8-of-12 slds-welcome-mat__tiles_info-only slds-p-vertical_xx-small cust-ht">
                                         <aura:if isTrue="{!v.milestoneId}">
@@ -172,7 +170,7 @@
                 <div class="slds-modal__footer">
                     <button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick="{!c.handleClosePopup}">Cancel</button>
                     
-                    <lightning:button label="Send Email" variant="brand" onclick="{!c.handleSendProjectStatus}" />
+                    <lightning:button label="Send Email" variant="brand" disabled="{!OR(v.selectedMilestone == null,v.selectedMilestone == undefined)}" onclick="{!c.handleSendProjectStatus}" />
                 </div>
             </div>
         </section>

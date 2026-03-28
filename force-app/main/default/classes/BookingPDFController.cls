@@ -207,7 +207,7 @@ public class BookingPDFController {
             'We appreciate your trust in Trifecta Projects and look forward to welcoming you.<br/><br/>' +
             'Warm Regards,<br/>' +
             '<b>Team Trifecta</b><br/>' +
-            '🌐 <a href="https://www.trifectaprojects.com">www.trifectaprojects.com</a>'
+            ' <a href="https://www.trifectaprojects.com">www.trifectaprojects.com</a>'
         );
         
         semail.setFileAttachments(new Messaging.EmailFileAttachment[]{attach});
@@ -216,6 +216,8 @@ public class BookingPDFController {
             try{
                // if (!Test.isRunningTest()) {
                 Messaging.sendEmail(new Messaging.SingleEmailMessage[]{semail});
+                bk.Booking_Form_Sent__c = true;
+                update bk;
                // }
                 system.debug(semail);
                 

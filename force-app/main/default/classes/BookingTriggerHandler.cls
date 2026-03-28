@@ -143,23 +143,23 @@ public class BookingTriggerHandler {
     }
     
     /**
-* Method Name  : afterUpdate
-* Description  : Executes after Booking__c records are updated.
-*
-* Functionality:
-* 1. Detects change in OwnerId of Booking.
-* 2. Sends a Custom Notification to the newly assigned owner.
-*
-* Notification Contains:
-* - Booking Name
-* - Stage
-* - Customer Name
-* - Action message for next steps
-*
-* Parameters:
-* @param newBookingList - List of updated Booking__c records
-* @param oldBookingMap  - Map of old Booking__c records by Id
-*/
+    * Method Name  : afterUpdate
+    * Description  : Executes after Booking__c records are updated.
+    *
+    * Functionality:
+    * 1. Detects change in OwnerId of Booking.
+    * 2. Sends a Custom Notification to the newly assigned owner.
+    *
+    * Notification Contains:
+    * - Booking Name
+    * - Stage
+    * - Customer Name
+    * - Action message for next steps
+    *
+    * Parameters:
+    * @param newBookingList - List of updated Booking__c records
+    * @param oldBookingMap  - Map of old Booking__c records by Id
+    */
     public static void afterUpdate(List<Booking__c> newBookingList, Map<Id, Booking__c> oldBookingMap) {
         // ===== 1. SEND OWNER ASSIGNMENT NOTIFICATION =====
         String notificationTypeId = getNotificationTypeId();
@@ -220,17 +220,17 @@ public class BookingTriggerHandler {
         }
     }
     /**
-* Method Name  : syncChildOwner
-* Description  : Generic method to update owner of related child objects
-*                based on Booking owner change.
-*
-* Supported Objects:
-* - Payment_Schedule__c
-* - Co_Applicant__c
-*
-* Parameters:
-* @param bookingToOwnerMap - Map<BookingId, NewOwnerId>
-*/
+    * Method Name  : syncChildOwner
+    * Description  : Generic method to update owner of related child objects
+    *                based on Booking owner change.
+    *
+    * Supported Objects:
+    * - Payment_Schedule__c
+    * - Co_Applicant__c
+    *
+    * Parameters:
+    * @param bookingToOwnerMap - Map<BookingId, NewOwnerId>
+    */
     public static void syncChildOwner(Map<Id, Id> bookingToOwnerMap) {
         
         if (bookingToOwnerMap.isEmpty()) {
@@ -451,8 +451,9 @@ public class BookingTriggerHandler {
     }
     public static void updatePlotAvailability(Set<Id> unitSet)
     {
+        // Step 1: Update Plot status to Available
         List<Plot__c> plotList = [
-            SELECT Id, Status__c
+            SELECT Id, Name, Status__c, Project_Name__c, Project__c
             FROM Plot__c
             WHERE Id IN :unitSet
         ];
@@ -466,5 +467,79 @@ public class BookingTriggerHandler {
         {
             update plotList;
         }
+        
+        // Step 2: Collect all Project Ids from the plots
+        Set<String> projectIds = new Set<String>();
+        for(Plot__c p : plotList)
+        {
+            if(p.Project_Name__c != null)
+            {
+                projectIds.add(p.Project_Name__c);
+            }
+        }
+        
+        if(projectIds.isEmpty()) return;
+        
+        // Step 3: Query Round Robin for those projects
+        List<Round_Robin__c> RRqueList = [
+            SELECT Id, Project_Assigned__c, Project_Head__c,
+            (
+                SELECT Name, User__c
+                FROM Round_Robin_Members__r
+                WHERE Active__c = true
+                AND User__r.IsActive = true
+                AND User_Profile__c = 'Sales'
+            )
+            FROM Round_Robin__c
+            WHERE Project_Assigned__c IN :projectIds
+            AND Active__c = true
+        ];
+        
+        // Step 4: Build a Map of Project => List of RR Sales Users
+        Map<String, List<Round_Robin_Member__c>> projectToMembersMap = new Map<String, List<Round_Robin_Member__c>>();
+        for(Round_Robin__c rr : RRqueList)
+        {
+            if(rr.Round_Robin_Members__r.size() > 0)
+            {
+                projectToMembersMap.put(rr.Project_Assigned__c, rr.Round_Robin_Members__r);
+            }
+        }
+        
+        // Step 5: Get the Custom Notification Type
+        CustomNotificationType notifType = [
+            SELECT Id
+            FROM CustomNotificationType
+            WHERE DeveloperName = 'Plot_Availability_Notification'
+            LIMIT 1
+        ];
+        
+        // Step 6: Send notification per Plot → only to RR members of that project
+        for(Plot__c p : plotList)
+        {
+            List<Round_Robin_Member__c> members = projectToMembersMap.get(p.Project_Name__c);
+            
+            if(members == null || members.isEmpty()) continue;
+            
+            // Build recipient Set for this plot's project RR members
+            Set<String> recipientIds = new Set<String>();
+            for(Round_Robin_Member__c member : members)
+            {
+                if(member.User__c != null)
+                {
+                    recipientIds.add(member.User__c);
+                }
+            }
+            
+            if(recipientIds.isEmpty()) continue;
+            
+            Messaging.CustomNotification notification = new Messaging.CustomNotification();
+            notification.setNotificationTypeId(notifType.Id);
+            notification.setTargetId(p.Id);
+            notification.setTitle('Unit Now Available – ' + p.Project_Name__c);
+            notification.setBody('Unit "' + p.Name + '" in Project "' + p.Project_Name__c + '" has been marked as Available.');
+            notification.send(recipientIds);
+        }
     }
+    
+
 }

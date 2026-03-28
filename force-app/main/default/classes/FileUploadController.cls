@@ -101,6 +101,11 @@ public with sharing class FileUploadController {
                 bk.Possession_Certificate_Uploaded__c = true;
                 bk.Possession_Date__c = Date.today();
             }
+            else if(mainDocName == 'Key Handover Letter')
+            {
+                bk.Key_Handover_Letter_Uploaded__c = true;
+                bk.Key_Handover_Letter_Uploaded_Date__c = Date.today();
+            }
             else if(mainDocName == 'Commencement Certificate')
             {
                 bk.Commencement_Certificate_Uploaded__c = true;

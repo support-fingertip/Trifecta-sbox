@@ -1939,6 +1939,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Key_Handover_Letter_Uploaded_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Key_Handover_Letter_Uploaded__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Khata_Document_Uploaded__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -3790,6 +3800,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Inspection__c.Priority__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Inspection__c.Snags_Completion_Email_Sent_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Inspection__c.Snags_Completion_Email_Sent__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5939,6 +5959,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Tds__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Tentative_TimeLine__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -7820,6 +7845,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Receipt__c.Project_Block_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt__c.Receipt_Amount_Without_Tds__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

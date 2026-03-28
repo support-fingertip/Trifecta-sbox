@@ -3,8 +3,7 @@
     <folderShares>
         <accessLevel>Manage</accessLevel>
         <sharedTo>AllInternalUsers</sharedTo>
-        <sharedToType>Group</sharedToType>
+        <sharedToType>Organization</sharedToType>
     </folderShares>
     <name>Refund Reports</name>
 </ReportFolder>
-
