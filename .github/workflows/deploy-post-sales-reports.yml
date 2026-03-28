@@ -2,13 +2,6 @@ name: Deploy Post-Sales Reports & Dashboards
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - Durga_Prasad_Trifecta
-    paths:
-      - 'force-app/main/default/reports/Post_Sales_Reports/**'
-      - 'force-app/main/default/reports/Post_Sales_Dashboard_Reports/**'
-      - 'force-app/main/default/dashboards/Post_Sales_Dashboards/**'
 
 jobs:
   deploy:
