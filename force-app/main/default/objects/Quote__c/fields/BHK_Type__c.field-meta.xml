@@ -41,6 +41,26 @@
                 <default>false</default>
                 <label>2.5 BHK</label>
             </value>
+            <value>
+                <fullName>3BHK-2TOILET</fullName>
+                <default>false</default>
+                <label>3BHK-2TOILET</label>
+            </value>
+            <value>
+                <fullName>3BHK-3TOILET</fullName>
+                <default>false</default>
+                <label>3BHK-3TOILET</label>
+            </value>
+            <value>
+                <fullName>2BHK-2TOILET</fullName>
+                <default>false</default>
+                <label>2BHK-2TOILET</label>
+            </value>
+            <value>
+                <fullName>3BHK-2TOILET(COMPACT)</fullName>
+                <default>false</default>
+                <label>3BHK-2TOILET(COMPACT)</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

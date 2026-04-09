@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Bescom_Charges__c</fullName>
     <externalId>false</externalId>
-    <formula>Quote__r.Bescom_Charges__c</formula>
+    <formula>Bescom_per_Sq_ft__c * Super_Built_UpArea__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Bescom Charges</label>
     <precision>18</precision>

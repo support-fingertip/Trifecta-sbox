@@ -231,13 +231,17 @@
                                 <td class="center"><apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!item.Receipt_Date__c}"/></apex:outputText></td> 
                                 <td class="center">{!item.Cheque_no_Transaction_Number__c}</td>
                                 <td class="center">{!item.Bank_Name__c}</td>
-                                <td  class="right">{!item.Received_Amount__c}</td>
+                                <td class="right">
+                                    <apex:outputText value="{0,number,#,##,##0.00}">
+                                        <apex:param value="{!item.Received_Amount__c}" />
+                                    </apex:outputText>
+                                </td>
                             </tr>
                         </apex:repeat>
 
                         <tr class="total-row">
                             <td colspan="5" class="right">Total</td>
-                            <td class="right">{!totalReceivedAmount}</td>
+                            <td class="right">{!totalAmountFormatted}</td>
                         </tr>
                         
                         <tr class="total-row">

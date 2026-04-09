@@ -108,11 +108,14 @@ public without sharing class BookingController {
         
         
         Quote__c qt = [SELECT Id,Name,SLead__c,SLead__r.Email,Approval_status__c,Quote_status__c,
-                       Maintenance_Charge__c,Corpus_Fund__c,Built_up_area__c,Payment_Type__c,
+                       Maintenance_Charge__c,Corpus_Fund__c,Built_up_area__c,Payment_Type__c,Carpet_Area__c,
                        Infrastructure_Charges_per_sqft__c,Project__c,Property_Type__c,Unit__c,
                        SLead__r.Secondary_Email__c,SLead__r.Name,Plot_Type__c,Plot_Land_Area__c,Block_Lookup__c,
                        Quote_date__c,Floor_Rise_Charges_Rate__c,Clubhouse_Charges__c,Unit__r.Status__c,
-                       Unit__r.Name, Legal_Documentation_Charges__c,Unit__r.Block_Lookup__r.CRM_Executive__c FROM Quote__c WHERE Id=:recId];
+                       Unit__r.Name,Unit__r.Block_Lookup__r.CRM_Executive__c,
+                       PLC_Amount__c,Bescom__c,Generator_Charges__c,amenities_charges__c,Floor_Rise_Charge__c,Car_Parking__c,
+                       Legal_Documentation_Charges__c,Extra_car_parking_charges__c,Need_Additional_Car_Parking__c,Extra_Land_Amount__c
+                       ,Land_Rate_Per_Sqft__c,GST__c,Grand_Total_Before_GST__c FROM Quote__c WHERE Id=:recId];
         Project__c pro = [select id,name,CRM_executive__c,Project_Type__c,Finance_User__c,Project_Sales_Head__c,CRM_Manager__c,
                           CRM_Head__c from Project__c where Project__c =: qt.Project__c];
         Block__c block = [select Id,CRM_Manager__c,CRM_Head__c,CRM_Executive__c from Block__c where Id =: qt.Block_Lookup__c];
@@ -137,7 +140,21 @@ public without sharing class BookingController {
             bk.RecordTypeId = recordTypeNameToId.get(qt.Property_Type__c);
             bk.Project_Sales_Head__c = pro.Project_Sales_Head__c;
             bk.Sales_User__c = UserInfo.getUserId();
+            bk.Carpet_Area__c = qt.Carpet_Area__c;
             
+            //Mapping Quote fields Booking
+            bk.PLC_Charges__c = qt.PLC_Amount__c;
+            bk.Bescom_per_Sq_ft__c = qt.Bescom__c;
+            bk.Generator_Per_Sq_Ft__c = qt.Generator_Charges__c;
+            bk.Amenity_Charges__c = qt.amenities_charges__c;
+            bk.Floor_Rise_Amount__c = qt.Floor_Rise_Charge__c;
+            bk.Car_Parking_Amount__c = qt.Car_Parking__c;
+            bk.Legal_Charge__c = qt.Legal_Documentation_Charges__c;
+            bk.Additional_Car_Parking_Amount__c = qt.Extra_car_parking_charges__c;
+            bk.Extra_Land_Amount__c = qt.Extra_Land_Amount__c;
+            bk.Land_Per_Sq_ft_Charge__c = qt.Land_Rate_Per_Sqft__c;
+            bk.GST_Percent__c =qt.GST__c;
+            bk.Grand_Total_Before_GST__c = qt.Grand_Total_Before_GST__c;
             //CRM Team
             if(block != null)
             {

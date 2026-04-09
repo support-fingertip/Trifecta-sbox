@@ -101,9 +101,7 @@
                     {!bookingInfo.companyAddress}
                 </div>
                 
-                <div class="receipt-title">
-                    PAYMENT RECEIPT
-                </div>
+
             </div>
             
             <!-- ================= CUSTOMER INFO ================= -->
@@ -168,8 +166,8 @@
             
             <div style="margin-top:20px;">
                 
-                <div style="text-align:center;font-weight:bold;">
-                   PAYMENT LEDGER STATEMENT
+                <div style="text-align:center;font-weight:bold;text-decoration:underline;">
+                    PAYMENT LEDGER STATEMENT
                 </div>
                 
                 
@@ -226,9 +224,7 @@
                             <td colspan="7" class="right">Total</td>
                             
                             <td colspan="1" class="right">
-                                <apex:outputText value="{0,number,###,##0.00}">
-                                    <apex:param value="{!totalAmount}"/>
-                                </apex:outputText>
+                                {!totalAmountFormatted}
                             </td>
                         </tr>
                     </tbody>
@@ -237,14 +233,11 @@
             </div>
             
             <!-- ================= FOOTER ================= -->
-            
             <div style="margin-top:20px;text-align:center;font-weight:bold;">
                 Total Amount Received &nbsp;    
-                <apex:outputText value="{0,number,###,##0.00}">
-                    <apex:param value="{!totalAmount}"/>
-                </apex:outputText>/- ( {!receiptAmountInWords})
+                {!totalAmountFormatted}/- ( {!receiptAmountInWords})
             </div>
-                            
+            
         </div>
     </body>
 </apex:page>

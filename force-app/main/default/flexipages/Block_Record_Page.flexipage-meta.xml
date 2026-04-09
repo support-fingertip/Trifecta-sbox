@@ -124,6 +124,16 @@
                 <identifier>RecordProject_Address_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Project_Name__c</fieldItem>
+                <identifier>RecordProject_Name_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-211edad7-b4c8-463c-b56d-d04a2fbb7520</name>
         <type>Facet</type>
     </flexiPageRegions>

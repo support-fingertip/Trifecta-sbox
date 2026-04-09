@@ -297,10 +297,6 @@
     <picklistValues>
         <picklist>Project__c</picklist>
         <values>
-            <fullName>Bloom 93</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>None</fullName>
             <default>false</default>
         </values>
@@ -310,6 +306,10 @@
         </values>
         <values>
             <fullName>Trifecta Vanto</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Trifecta Veranza</fullName>
             <default>false</default>
         </values>
         <values>

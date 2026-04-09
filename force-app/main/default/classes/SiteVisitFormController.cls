@@ -130,7 +130,7 @@ public without sharing class SiteVisitFormController {
     * @param selectedUser (Optional) User ID who attended the visit.
     */
     @AuraEnabled
-    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner) {
+    public static void createSv(String remark, Datetime svDate, String selectedProject, String leadId, String selectedRating,String sourcingMember, String channelPartner,String location) {
         
         System.debug('Input Params => Remark: ' + remark + ', SV Date: ' + svDate + ', Project: ' + selectedProject +
                      ',leadId: ' + leadId + ', selectedRating: ' + selectedRating);
@@ -219,6 +219,7 @@ public without sharing class SiteVisitFormController {
             }
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
+            visit.Location__c = location;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -241,6 +242,7 @@ public without sharing class SiteVisitFormController {
             visit.Status__c = 'Verified by GRE';
             visit.Comments__c = remark;
             visit.Project__c = selectedProject;
+            visit.Location__c = location;
             if(channelPartner != null && channelPartner != '')
             {
                 visit.Channel_Partner__c = channelPartner;
@@ -270,6 +272,7 @@ public without sharing class SiteVisitFormController {
             newVisit.Site_Visit_Type__c = visitType;
             newVisit.Project__c = selectedProject;
             newVisit.Comments__c = remark;
+            newVisit.Location__c = location;
             if(channelPartner != null && channelPartner != '')
             {
                 newVisit.Channel_Partner__c = channelPartner;

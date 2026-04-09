@@ -20,7 +20,7 @@ public without sharing class TrifectaCustomerBookingFormController {
         system.debug('recordId'+recordId);
         List<Booking__c> bookingList = [select Id,Name,Plot__c,Project_Type__c,Super_Built_UpArea__c,Email__c,
                                         Project1__r.Name,Project1__c,Plot__r.Name,BHK_Type__c,Plot__r.Floor__c,Unit_Number__c,	Rate_per_sqft__c,
-                                        PLC_Amount__c,Floor_Rise_Charge__c,Need_Additional_Car_Parking__c,
+                                        
                                         Additional_Car_Parking_Charges__c,Construction_Cost__c,Total_Land_Amount__c,Plot_Land_Area__c,
                                         Sub_Total__c,GST_Percentage__c,GST_Amount__c,Total_Amount__c,
                                         First_Applicant_Name__c,Occupation__c,Son_Daughter_Wife_of1__c, Email1__c,Mobile__c,PAN_Number__c,

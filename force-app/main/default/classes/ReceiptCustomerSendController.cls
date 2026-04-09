@@ -61,7 +61,7 @@ public with sharing class ReceiptCustomerSendController {
 
         Receipt__c receipt = [
             SELECT Id, Booking__c, Name, Receipt_Date__c, Total_Received_Amount__c,
-                   Amount_Received__c, Project_Block_Name__c
+                   Amount_Received__c, Project_Block_Name__c,Type__c
             FROM Receipt__c
             WHERE Id = :receiptId
             LIMIT 1
@@ -104,17 +104,18 @@ public with sharing class ReceiptCustomerSendController {
 
         Booking__c booking = [
             SELECT Id,
-                   Email__c,
-                   Email1__c,
-                   First_Applicant_Name__c,
-                   Owner.Email,
-                   Project__c,
-                   Block_Name__c,
-                   Unit_No__c,
-                   Owner_Phone_Number__c,
-                   Company_Name__c,
-                   Mobile__c,
-                   CRM_Executive_Contact_No__c
+            Email__c,
+            Email1__c,
+            First_Applicant_Name__c,
+            Owner.Email,
+            Project__c,
+            Block_Name__c,
+            Block_Id__c,
+            Unit_No__c,
+            Owner_Phone_Number__c,
+            Company_Name__c,
+            Mobile__c,
+            CRM_Executive_Contact_No__c
             FROM Booking__c
             WHERE Id = :receipt.Booking__c
             LIMIT 1
@@ -127,7 +128,22 @@ public with sharing class ReceiptCustomerSendController {
             AND Type__c = 'Payment Receipt'
             LIMIT 1
         ];
+        
+        Block__c block = [select Id,Name,Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c from Block__c where Id =:booking.Block_Id__c];
 
+        string companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if(receipt.Type__c =='Land')
+        {
+            companyName = block.Land_Company_Name__c;
+        }
+        else if(receipt.Type__c =='Construction')
+        {
+            companyName = block.Construction_Company_Name__c;
+        }
+        else if(receipt.Type__c =='Apartments' || receipt.Type__c =='Row House')
+        {
+            companyName = block.Company_Name__c;
+        }
         String template = '';
         String subject = 'Receipt for Your Payment';
 
@@ -141,7 +157,7 @@ public with sharing class ReceiptCustomerSendController {
         template = template.replace('##BLOCK_NAME##', booking.Block_Name__c != null ? String.valueOf(booking.Block_Name__c) : '');
         template = template.replace('##UNIT_NUMBER##', booking.Unit_No__c != null ? String.valueOf(booking.Unit_No__c) : '');
         template = template.replace('##CRM_PHONE##', booking.Owner_Phone_Number__c != null ? String.valueOf(booking.Owner_Phone_Number__c) : '');
-        template = template.replace('##COMAPANY_NAME##', booking.Company_Name__c != null ? String.valueOf(booking.Company_Name__c) : '');
+        template = template.replace('##COMAPANY_NAME##', companyName != null ? String.valueOf(companyName) : '');
 
         NumberTOWordConvertion conversion = new NumberTOWordConvertion();
         String amountInWords = totalAmount != null ? conversion.getNumberTOWordConvertion(totalAmount) : '';

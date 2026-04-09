@@ -445,7 +445,7 @@
                     <tr>
                         <td>Legal Charges:</td>
                         <td> <apex:outputText value="{0, number, ##,##,###}">
-                            <apex:param value="{!booking.Legal_Charges__c}" /> 
+                            <apex:param value="{!booking.Legal_Charge__c}" /> 
                             </apex:outputText> </td>
                         <td>GST:</td>
                         <td>  <apex:outputText value="{0, number, ##,##,###}">

@@ -638,6 +638,12 @@
                 <identifier>RecordSV_Type__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Sales_Category__c</fieldItem>
+                <identifier>RecordSales_Category__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-2a2fd991-1e9c-43ff-9771-a20339d8b4c2</name>
         <type>Facet</type>
     </flexiPageRegions>
