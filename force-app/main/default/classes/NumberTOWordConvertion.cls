@@ -22,15 +22,16 @@ public class NumberTOWordConvertion {
         }
 
         String result = '';
-
+        
         if (rupeesPart > 0) {
-            result += rupeesInWords;
+            result = 'Rupees ' + rupeesInWords;
         }
         
         if (paisePart > 0) {
-            result += (rupeesPart > 0 ? ' and ' : '') + paiseInWords + ' Paise';
+            result += (rupeesPart > 0 ? ' and ' : 'Rupees ') + paiseInWords + ' Paise';
         }
-		result += ' Rupees Only';
+        
+        result += ' Only';
         return result.trim();
     }
 

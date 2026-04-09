@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <formula>Project1__r.GST_on_Aggrement__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>GST</label>
+    <label>Not in Use</label>
     <precision>18</precision>
     <required>false</required>
     <scale>1</scale>

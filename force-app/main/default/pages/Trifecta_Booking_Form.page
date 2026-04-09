@@ -500,17 +500,17 @@
                 <tr>
                     <td>Car Parking</td>
                     <td> <apex:outputText value="{0, number, ##,##,###}">
-                            <apex:param value="{!booking.Car_Parking__c}" /> 
+                            <apex:param value="{!booking.Car_Parking_Amount__c}" /> 
                         </apex:outputText> </td>
                     <td>Legal Charges:</td>
                     <td> <apex:outputText value="{0, number, ##,##,###}">
-                            <apex:param value="{!booking.Legal_Charges__c}" /> 
+                            <apex:param value="{!booking.Legal_Charge__c}" /> 
                         </apex:outputText> </td>
                 </tr>
                 <tr>
                     <td>Amenities</td>
                     <td> <apex:outputText value="{0, number, ##,##,###}">
-                            <apex:param value="{!booking.Amenities__c}" /> 
+                            <apex:param value="{!booking.Amenity_Charges__c}" /> 
                         </apex:outputText> </td>
                     <td>GST:</td>
                     <td>  <apex:outputText value="{0, number, ##,##,###}">

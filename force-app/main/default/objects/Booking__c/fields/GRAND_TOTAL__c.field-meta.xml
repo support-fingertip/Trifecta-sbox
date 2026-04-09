@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <formula>Quote__r.GRAND_TOTAL__c /*Total_Cost_of_the_Flat__c + GST_5__c*/</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>GRAND TOTAL</label>
+    <label>Not in Use</label>
     <precision>18</precision>
     <required>false</required>
     <scale>0</scale>

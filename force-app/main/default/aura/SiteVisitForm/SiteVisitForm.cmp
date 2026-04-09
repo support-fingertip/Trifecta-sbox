@@ -28,7 +28,8 @@
     <aura:attribute name="selectedSource" type="String" />
     <aura:attribute name="selectedSubSource" type="String" />
     <aura:attribute name="SubSourceList" type="List" />
-  
+    <aura:attribute name="location" type="String" />
+    
     <aura:attribute name="isLoading" type="Boolean" default="false"/>
     <aura:attribute name="siteVisit" type="Site_Visit__c" default="{}"/>
     <aura:attribute name="siteVisitFormattedDate" type="String" default=""/>
@@ -332,13 +333,16 @@
                                     </div>
                                 </div>
                                 <div class="slds-grid slds-wrap slds-text-align_left">
-                                    <div class="slds-size_1-of-1 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
                                         <lightning:select aura:id="field123" name="selectProjects" label="Select Project" value="{!v.selectedProject}" required="true">
                                             <option value="None">--None--</option>
                                             <aura:iteration items="{!v.projects}" var="project">
                                                 <option value="{!project}">{!project}</option>
                                             </aura:iteration>
                                         </lightning:select>
+                                    </div>
+                                    <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xx-small">
+                                        <lightning:input aura:id="field123" type="text" name="location" label="Location" value="{!v.location}" required="true" />
                                     </div>
                                 </div>
                             </div>
@@ -646,10 +650,10 @@
                                             <div class="slds-scope">
                                                 <div class="slds-grid slds-wrap slds-text-align_left">
                                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
-                                                        <lightning:inputField variant="label-stacked" fieldName="Locality_of_Customer__c" />
+                                                        <lightning:inputField variant="label-stacked" fieldName="Locality_of_Customer__c" aura:id="localitofCustomer" required="true"/>
                                                     </div>
                                                     <div class="slds-size_1-of-2 slds-max-small-size_1-of-1 slds-p-around_xxx-small">
-                                                        <lightning:inputField variant="label-stacked" fieldName="Company_Name_of_Customer__c" />
+                                                        <lightning:inputField variant="label-stacked" fieldName="Company_Name_of_Customer__c" aura:id="companyNameOfCustomer" required="true"/>
                                                     </div>
                                                 </div>
                                             </div>

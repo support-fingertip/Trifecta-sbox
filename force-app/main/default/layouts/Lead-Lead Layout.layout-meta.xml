@@ -168,6 +168,10 @@
                 <behavior>Edit</behavior>
                 <field>Sourcing_Member__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Sales_Category__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

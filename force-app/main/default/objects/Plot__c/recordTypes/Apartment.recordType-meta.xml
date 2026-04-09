@@ -18,7 +18,23 @@
             <default>false</default>
         </values>
         <values>
+            <fullName>2BHK-2TOILET</fullName>
+            <default>false</default>
+        </values>
+        <values>
             <fullName>3 BHK</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>3BHK-2TOILET</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>3BHK-2TOILET%28COMPACT%29</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>3BHK-3TOILET</fullName>
             <default>false</default>
         </values>
         <values>

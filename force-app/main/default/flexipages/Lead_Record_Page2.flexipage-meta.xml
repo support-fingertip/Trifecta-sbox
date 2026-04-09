@@ -280,6 +280,12 @@
                 <identifier>RecordData_Upload1_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Sales_Category__c</fieldItem>
+                <identifier>RecordSales_Category__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-f422744c-d54d-432e-8c42-ea3c96988d8c</name>
         <type>Facet</type>
     </flexiPageRegions>

@@ -59,17 +59,17 @@ public without sharing class WelcomeMailController {
     public static DataBox getRecordData(Id recordId) {
         DataBox db = new DataBox();
         // 1. Get Booking Data
-        Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,
-                          Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,
+        Booking__c bk =  [SELECT Id,Name,Franking_Amount__c,First_Applicant_Name__c,Swap_Unit_Status__c,Owner_Phone_Number__c,Project_Type__c,
+                          Application_Amount__c,Unit_No__c,Owner_Phone__c, Project__c,Plot__r.Name,Booking_Amount__c,Owner_Email__c,Phase__c,
                           Project1__r.Company_Name__c,S__c,Super_Built_UpArea__c,Carpet_Area__c,Agreement_Expected_Date__c,Company_Name__c,
-                          Block_Name__c,Owner_Full_Name__c,Email__c FROM Booking__c WHERE Id = :recordId LIMIT 1];
+                          Block_Name__c,Owner_Full_Name__c,Email__c,Property_Type__c FROM Booking__c WHERE Id = :recordId LIMIT 1];
         db.bookingRecord = bk;
         
         // 2. Get Template Record (project wise)
         General_Settings__c temp = [
             SELECT Template_Body__c,Type__c FROM General_Settings__c WHERE
             Project_Name1__c INCLUDES (:bk.Project__c) AND
-            Type__c ='Welcome Email Template' LIMIT 1
+            Type__c ='Welcome Email Template' AND Project_Type__c =:bk.Project_Type__c LIMIT 1
         ];
         
         
@@ -77,16 +77,57 @@ public without sharing class WelcomeMailController {
         
         // ================= MERGE LOGIC =================
         
-        // Applicant
+        
+        // First Applicant
+        String firstApplicantName = 
+            (bk.S__c != null ? bk.S__c + ' ' : '') + 
+            (bk.First_Applicant_Name__c != null ? bk.First_Applicant_Name__c : '');
+        
+        // Co-Applicant (only first one)
+        List<Co_Applicant__c> coApplicants = [
+            SELECT Name, Salutation__c 
+            FROM Co_Applicant__c 
+            WHERE Booking__c = :bk.Id 
+            ORDER BY CreatedDate ASC 
+            LIMIT 1
+        ];
+        
+        String coApplicantName = '';
+        if (!coApplicants.isEmpty()) {
+            coApplicantName =
+                (coApplicants[0].Salutation__c != null ? coApplicants[0].Salutation__c + ' ' : '') +
+                (coApplicants[0].Name != null ? coApplicants[0].Name : '');
+        }
+        
+        // Combine both
+        String applicantFullName = firstApplicantName;
+        
+        if (!String.isBlank(coApplicantName)) {
+            applicantFullName += ' & ' + coApplicantName;
+        }
+        
+        // Replace in template
         template = template.replace(
             '##APPLICANT_NAME##',
-            bk.First_Applicant_Name__c != null ? bk.First_Applicant_Name__c : ''
+            applicantFullName
         );
         
         // Project
         template = template.replace(
             '##PROJECT_NAME##',
-            bk.Project__c != null ? bk.Project__c : ''
+            bk.Project__c != null ? bk.Project__c.toUpperCase() : ''
+        );
+        
+         // PROJECT_TYPE
+        template = template.replace(
+            '##PROJECT_TYPE##',
+            bk.Property_Type__c != null ? bk.Property_Type__c.toUpperCase() : ''
+        );
+        
+        // Project
+        template = template.replace(
+            '##PHASE##',
+            bk.Phase__c != null ? bk.Phase__c.toUpperCase() : ''
         );
         
         // -------- UNIT DETAILS (YOU CAN CHANGE THIS LINE ANYTIME) --------
@@ -95,6 +136,8 @@ public without sharing class WelcomeMailController {
             '##BLOCK_NAME##',
             bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : ''
         );
+        
+       
         
         // BLOCK_NAME
         template = template.replace(
@@ -114,10 +157,13 @@ public without sharing class WelcomeMailController {
             bk.Carpet_Area__c != null ? String.valueOf(bk.Carpet_Area__c) : ''
         );
         
-        // Agreement Date
         template = template.replace(
             '##AGREEMENT_DATE##',
-            bk.Agreement_Expected_Date__c != null ? String.valueOf(bk.Agreement_Expected_Date__c) : ''
+            bk.Agreement_Expected_Date__c != null
+            ? String.valueOf(bk.Agreement_Expected_Date__c.day()).leftPad(2, '0') + '/' +
+            String.valueOf(bk.Agreement_Expected_Date__c.month()).leftPad(2, '0') + '/' +
+            String.valueOf(bk.Agreement_Expected_Date__c.year())
+            : ''
         );
         
         // CRM
@@ -190,8 +236,8 @@ public without sharing class WelcomeMailController {
     public static void sendWelcomeEmail(Id recordId, String emailContent, List<String> toAddresses, List<String> contentIds) {
         system.debug('Content IDs: ' + contentIds);
         Booking__c bk = [SELECT Id, Quote__c,Name, CRM_Manager__c,Project1__r.Name, Owner_Phone__c,CRM_Head__c, 
-                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c, 
-                         Project__c,Block_Name__c,Unit_No__c,Project_Type__c,Mobile__c,Owner_Full_Name__c,
+                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c,Phase__c,
+                         Project__c,Block_Name__c,Unit_No__c,Project_Type__c,Property_Type__c,Mobile__c,Owner_Full_Name__c,
                          (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks 
                           WHERE ContentDocumentId IN :contentIds) 
                          FROM Booking__c 
@@ -326,6 +372,18 @@ public without sharing class WelcomeMailController {
             subject = subject.replace(
                 '##UNIT_NUMBER##',
                 bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : ''
+            );
+            
+            // PROJECT_TYPE
+            subject = subject.replace(
+                '##PROJECT_TYPE##',
+                bk.Property_Type__c != null ? bk.Property_Type__c.toUpperCase() : ''
+            );
+            
+            // Project
+            subject = subject.replace(
+                '##PHASE##',
+                bk.Phase__c != null ? bk.Phase__c.toUpperCase() : ''
             );
             
             

@@ -5,14 +5,11 @@ public class PushToCrmController {
             
             Booking__c bk = [SELECT Id, Name,CRM_Manager__c, Push_To_CRM__c,OwnerId, Status__c,Booking_Form_Sent__c,
                              Assigned_by__c, Project__c,Quote__r.OwnerId FROM Booking__c WHERE Id = :bookingId];
-            if(bk.Booking_Form_Sent__c == false)
-            {
-                Return 'BookingFormNotSent';
-            }
-            
+    
             
             if(bk != null && bk.Project__c != null) {
    				bk.Push_to_CRM_Comments__c = comments;
+                bk.Push_To_CRM__c = true;
                 update bk;
                 Approval.ProcessSubmitRequest req = new Approval.ProcessSubmitRequest();
                 req.setObjectId(bk.Id);
@@ -30,9 +27,9 @@ public class PushToCrmController {
                 return bk.Id;
             }
         }
-        catch (QueryException e) {
-            System.debug('Query Exception occurred: ' + e.getMessage());
-        } 
+        catch(Exception e) {
+            throw new AuraHandledException('Error updating booking: ' + e.getMessage());
+        }
         return null; 
     }
     

@@ -29,7 +29,7 @@ public class BookingPDFController {
                    Son_Daughter_Wife_of1__c,Occupation__c,Mobile__c,Email1__c, PAN_Number__c,Address__c,Pincode1__c,
                    Permanent_Address1__c,Pincode__c,Rate_per_sqft__c,Basic_Cost__c,Quote__c,Email__c,
                    Bescom_STP_and_Generator_per_Sq_ft__c,Bescom_STP_and_Generator_Changes__c,
-                   Car_Parking__c,Legal_Charges__c,Amenities__c,GST_Amount__c,Total_Amount__c,Plot_Land_Area__c,
+                   Car_Parking_Amount__c,Legal_Charge__c,Amenity_Charges__c,GST_Amount__c,Total_Amount__c,Plot_Land_Area__c,
                    
                    Total_Land_Amount__c,Extra_Land_Amount__c,Construction_Cost__c
                    FROM Booking__c WHERE Id = :bookingId];

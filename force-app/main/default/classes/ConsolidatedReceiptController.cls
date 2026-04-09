@@ -3,6 +3,7 @@ public class ConsolidatedReceiptController {
     public Booking__c booking { get; set; }
     public Decimal totalAmount { get; set; }
     public String receiptAmountInWords { get; set; }
+    public String totalAmountFormatted { get; set; }
     public List<ReceiptWrapper> repList { get; set; }
     public List<Co_Applicant__c> coapplicants { get; set; }
     public Co_Applicant__c firstCoApplicant { get; set; }
@@ -67,7 +68,7 @@ public class ConsolidatedReceiptController {
         if (booking.Block_Id__c != null) {
             block = [
                 SELECT Id, Name, Email__c,Project_Address__c,Company_Address__c,
-                Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c
+                Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c,Project_Name__c
                 FROM Block__c
                 WHERE Id = :booking.Block_Id__c
                 LIMIT 1
@@ -96,8 +97,8 @@ public class ConsolidatedReceiptController {
         bookingInfo.receiptDate = System.today();
 
         bookingInfo.project =
-            (booking.Project1__r != null)
-            ? booking.Project1__r.Name : '';
+            (block.Project_Name__c != null)
+            ? block.Project_Name__c : '';
 
         bookingInfo.email =
             (block != null && block.Email__c != null)
@@ -223,7 +224,10 @@ public class ConsolidatedReceiptController {
         }
 
         repList = reppList;
-
+        
+        totalAmountFormatted = totalAmount != null
+            ? totalAmount.setScale(2).format()
+            : '0.00';
         // ===================== AMOUNT IN WORDS =====================
         NumberTOWordConvertion conversion =
             new NumberTOWordConvertion();

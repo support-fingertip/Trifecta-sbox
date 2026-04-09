@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>STP_and_Generator_Charges__c</fullName>
     <externalId>false</externalId>
-    <formula>Quote__r.STP_and_Generator_Charges__c</formula>
+    <formula>Generator_Per_Sq_Ft__c * Super_Built_UpArea__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>STP and Generator Charges</label>
     <precision>18</precision>

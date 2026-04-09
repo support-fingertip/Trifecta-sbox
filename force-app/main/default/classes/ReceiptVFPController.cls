@@ -26,6 +26,7 @@ public class ReceiptVFPController {
     public List<Receipt_Line_Item__c> receiptLineItems { get; set; }
     public Decimal totalReceivedAmount { get; set; }
     public ReceiptInfoWrapper receiptInfo { get; set; }
+    public String totalAmountFormatted { get; set; }
     
     public class ReceiptInfoWrapper {
         
@@ -75,7 +76,7 @@ public class ReceiptVFPController {
             Booking__r.Plot__r.Name,
             Booking__r.First_Applicant_Name__c, Booking__r.SLead__r.Lead_ID__c,
             Booking__r.Project1__r.Name,
-            Booking__r.Project_Type__c,
+            Booking__r.Project_Type__c,Owner_Email_Id__c,
             Booking__r.Project1__r.Company_Address__c,Type__c,
             Booking__r.Unit_No__c, Booking__r.Block_Name__c,Booking__r.Block_Id__c,
             CreatedDate,Booking__r.CRM_Executive_Contact_No__c,Booking__r.Company_Name__c
@@ -84,7 +85,7 @@ public class ReceiptVFPController {
         ];
         
         //Block 
-        Block__c block = [select Id,Name,Email__c,Project_Address__c,Construction_Company_Name__c,Land_Company_Name__c,
+        Block__c block = [select Id,Name,Email__c,Project_Address__c,Construction_Company_Name__c,Land_Company_Name__c,Project_Name__c,
                           Company_Name__c,Company_Address__c from Block__c where Id =: receiptRecord.Booking__r.Block_Id__c];
         
         // Convert number to words – safe check
@@ -100,10 +101,9 @@ public class ReceiptVFPController {
         receiptInfo.block = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Block_Name__c != null)
             ? receiptRecord.Booking__r.Block_Name__c : '';
         receiptInfo.receiptDate = receiptRecord.CreatedDate != null ? String.valueOf(receiptRecord.CreatedDate.date()) : '';
-        receiptInfo.project = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Project1__r != null)
-            ? receiptRecord.Booking__r.Project1__r.Name : '';
+        receiptInfo.project = (block!= null && block.Project_Name__c != null) ? block.Project_Name__c : '';
         
-        receiptInfo.email = (block != null && block.Email__c != null) ? block.Email__c  : '';
+        receiptInfo.email = (receiptRecord != null && receiptRecord.Owner_Email_Id__c != null) ? receiptRecord.Owner_Email_Id__c  : '';
         receiptInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
         
         receiptInfo.webAddress = 'www.trifectaprojects.com';
@@ -203,6 +203,9 @@ public class ReceiptVFPController {
                     totalReceivedAmount += item.Received_Amount__c;
                 }
             }
+            totalAmountFormatted = totalReceivedAmount != null
+                ? totalReceivedAmount.setScale(2).format()
+                : '0.00';
             amountInWords = totalReceivedAmount != null ?conversion.getNumberTOWordConvertion(totalReceivedAmount) : null;
             
 

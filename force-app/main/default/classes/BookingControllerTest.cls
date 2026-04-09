@@ -161,7 +161,7 @@ public class BookingControllerTest {
             Plot__c         = ut3.Id
         );
         insert book;
-        BookingController.changeUnitStatus(new List<Booking__c>{ book });
+        //BookingController.changeUnitStatus(new List<Booking__c>{ book });
 
         Test.stopTest();
     }

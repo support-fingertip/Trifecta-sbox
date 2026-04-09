@@ -173,7 +173,10 @@
         var primaryPhone = component.find("PhoneNumber").get("v.value");
         var secondaryPhone = component.find("secondPhoneNumber").get("v.value");
         var leadSource = component.get("v.selectedSubSource");
-    
+        
+        var localitofCustomer = component.find("localitofCustomer").get("v.value");
+        var companyNameOfCustomer = component.find("companyNameOfCustomer").get("v.value");
+        
         
         if(!pattern.test(leadName)|| !pattern.test(leadFirstName)) {
             component.set("v.isSubmitting", false);
@@ -234,6 +237,15 @@
                 return;
             }
         }
+        if (!localitofCustomer ) {
+            helper.toastMsg('Error', 'Error', 'Please enter Locality of Customer');
+            return;
+        } 
+        if (!companyNameOfCustomer ) {
+            helper.toastMsg('Error', 'Error', 'Please enter Company Name of Customer');
+            return;
+        } 
+        
         component.set("v.isLoading", true);
         
         var eventFields = event.getParam("fields");
@@ -288,6 +300,7 @@
         var dateValue = component.get("v.datevalue");
         var project = component.get("v.selectedProject");
         var siteVisitComments = component.get("v.siteVisitComments");
+        var location = component.get("v.location");
         var selectedRating = component.get("v.selectedRating");
         var leadId = component.get("v.leadId");
         var selectedDateTime = new Date(dateValue);
@@ -311,6 +324,10 @@
             helper.toastMsg('Error', 'Error', 'Please enter Site Visit GRE Comments');
             return;
         } 
+        if (!location) {
+            helper.toastMsg('Error', 'Error', 'Please enter location');
+            return;
+        } 
         component.set("v.isLoading", true);
         // Apex call
         var action = component.get("c.createSv");
@@ -321,7 +338,8 @@
             "leadId": leadId,
             "selectedRating": selectedRating,
             "sourcingMember": component.get("v.cpExecutiveId"),
-            "channelPartner": component.get("v.channelPartnerId")
+            "channelPartner": component.get("v.channelPartnerId"),
+            "location":component.get("v.location")
         });
         
         action.setCallback(this, function(response) {

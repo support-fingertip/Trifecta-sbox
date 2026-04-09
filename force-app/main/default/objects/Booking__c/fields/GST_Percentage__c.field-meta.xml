@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <formula>Quote__r.GST__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>GST Percentage</label>
+    <label>Not in Use</label>
     <precision>18</precision>
     <required>false</required>
     <scale>2</scale>

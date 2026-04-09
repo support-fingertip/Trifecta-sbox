@@ -97,7 +97,7 @@
         <inputParameters>
             <name>recipientIds</name>
             <value>
-                <elementReference>OwnerId</elementReference>
+                <elementReference>OwnerProjectHeadSalesHead</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -257,7 +257,7 @@
         <inputParameters>
             <name>recipientIds</name>
             <value>
-                <elementReference>OwnerId</elementReference>
+                <elementReference>OwnerProjectHead</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -295,6 +295,59 @@
         </assignmentItems>
         <connector>
             <targetReference>Decision</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Owner_ProjectHead_SalesHeadAssignment</name>
+        <label>Owner,ProjectHead,SalesHeadAssignment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>OwnerProjectHeadSalesHead</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>OwnerProjectHeadSalesHead</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.Project_Sales_Head__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>OwnerProjectHeadSalesHead</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.Sales_Head__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Owner_Id</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Owner_ProjectHeadAssignment</name>
+        <label>Owner,ProjectHeadAssignment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>OwnerProjectHead</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>OwnerProjectHead</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.Project_Sales_Head__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Owner_ProjectHead_SalesHeadAssignment</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -438,7 +491,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Owner_Id</targetReference>
+            <targetReference>Owner_ProjectHeadAssignment</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -480,6 +533,27 @@ Quote Status : {!$Record.Quote_status__c}</text>
     </textTemplates>
     <variables>
         <name>OwnerId</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>OwnerProjectHead</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>OwnerProjectHeadSalesHead</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>ProjectSalesOwnerValeus</name>
         <dataType>String</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
