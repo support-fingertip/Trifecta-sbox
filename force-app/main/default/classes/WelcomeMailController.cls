@@ -317,6 +317,7 @@ public without sharing class WelcomeMailController {
             String quotePdf ='TrifectaCostsheet';
             
             String consolidatedReceipt ='ConsolidatedReceipt';
+            String demandInvioceCustom ='DemandNote';
             
             // Declare once at top
             Messaging.EmailFileAttachment vfAttachment;
@@ -351,19 +352,19 @@ public without sharing class WelcomeMailController {
             // ===== Common Attachments =====
             Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
             
-            // Generate DemandNote PDFs using Demand_Note_Send VF page (takes Demand_Raised__c Id)
-            Messaging.EmailFileAttachment vfAttachment2;
-            if (demandId1 != null && !demandId1.startsWith('Error')) {
-                vfAttachment2 = generateVFPageAttachment('Demand_Note_Send', demandId1);
-                if (projectType == 'Villas' && vfAttachment2 != null) {
-                    vfAttachment2.setFileName('Land Agreement Demand Note.pdf');
-                }
+            // Generate DemandNote PDFs using DemandNote VF page (takes Booking Id + Payment_Schedule Id).
+            // We cannot use Demand_Note_Send here because it needs a Demand_Raised__c Id, but that
+            // record was just inserted in the same transaction and getContentAsPDF() runs in a
+            // separate context that cannot see uncommitted DML.
+            Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
+            if (projectType == 'Villas' && vfAttachment2 != null) {
+                vfAttachment2.setFileName('Land Agreement Demand Note.pdf');
             }
 
             // For Villas, also render a DemandNote PDF for the S_No = 2 (Construction) demand
             Messaging.EmailFileAttachment vfAttachment2Second;
-            if (projectType == 'Villas' && demandId2 != null && !demandId2.startsWith('Error')) {
-                vfAttachment2Second = generateVFPageAttachment('Demand_Note_Send', demandId2);
+            if (projectType == 'Villas' && psSecond != null) {
+                vfAttachment2Second = generateVFPageAttachment(demandInvioceCustom, recordId, psSecond.Id);
                 if (vfAttachment2Second != null) {
                     vfAttachment2Second.setFileName('Construction Agreement Demand Note.pdf');
                 }
