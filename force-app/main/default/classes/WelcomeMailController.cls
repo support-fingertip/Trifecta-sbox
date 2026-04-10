@@ -387,9 +387,17 @@ public without sharing class WelcomeMailController {
             );
             
             
-            
+            system.debug('emailContent'+emailContent);
             mail.setToAddresses(toAddresses);
-                 
+            Pattern p = Pattern.compile('([\\s\\S]*?)(<p>Thanks &amp; Regards</p>)([\\s\\S]*)');
+            Matcher m = p.matcher(emailContent);
+            if (m.find()) {
+                String beforeThanks = m.group(1);
+                String thanksPart = '<p style="margin: 2px 0; line-height: 1.4;">Thanks &amp; Regards</p>';
+                String afterThanks = m.group(3);
+                afterThanks = afterThanks.replace('<p>', '<p style="margin: 2px 0; line-height: 1.4;">');
+                emailContent = beforeThanks + thanksPart + afterThanks;
+            }
             // Set OrgWideEmailAddress
             if (!Test.isRunningTest()) {
                 List<OrgWideEmailAddress> orgWideEmail =

@@ -66,6 +66,16 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Payment_Schedule_Type__c</fieldItem>
+                <identifier>RecordPayment_Schedule_Type_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Amount1__c</fieldItem>
@@ -80,23 +90,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Pending_Amount_Without_Tds__c</fieldItem>
                 <identifier>RecordPending_Amount_Without_Tds_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Type__c</fieldItem>
-                <identifier>RecordType_cField</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Quote__r.Property_Type__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Villas</rightValue>
-                    </criteria>
-                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -171,6 +164,23 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Pending_Tds_Amount__c</fieldItem>
                 <identifier>RecordPending_Tds_Amount_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Type__c</fieldItem>
+                <identifier>RecordType_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Quote__r.Property_Type__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Villas</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -253,6 +263,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Is_Demanded__c</fieldItem>
                 <identifier>RecordIs_Demanded_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Due_Date_Extension__c</fieldItem>
+                <identifier>RecordDue_Date_Extension_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-924b9110-bd40-4239-b043-aa948a08e589</name>

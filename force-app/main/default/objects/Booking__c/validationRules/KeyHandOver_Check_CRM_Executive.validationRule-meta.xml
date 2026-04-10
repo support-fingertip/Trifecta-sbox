@@ -5,7 +5,7 @@
     <errorConditionFormula>AND(
     ISCHANGED(Stage_Status__c),
     ISPICKVAL(Stage_Status__c, &apos;Completed&apos;),
-    ISPICKVAL(Stage__c, &apos;Registration&apos;),
+    ISPICKVAL(Stage__c, &apos;Possession / Handover&apos;),
     OR(
         AND(
             ISPICKVAL(Project_Type__c, &apos;Villas&apos;),

@@ -55,6 +55,8 @@ public class ConsolidatedReceiptController {
             Project_Type__c,
             Block_Name__c,
             Project1__r.Name,
+            Owner_Email__c,
+            Booing_Executive_Email_Id__c,
             Project1__r.Company_Address__c,
             CRM_Executive_Contact_No__c
             FROM Booking__c
@@ -101,8 +103,8 @@ public class ConsolidatedReceiptController {
             ? block.Project_Name__c : '';
 
         bookingInfo.email =
-            (block != null && block.Email__c != null)
-            ? block.Email__c : '';
+            (booking != null && booking.Owner_Email__c != null)
+            ? booking.Owner_Email__c : '';
 
         bookingInfo.projectAddress =
             (block != null && block.Project_Address__c != null)
@@ -113,8 +115,11 @@ public class ConsolidatedReceiptController {
         bookingInfo.contactNo =
             booking.CRM_Executive_Contact_No__c != null
             ? booking.CRM_Executive_Contact_No__c : '';
+        
+        bookingInfo.companyAddress = (block.Company_Address__c != null) 
+            ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
+            : '';
 
-        bookingInfo.companyAddress = (block != null && block.Company_Address__c != null) ? block.Company_Address__c : '';
         bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
         if(booking.Project_Type__c == 'Villas')
         {

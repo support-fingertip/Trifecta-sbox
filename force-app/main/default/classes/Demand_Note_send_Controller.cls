@@ -40,6 +40,9 @@ public class Demand_Note_send_Controller {
         public String ifscCode { get; set; }
         public String typeOfAccount { get; set; }
         public String branch { get; set; }
+        public Date demandDueDate { get; set; }
+        
+        public String formattedDueDate { get; set; }
     }
     
     /** ===================== PUBLIC VARIABLES ===================== **/
@@ -64,6 +67,14 @@ public class Demand_Note_send_Controller {
     public Decimal prevDueExcludingTDS {get; set;}
     public Decimal currentDueExcludingTDS {get; set;}
     
+    public String totalAmountFormatted { get; set; }
+    public String prevDueExcludingTDSFormatted { get; set; }
+    public String pendingPreviousTDSFormatted { get; set; }
+    public String currentDueExcludingTDSFormatted { get; set; }
+    public String currentPendingTDSFormatted { get; set; }
+    
+    public String formattedDueDate { get; set; }
+    public String balanceInterestFormatted { get; set; }
     public Decimal totalAmountPayable {get; set;}
     public String milestoneAmountInWords {get; set;}
     
@@ -84,12 +95,12 @@ public class Demand_Note_send_Controller {
         
         String bookingId = demand.Booking__c;
         /** ===================== BOOKING QUERY ===================== **/
-        booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,
+        booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,Owner_Email__c,
                    First_Applicant_Name__c, Unit_No__c, Block_Name__c, Project1__r.Name, Total_Amount__c,
                    Project1__r.Company_Address__c, CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
         
         /** ===================== BLOCK DETAILS ===================== **/
-        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,
+        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Project_Name__c,Company_Address__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                         Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
         
@@ -107,13 +118,14 @@ public class Demand_Note_send_Controller {
         bookingInfo.customerName = booking.First_Applicant_Name__c != null ? booking.First_Applicant_Name__c : '';
         bookingInfo.unitNo = booking.Unit_No__c != null ? booking.Unit_No__c : '';
         bookingInfo.block = booking.Block_Name__c != null ? booking.Block_Name__c : '';
-        bookingInfo.project = (booking.Project1__r != null) ? booking.Project1__r.Name : '';
-        bookingInfo.email = (block != null && block.Email__c != null) ? block.Email__c : '';
+        bookingInfo.project = (block!= null && block.Project_Name__c != null) ? block.Project_Name__c : '';
+        bookingInfo.email = (booking != null && booking.Owner_Email__c != null) ? booking.Owner_Email__c : '';
         bookingInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
         bookingInfo.webAddress = 'www.trifectaprojects.com';
         bookingInfo.contactNo = booking.CRM_Executive_Contact_No__c != null ? booking.CRM_Executive_Contact_No__c : '';
-        bookingInfo.companyAddress = (booking.Project1__r != null && booking.Project1__r.Company_Address__c != null) ? 
-            booking.Project1__r.Company_Address__c : '';
+        bookingInfo.companyAddress = (block.Company_Address__c != null) 
+            ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
+            : '';
         
         /** ===================== CO APPLICANTS ===================== **/
         coapplicants = [SELECT Name, Salutation__c FROM Co_Applicant__c WHERE Booking__c = :bookingId];
@@ -128,6 +140,28 @@ public class Demand_Note_send_Controller {
         balanceInterest = demand.Interest_Till_Now__c ?? 0;
         totalAmountPayable = demand.Grand_Total__c ?? 0;
         milestoneAmountInWords = demand.Grand_Total_in_Words__c ?? '';
+        
+        
+        
+        
+        totalAmountFormatted = totalAmountPayable != null ? totalAmountPayable.setScale(2).format() : '0.00';
+        prevDueExcludingTDSFormatted = prevDueExcludingTDS != null ? prevDueExcludingTDS.setScale(2).format() : '0.00';
+        pendingPreviousTDSFormatted = pendingPreviousTDS != null ? pendingPreviousTDS.setScale(2).format() : '0.00';
+        currentDueExcludingTDSFormatted = currentDueExcludingTDS != null ? currentDueExcludingTDS.setScale(2).format(): '0.00';
+        currentPendingTDSFormatted = currentPendingTDS != null? currentPendingTDS.setScale(2).format(): '0.00';
+        balanceInterestFormatted = balanceInterest != null? balanceInterest.setScale(2).format() : '0.00'; 
+        
+        formattedDueDate = '';
+        
+        if (demand.Due_Date__c != null) {
+            List<String> months = new List<String>{
+                'January','February','March','April','May','June',
+                    'July','August','September','October','November','December'
+                    };
+                        
+                        formattedDueDate = demand.Due_Date__c.day() + ' ' + months[demand.Due_Date__c.month() - 1] + ' ' + demand.Due_Date__c.year();
+        }
+        
         
     }
     

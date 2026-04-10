@@ -4,10 +4,12 @@
     <aura:attribute name="recordId" type="Id" />
     <aura:attribute name="vfPage" type="string" />
     <aura:attribute name="showPdf" type="boolean" default="false" />
-    <aura:attribute name="canRaiseDemand" type="boolean" default="false" />
+    <aura:attribute name="canRaiseDemand" type="boolean" default="true" />
     
     <aura:attribute name="Bookid" type="Id" />
     <aura:attribute name="includeInterest" type="String" default="false"/>
+    <aura:attribute name="paymentSchduleType" type="String" default="false"/>
+    <aura:attribute name="isCurrentMileStatusCompleted" type="boolean" default="false"/>
     <aura:attribute name="ObjName" type="String" />
     <aura:attribute name="recId" type="id"/>
     <aura:attribute name="visible" type="Boolean" default="false"/>
@@ -62,6 +64,21 @@
                 
                 <div class="slds-grid slds-gutters">
                     <div class="slds-size_1-of-1 slds-p-around_medium">
+                        <aura:if isTrue="{!v.canRaiseDemand != true}">
+                            <div style="color: #CC0000; font-weight: bold; text-align: center; margin: 10px 0 15px 0; padding: 10px; background-color: #FFF5F5; border: 1px solid #CC0000; border-radius: 4px;">
+                                Customer has opted for <span style="text-decoration: underline;">{!v.paymentSchduleType}</span>. 
+                                The demand for the current milestone has already been raised.
+                                <br/>
+                                To raise the next milestone demand:
+                                <aura:if isTrue="{!v.paymentSchduleType == 'Custom Payment Schedule'}">
+                                    Please update the next payment schedule status to <span style="text-decoration: underline;">Completed</span>.
+                                </aura:if>
+                                <aura:if isTrue="{!v.paymentSchduleType != 'Custom Payment Schedule'}">
+                                    Please contact the CRM Manager to update the next Master Payment Schedule status to <span style="text-decoration: underline;">Completed</span>.
+                                </aura:if>
+                            </div>
+                        </aura:if>
+                        
                         <!-- Show Email content when viewMode is 'email' -->
                         <aura:if isTrue="{!v.buttonstate == false}">
                             <lightning:inputRichText class="custom-textarea" aura:id="emailContent"
@@ -75,6 +92,7 @@
                         <aura:if isTrue="{!v.buttonstate == true}">
                             <iframe src="{!'/apex/apex/DemandNote?Id=' + v.recordId }" width="100%" height="450px;" frameBorder="0"/> 
                         </aura:if>
+                       
                     </div>
                 </div>
                 

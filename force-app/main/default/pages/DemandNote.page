@@ -166,8 +166,8 @@
             <div class="header">
                 <div class="company-name">{!bookingInfo.companyName }</div>
                 <div class="company-address">
-                    <strong> {!bookingInfo.companyAddress}
-                        {!bookingInfo.webAddress}</strong>
+                    <apex:outputText value="{!bookingInfo.companyAddress}" escape="false"/>
+                    {!bookingInfo.webAddress}
                 </div>
             </div>
             

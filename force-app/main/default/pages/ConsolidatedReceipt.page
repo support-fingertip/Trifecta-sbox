@@ -98,7 +98,7 @@
                 </div>
                 
                 <div class="company-address">
-                    {!bookingInfo.companyAddress}
+                    <apex:outputText value="{!bookingInfo.companyAddress}" escape="false"/>
                 </div>
                 
 

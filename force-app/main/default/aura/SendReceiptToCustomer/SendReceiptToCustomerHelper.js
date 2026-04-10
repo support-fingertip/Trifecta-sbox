@@ -82,8 +82,6 @@
         }
         
         var content = component.get("v.emailContent") || '';
-        content = content.replace(/<p>(&nbsp;|\s)*<\/p>/g, '');
-        content = content.replace(/(<br\s*\/?>\s*){2,}/g, '<br/>');
         
         component.set("v.isLoading", true);
         
