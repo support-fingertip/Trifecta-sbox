@@ -243,7 +243,19 @@ public without sharing class WelcomeMailController {
                          FROM Booking__c 
                          WHERE Id = :recordId 
                          LIMIT 1];
-        Payment_Schedule__c ps = [select id from Payment_Schedule__c where Booking__c =: bk.Id AND S_No__c = 1];
+        List<Payment_Schedule__c> psList = [
+            SELECT Id, S_No__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :bk.Id AND S_No__c IN (1, 2)
+            ORDER BY S_No__c
+        ];
+
+        Payment_Schedule__c ps;       // S_No = 1 — required for all project types
+        Payment_Schedule__c psSecond; // S_No = 2 — used for Villas only
+        for (Payment_Schedule__c p : psList) {
+            if (p.S_No__c == 1) { ps = p; }
+            else if (p.S_No__c == 2) { psSecond = p; }
+        }
         List<String> lstCCEmail = new List<String>();
         
         if (bk != null && bk.Email__c != null) {
@@ -282,12 +294,21 @@ public without sharing class WelcomeMailController {
                 lstCCEmail.add(bk.CRM_Head__r.Email);
             }
             
-            //=====================
-            //Rasing the Fist Demand
-            //====================
-            String mess= DemandRaisedSave.raiseCustomDemand(ps.Id);
-            System.debug(mess);
             String projectType = bk.Project_Type__c;
+
+            //=====================
+            // Raising the First Demand (S_No = 1) — all project types
+            //=====================
+            String mess = DemandRaisedSave.raiseCustomDemand(ps.Id);
+            System.debug(mess);
+
+            //=====================
+            // Raising the Second Demand (S_No = 2) — Villas only
+            //=====================
+            if (projectType == 'Villas' && psSecond != null) {
+                String messSecond = DemandRaisedSave.raiseCustomDemand(psSecond.Id);
+                System.debug(messSecond);
+            }
             
             String quotePdf ='TrifectaCostsheet';
             
@@ -328,7 +349,13 @@ public without sharing class WelcomeMailController {
             Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
             
             Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
-            
+
+            // For Villas, also render a DemandNote PDF for the S_No = 2 (Construction) demand
+            Messaging.EmailFileAttachment vfAttachment2Second;
+            if (projectType == 'Villas' && psSecond != null) {
+                vfAttachment2Second = generateVFPageAttachment(demandInvioceCustom, recordId, psSecond.Id);
+            }
+
             Messaging.EmailFileAttachment vfAttachment3 = generateVFPageAttachment(consolidatedReceipt, recordId);
         
             
@@ -341,6 +368,9 @@ public without sharing class WelcomeMailController {
             }
             if (vfAttachment2 != null) {
                 emailAttachments.add(vfAttachment2);
+            }
+            if (vfAttachment2Second != null) {
+                emailAttachments.add(vfAttachment2Second);
             }
             if (vfAttachment3 != null) {
                 emailAttachments.add(vfAttachment3);
