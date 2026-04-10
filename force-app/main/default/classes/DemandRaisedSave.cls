@@ -80,7 +80,9 @@ public class DemandRaisedSave {
     */
     @AuraEnabled
     public static String raiseCustomDemand(id milestoneId){
-        return raiseCustomDemand(milestoneId, false);
+        String result = raiseCustomDemand(milestoneId, false);
+        // Preserve LWC API: return success message, not the raw Demand_Raised__c Id
+        return (result != null && !result.startsWith('Error')) ? 'Demand raised successfully.' : result;
     }
 
     // Overload that allows the caller to force Previous_pendings__c,
@@ -353,7 +355,7 @@ public class DemandRaisedSave {
                 sendDemandEmail(new List<Id>{re.Id},contentIds);
             }
             
-            return 'Demand raised successfully.';
+            return String.valueOf(re.Id);
             
         } catch (DmlException e) {
             return 'Error: ' + e.getMessage();
@@ -375,7 +377,9 @@ public class DemandRaisedSave {
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds,false);
+        String result = customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds,false);
+        // Preserve LWC API: return success message, not the raw Demand_Raised__c Id
+        return (result != null && !result.startsWith('Error')) ? 'Demand raised successfully.' : result;
     }
     
     
