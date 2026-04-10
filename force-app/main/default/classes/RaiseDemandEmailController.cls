@@ -6,6 +6,8 @@ public without sharing class RaiseDemandEmailController {
         @AuraEnabled public string subject;
         @AuraEnabled public boolean isDemandRaised;
         @AuraEnabled public boolean lastPymtSchedule;
+        @AuraEnabled public String paymentSchduleType;
+        @AuraEnabled public boolean isCurrentMileStatusCompleted;
     }
     @AuraEnabled
     public static dataBox getData(Id bookingId) {
@@ -13,14 +15,14 @@ public without sharing class RaiseDemandEmailController {
         boolean lastPymtSchedule =false;
         // Query the latest completed Payment_Schedule__c record based on S_No__c
         Payment_Schedule__c lastCompletedPaymentSchedule = [
-            SELECT Id, Is_Demanded__c,Type__c,S_No__c
+            SELECT Id, Is_Demanded__c,Type__c,S_No__c,Payment_Schedule_Type__c,status__c
             FROM Payment_Schedule__c
             WHERE Booking__c = :bookingId AND Status__c = 'Completed'
             ORDER BY S_No__c DESC
             LIMIT 1
         ];
         Payment_Schedule__c LastPaymentschedule = [
-            SELECT Id, Is_Demanded__c,Type__c,S_No__c
+            SELECT Id, Is_Demanded__c,Type__c,S_No__c,Payment_Schedule_Type__c,status__c
             FROM Payment_Schedule__c
             WHERE Booking__c = :bookingId
             ORDER BY S_No__c DESC
@@ -47,6 +49,8 @@ public without sharing class RaiseDemandEmailController {
             isDemandRaised =  true; // Return false if Is_Demanded__c is false or no record found
         }
         dt.isDemandRaised = isDemandRaised;
+        dt.paymentSchduleType = lastCompletedPaymentSchedule.Payment_Schedule_Type__c;
+        dt.isCurrentMileStatusCompleted =   lastCompletedPaymentSchedule.status__c =='Completed' ? true : false;
         dt.lastPymtSchedule = lastPymtSchedule;
         
         
@@ -140,7 +144,7 @@ public without sharing class RaiseDemandEmailController {
             LIMIT 1
         ];
         Payment_Schedule__c LastPaymentschedule = [
-            SELECT Id, Is_Demanded__c,Type__c,S_No__c
+            SELECT Id, Is_Demanded__c,Type__c,S_No__c,Payment_Schedule_Type__c
             FROM Payment_Schedule__c
             WHERE Booking__c = :bookingId
             ORDER BY S_No__c DESC

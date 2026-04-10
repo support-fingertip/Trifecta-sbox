@@ -163,8 +163,17 @@ public with sharing class ReceiptCustomerSendController {
         String amountInWords = totalAmount != null ? conversion.getNumberTOWordConvertion(totalAmount) : '';
 
         template = template.replace('##AMOUNT_IN_WORDS##', amountInWords != null ? amountInWords : '');
-        template = template.replace('##AMOUNT##', String.valueOf(totalAmount != null ? totalAmount : 0));
-        template = template.replace('##TRANSACTION_DATE##', receipt.Receipt_Date__c != null ? String.valueOf(receipt.Receipt_Date__c) : '');
+        template = template.replace('##AMOUNT##', String.valueOf(totalAmount != null ?  totalAmount.setScale(2).format() : '0.00'));
+        // Date in dd-MM-yyyy format
+        String formattedDate = '';
+        if (receipt.Receipt_Date__c != null) {
+            Date d = receipt.Receipt_Date__c;
+            String day   = String.valueOf(d.day()).leftPad(2, '0');
+            String month = String.valueOf(d.month()).leftPad(2, '0');
+            String year  = String.valueOf(d.year());
+            formattedDate = day + '-' + month + '-' + year;
+        }
+        template = template.replace('##TRANSACTION_DATE##', formattedDate);
         template = template.replace('##TRANSACTION_NO##', receipt.Name != null ? receipt.Name : '');
         template = template.replace('##BANK_NAME##', BANK_NAME != null ? BANK_NAME : '');
         template = template.replace('##PAYMENT_MODE##', PAYMENT_MODE != null ? PAYMENT_MODE : '');
@@ -258,17 +267,39 @@ public with sharing class ReceiptCustomerSendController {
                 email.setOrgWideEmailAddressId(orgWideEmail[0].Id);
             }
         }
-
         String cleanHtml = String.isNotBlank(emailContent) ? emailContent : preview.emailContent;
+        
+        // Step 1: Remove empty paragraphs BEFORE unescaping
+        cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+        
+        // Step 2: Unescape
         cleanHtml = cleanHtml.unescapeHtml4();
-        cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+        
+        // Step 3: Remove empty paragraphs AGAIN after unescaping
+        cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+        
+        // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+        cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+        
+        // Step 5: Collapse multiple breaks
         cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
-
+        
+        // Step 6: Merge footer 3 separate <p> into one tight block
+        cleanHtml = cleanHtml.replaceAll(
+            '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+            '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+        );
+        
+        // Step 7: Add spacing to remaining <p> tags (without style only)
+        cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+        
         String htmlBody =
-            '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+            '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
             + cleanHtml +
             '</body></html>';
-
+        
+        system.debug(htmlBody);
+        
         email.setSubject(preview.subject);
         email.setHtmlBody(htmlBody);
         email.setSaveAsActivity(true);

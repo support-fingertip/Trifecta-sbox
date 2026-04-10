@@ -172,7 +172,7 @@
                             <span style="font-size:16px; font-weight:600;">BOOKING FORM</span>
                             <div style="margin-top:8px;">
                                 <apex:image url="{!$Resource.VerdeenResplandor}" style="height:64px; vertical-align:middle; margin-right:6px;"/>
-                                <span style="font-size:16px; vertical-align:middle;">/ TRIFECTA INFRA PRIVATE LIMITED</span>
+                                <span style="font-size:16px; vertical-align:middle;">/ TRIFECTA PROJECTS PRIVATE LIMITED</span>
                             </div>
                         </td>
                         
@@ -547,7 +547,7 @@
                             
                         </td>
                         <td style="text-align:right;">
-                            <b>For Trifecta Infra Pvt Ltd</b>
+                            <b>For Trifecta Projects Pvt Ltd</b>
                         </td>
                     </tr>
                 </table>

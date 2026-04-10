@@ -166,8 +166,8 @@
             <div class="header">
                 <div class="company-name">TRIFECTA PROJECTS PVT LTD</div>
                 <div class="company-address">
-                    <strong> {!bookingInfo.companyAddress}
-                        {!bookingInfo.webAddress}</strong>
+                    <apex:outputText value="{!bookingInfo.companyAddress}" escape="false"/>
+                    {!bookingInfo.webAddress}
                 </div>
             </div>
             
@@ -230,12 +230,12 @@
                             <apex:outputText value="{0,date,dd'-'MM'-'yyyy}"><apex:param value="{!demandDueDate}"/>
                             </apex:outputText>
                         </td>
-                        <td>{!prevDueExcludingTDS}</td>
-                        <td>{!pendingPreviousTDS}</td>
-                        <td>{!currentDueExcludingTDS}</td>
-                        <td>{!currentPendingTDS}</td>
-                        <td>{!balanceInterest}</td>
-                        <td>{!totalAmountPayable}</td>
+                        <td>{!prevDueExcludingTDSFormatted}</td>
+                        <td>{!pendingPreviousTDSFormatted}</td>
+                        <td>{!currentDueExcludingTDSFormatted}</td>
+                        <td>{!currentPendingTDSFormatted}</td>
+                        <td>{!balanceInterestFormatted}</td>
+                        <td>{!totalAmountFormatted}</td>
                     </tr>
                     <tr class="total-row">
                         <td colspan="3">Total Outstanding Amount (In Words)</td>
@@ -246,7 +246,7 @@
             
             <!-- Payment Request -->
             <div class="payment-request">
-                You are requested to remit the total dues of <strong>Rs. {!totalAmountPayable}/- ({!milestoneAmountInWords})</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before 01 Feb 2026. Please make the payment in the below bank account details.
+                You are requested to remit the total dues of <strong>Rs. {!totalAmountFormatted}/- ({!milestoneAmountInWords})</strong> in favour of <strong>"TRIFECTA PROJECTS PVT LIMITED"</strong> on or before {!formattedDueDate}. Please make the payment in the below bank account details.
             </div>
             
             <!-- Bank Details Table -->
@@ -283,7 +283,7 @@
             <!-- Notes -->
             <div class="notes">
                 1. TDS 1% is applicable, we request you to pay 1% TDS as applicable to authorities and share the challan of this payment along with the payment for 99% towards payment.<br/>
-                2. Please note that Form 26QB is mandatory for tax audit, till then these amounts will appear as un.<br/>
+                2. Please note that Form 141 Schedule B is mandatory for tax audit, till then these amounts will appear as un.<br/>
                 3. Kindly note that in case of non-receipt of due amount within stipulated time, interest @12 % p.a. shall be charged as per terms on the delayed payments.
             </div>
             

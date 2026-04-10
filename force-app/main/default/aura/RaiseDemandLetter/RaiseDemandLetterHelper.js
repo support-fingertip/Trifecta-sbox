@@ -12,6 +12,8 @@
             if (state === "SUCCESS") {
                 var returnData = response.getReturnValue();
                 component.set("v.canRaiseDemand", returnData.isDemandRaised);
+                component.set("v.paymentSchduleType", returnData.paymentSchduleType);
+                component.set("v.isCurrentMileStatusCompleted", returnData.isCurrentMileStatusCompleted);
                 component.set("v.lastPymtSchedule", returnData.lastPymtSchedule);
                 
                 

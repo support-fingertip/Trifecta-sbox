@@ -128,7 +128,7 @@ public class DemandInvioceController {
                    Project1__r.Company_Address__c, CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
 
         /** ===================== BLOCK DETAILS ===================== **/
-        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,
+        Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,Company_Address__c,
                                                         Construction_Company_Name__c,Land_Company_Name__c,Project_Name__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                         Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
@@ -153,8 +153,11 @@ public class DemandInvioceController {
         bookingInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
         bookingInfo.webAddress = 'www.trifectaprojects.com';
         bookingInfo.contactNo = booking.CRM_Executive_Contact_No__c != null ? booking.CRM_Executive_Contact_No__c : '';
-        bookingInfo.companyAddress = (booking.Project1__r != null && booking.Project1__r.Company_Address__c != null) ? 
-            booking.Project1__r.Company_Address__c : '';
+
+        
+        bookingInfo.companyAddress = (block.Company_Address__c != null) 
+            ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
+            : '';
 
         /** ===================== CO APPLICANTS ===================== **/
         coapplicants = [SELECT Name, Salutation__c FROM Co_Applicant__c WHERE Booking__c = :bookingId];

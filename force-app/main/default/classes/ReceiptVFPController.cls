@@ -28,6 +28,18 @@ public class ReceiptVFPController {
     public ReceiptInfoWrapper receiptInfo { get; set; }
     public String totalAmountFormatted { get; set; }
     
+    public class LineItemWrapper {
+        public Receipt_Line_Item__c item { get; set; }
+        public String formattedAmount { get; set; }
+        
+        public LineItemWrapper(Receipt_Line_Item__c item, String formattedAmount) {
+            this.item = item;
+            this.formattedAmount = formattedAmount;
+        }
+    }
+
+public List<LineItemWrapper> receiptLineItemWrappers { get; set; }
+    
     public class ReceiptInfoWrapper {
         
         public String receiptNo { get; set; }
@@ -48,7 +60,34 @@ public class ReceiptVFPController {
         // Constructor
         public ReceiptInfoWrapper() { }
     }
-
+    
+    private String formatIndianCurrency(Decimal amount) {
+        if (amount == null) amount = 0;
+        
+        String intPart = String.valueOf(amount.longValue()); // No decimals
+        
+        if (intPart.length() <= 3) {
+            return intPart;
+        }
+        
+        String lastThree = intPart.substring(intPart.length() - 3);
+        String remaining = intPart.substring(0, intPart.length() - 3);
+        
+        List<String> chunks = new List<String>();
+        Integer j = remaining.length();
+        while (j > 0) {
+            Integer s = Math.max(j - 2, 0);
+            chunks.add(remaining.substring(s, j));
+            j = s;
+        }
+        
+        List<String> reversed = new List<String>();
+        for (Integer k = chunks.size() - 1; k >= 0; k--) {
+            reversed.add(chunks[k]);
+        }
+        
+        return String.join(reversed, ',') + ',' + lastThree;
+    }
     /**
      * Method Name  : ReceiptVFPController (Constructor)
      * Description  : Initializes data required for Receipt Visualforce page.
@@ -100,7 +139,11 @@ public class ReceiptVFPController {
         receiptInfo.unitNo = (receiptRecord.Booking__r != null) ? receiptRecord.Booking__r.Unit_No__c : '';
         receiptInfo.block = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Block_Name__c != null)
             ? receiptRecord.Booking__r.Block_Name__c : '';
-        receiptInfo.receiptDate = receiptRecord.CreatedDate != null ? String.valueOf(receiptRecord.CreatedDate.date()) : '';
+        receiptInfo.receiptDate = receiptRecord.CreatedDate != null 
+            ? String.valueOf(receiptRecord.CreatedDate.day()).leftPad(2, '0') + '/' +
+            String.valueOf(receiptRecord.CreatedDate.month()).leftPad(2, '0') + '/' +
+            String.valueOf(receiptRecord.CreatedDate.year())
+            : '';
         receiptInfo.project = (block!= null && block.Project_Name__c != null) ? block.Project_Name__c : '';
         
         receiptInfo.email = (receiptRecord != null && receiptRecord.Owner_Email_Id__c != null) ? receiptRecord.Owner_Email_Id__c  : '';
@@ -110,8 +153,9 @@ public class ReceiptVFPController {
         receiptInfo.contactNo =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.CRM_Executive_Contact_No__c != null)
             ? receiptRecord.Booking__r.CRM_Executive_Contact_No__c : '';
         
-        receiptInfo.companyAddress =  (block.Company_Address__c != null)   ? block.Company_Address__c : ''; 
-        
+        receiptInfo.companyAddress = (block.Company_Address__c != null) 
+            ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
+            : '';
         
         receiptInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
         if(receiptRecord.Booking__r.Project_Type__c == 'Villas')
@@ -197,12 +241,22 @@ public class ReceiptVFPController {
                 AND Receipt__c = :receiptId
             ];
             
-            // Calculate total received amount
+            receiptLineItemWrappers = new List<LineItemWrapper>();
+            
             for (Receipt_Line_Item__c item : receiptLineItems) {
                 if (item.Received_Amount__c != null) {
                     totalReceivedAmount += item.Received_Amount__c;
                 }
+                receiptLineItemWrappers.add(new LineItemWrapper(
+                    item,
+                    item.Received_Amount__c != null 
+                    ? formatIndianCurrency(item.Received_Amount__c) 
+                    : '0.00'
+                ));
             }
+            
+            
+       
             totalAmountFormatted = totalReceivedAmount != null
                 ? totalReceivedAmount.setScale(2).format()
                 : '0.00';
