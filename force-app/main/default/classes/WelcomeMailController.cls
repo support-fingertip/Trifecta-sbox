@@ -298,26 +298,25 @@ public without sharing class WelcomeMailController {
 
             //=====================
             // Raising the First Demand (S_No = 1) — all project types
+            // raiseCustomDemand(id, Boolean) returns the Demand_Raised__c Id on success
             //=====================
-            String mess = DemandRaisedSave.raiseCustomDemand(ps.Id);
-            System.debug(mess);
+            String demandId1 = DemandRaisedSave.raiseCustomDemand(ps.Id, false);
+            System.debug('Demand 1 Id: ' + demandId1);
 
             //=====================
             // Raising the Second Demand (S_No = 2) — Villas only
-            // Pass skipPreviousDues = true so Previous_pendings__c, Pending_Payment_TDS_1__c
-            // and Pending_Dues_excluding_TDS__c on the 2nd demand are zero. Both demands
-            // are raised simultaneously from the welcome email, so the S_No = 1 amount is
-            // not a real "previous due" against the S_No = 2 demand.
+            // skipPreviousDues = true so Previous_pendings__c, Pending_Payment_TDS_1__c
+            // and Pending_Dues_excluding_TDS__c are zero (both demands raised simultaneously).
             //=====================
+            String demandId2;
             if (projectType == 'Villas' && psSecond != null) {
-                String messSecond = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
-                System.debug(messSecond);
+                demandId2 = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
+                System.debug('Demand 2 Id: ' + demandId2);
             }
             
             String quotePdf ='TrifectaCostsheet';
             
             String consolidatedReceipt ='ConsolidatedReceipt';
-            String demandInvioceCustom ='DemandNote';
             
             // Declare once at top
             Messaging.EmailFileAttachment vfAttachment;
@@ -352,16 +351,19 @@ public without sharing class WelcomeMailController {
             // ===== Common Attachments =====
             Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
             
-            Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
-            if (projectType == 'Villas' && vfAttachment2 != null) {
-                // Rename the S_No = 1 villa demand note to reflect it's the Land Agreement demand
-                vfAttachment2.setFileName('Land Agreement Demand Note.pdf');
+            // Generate DemandNote PDFs using Demand_Note_Send VF page (takes Demand_Raised__c Id)
+            Messaging.EmailFileAttachment vfAttachment2;
+            if (demandId1 != null && !demandId1.startsWith('Error')) {
+                vfAttachment2 = generateVFPageAttachment('Demand_Note_Send', demandId1);
+                if (projectType == 'Villas' && vfAttachment2 != null) {
+                    vfAttachment2.setFileName('Land Agreement Demand Note.pdf');
+                }
             }
 
             // For Villas, also render a DemandNote PDF for the S_No = 2 (Construction) demand
             Messaging.EmailFileAttachment vfAttachment2Second;
-            if (projectType == 'Villas' && psSecond != null) {
-                vfAttachment2Second = generateVFPageAttachment(demandInvioceCustom, recordId, psSecond.Id);
+            if (projectType == 'Villas' && demandId2 != null && !demandId2.startsWith('Error')) {
+                vfAttachment2Second = generateVFPageAttachment('Demand_Note_Send', demandId2);
                 if (vfAttachment2Second != null) {
                     vfAttachment2Second.setFileName('Construction Agreement Demand Note.pdf');
                 }
