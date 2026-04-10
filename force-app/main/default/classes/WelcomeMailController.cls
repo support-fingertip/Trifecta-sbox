@@ -304,9 +304,13 @@ public without sharing class WelcomeMailController {
 
             //=====================
             // Raising the Second Demand (S_No = 2) — Villas only
+            // Pass skipPreviousDues = true so Previous_pendings__c, Pending_Payment_TDS_1__c
+            // and Pending_Dues_excluding_TDS__c on the 2nd demand are zero. Both demands
+            // are raised simultaneously from the welcome email, so the S_No = 1 amount is
+            // not a real "previous due" against the S_No = 2 demand.
             //=====================
             if (projectType == 'Villas' && psSecond != null) {
-                String messSecond = DemandRaisedSave.raiseCustomDemand(psSecond.Id);
+                String messSecond = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
                 System.debug(messSecond);
             }
             
@@ -349,11 +353,18 @@ public without sharing class WelcomeMailController {
             Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
             
             Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
+            if (projectType == 'Villas' && vfAttachment2 != null) {
+                // Rename the S_No = 1 villa demand note to reflect it's the Land Agreement demand
+                vfAttachment2.setFileName('Land Agreement Demand Note.pdf');
+            }
 
             // For Villas, also render a DemandNote PDF for the S_No = 2 (Construction) demand
             Messaging.EmailFileAttachment vfAttachment2Second;
             if (projectType == 'Villas' && psSecond != null) {
                 vfAttachment2Second = generateVFPageAttachment(demandInvioceCustom, recordId, psSecond.Id);
+                if (vfAttachment2Second != null) {
+                    vfAttachment2Second.setFileName('Construction Agreement Demand Note.pdf');
+                }
             }
 
             Messaging.EmailFileAttachment vfAttachment3 = generateVFPageAttachment(consolidatedReceipt, recordId);
