@@ -12,3 +12,8 @@
     max-width: 8rem;
     display: inline-block;
 }
+
+.ps-modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
+}
