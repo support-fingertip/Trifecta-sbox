@@ -2,32 +2,44 @@ public with sharing class PaymentSchedulePercentEditController {
 
     /**
      * Returns every Payment_schedule__c under the same Booking as the record
-     * the Quick Action was launched from, along with booking context
-     * (Total_Amount__c, Project_Type__c) and the expected percent total.
+     * the calling component was launched from. The record can be either a
+     * Payment_schedule__c (Quick Action on a PS page) or a Booking__c (button
+     * embedded on the Booking record page).
      */
     @AuraEnabled(cacheable=false)
-    public static Map<String, Object> getSchedules(Id paymentScheduleId) {
+    public static Map<String, Object> getSchedules(Id recordId) {
         try {
-            if (paymentScheduleId == null) {
-                throw new AuraHandledException('Payment Schedule Id is required.');
+            if (recordId == null) {
+                throw new AuraHandledException('Record Id is required.');
             }
 
-            Payment_schedule__c source = [
-                SELECT Id, Booking__c
-                FROM Payment_schedule__c
-                WHERE Id = :paymentScheduleId
-                LIMIT 1
-            ];
+            String objectName = recordId.getSObjectType().getDescribe().getName();
+            Id bookingId;
 
-            if (source.Booking__c == null) {
+            if (objectName == 'Booking__c') {
+                bookingId = recordId;
+            } else if (objectName == 'Payment_schedule__c') {
+                Payment_schedule__c source = [
+                    SELECT Id, Booking__c
+                    FROM Payment_schedule__c
+                    WHERE Id = :recordId
+                    LIMIT 1
+                ];
+                bookingId = source.Booking__c;
+            } else {
                 throw new AuraHandledException(
-                    'Payment Schedule is not linked to a Booking.');
+                    'Unsupported record type: ' + objectName);
+            }
+
+            if (bookingId == null) {
+                throw new AuraHandledException(
+                    'Could not resolve Booking for this record.');
             }
 
             Booking__c booking = [
                 SELECT Id, Name, Total_Amount__c, Project_Type__c
                 FROM Booking__c
-                WHERE Id = :source.Booking__c
+                WHERE Id = :bookingId
                 LIMIT 1
             ];
 

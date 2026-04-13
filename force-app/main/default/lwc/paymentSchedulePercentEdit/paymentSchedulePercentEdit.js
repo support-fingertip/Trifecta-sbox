@@ -24,7 +24,7 @@ export default class PaymentSchedulePercentEdit extends LightningElement {
 
     loadData() {
         this.loading = true;
-        getSchedules({ paymentScheduleId: this.recordId })
+        getSchedules({ recordId: this.recordId })
             .then(result => {
                 const booking = result.booking || {};
                 this.bookingId = booking.Id;
