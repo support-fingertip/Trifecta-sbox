@@ -161,6 +161,9 @@ export default class PaymentSchedulePercentEdit extends LightningElement {
     }
 
     close() {
+        // Notify an Aura parent that's rendering us via <aura:if>.
+        this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }));
+        // Also fire CloseActionScreenEvent in case we're launched as a Quick Action.
         this.dispatchEvent(new CloseActionScreenEvent());
     }
 
