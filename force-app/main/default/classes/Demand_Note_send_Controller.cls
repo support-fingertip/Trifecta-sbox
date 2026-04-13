@@ -43,6 +43,11 @@ public class Demand_Note_send_Controller {
         public Date demandDueDate { get; set; }
         
         public String formattedDueDate { get; set; }
+        
+        public decimal interstPercent { get; set; }
+        public decimal tdsPercent { get; set; }
+        public decimal amountPercent { get; set; }
+        public String companyName { get; set; }
     }
     
     /** ===================== PUBLIC VARIABLES ===================== **/
@@ -78,12 +83,15 @@ public class Demand_Note_send_Controller {
     public Decimal totalAmountPayable {get; set;}
     public String milestoneAmountInWords {get; set;}
     
+
+    
     public Demand_Note_send_Controller(ApexPages.StandardController controller) {
-        String demandId = ApexPages.currentPage().getParameters().get('Id');
+        String demandId = ApexPages.currentPage().getParameters().get('id');
         List<Demand_Raised__c> dmList = [
-            SELECT Id,Booking__c,Demanded_Date__c,Due_Date__c,Pending_Dues_excluding_TDS__c,
-            Pending_Payment_TDS_1__c,Current_Milestone_Excluding_the_TDS__c,Current_Milestone_TDS_1__c,
-            Grand_Total_in_Words__c,Grand_Total__c,Interest_Till_Now__c,Demand_Name__c
+            SELECT Id,Booking__c,Demanded_Date__c,Due_Date__c,Pending_Dues_excluding_TDS__c,Payment_schedule__r.Interest_Percent__c,
+            Payment_schedule__r.Without_Tds_Amount_Percent__c,
+            Payment_schedule__r.Tds__c,Pending_Payment_TDS_1__c,Current_Milestone_Excluding_the_TDS__c,Current_Milestone_TDS_1__c,
+            Grand_Total_in_Words__c,Grand_Total__c,Interest_Till_Now__c,Demand_Name__c,Payment_schedule__r.Type__c
             FROM Demand_Raised__c 
             WHERE Id = :demandId 
             LIMIT 1
@@ -96,11 +104,12 @@ public class Demand_Note_send_Controller {
         String bookingId = demand.Booking__c;
         /** ===================== BOOKING QUERY ===================== **/
         booking = [SELECT Id, Name, Total_received_Amount__c, SLead__r.Lead_ID__c, Block_Id__c,Owner_Email__c,
-                   First_Applicant_Name__c, Unit_No__c, Block_Name__c, Project1__r.Name, Total_Amount__c,
+                   First_Applicant_Name__c, Unit_No__c, Block_Name__c, Project1__r.Name, Total_Amount__c,Project_Type__c,
                    Project1__r.Company_Address__c, CRM_Executive_Contact_No__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
         
         /** ===================== BLOCK DETAILS ===================== **/
         Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Project_Name__c,Company_Address__c,
+                                                        Land_Company_Name__c,Construction_Company_Name__c,Company_Name__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                         Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
         
@@ -114,6 +123,9 @@ public class Demand_Note_send_Controller {
         bookingInfo.branch = (block != null && block.Branch__c != null) ? block.Branch__c : '';
         
         bookingInfo.demandDate = demand.Demanded_Date__c.date();
+        bookingInfo.tdsPercent = demand!= null && demand.Payment_schedule__r != null ? demand.Payment_schedule__r.Tds__c/100 : 0;
+        bookingInfo.interstPercent = demand!= null && demand.Payment_schedule__r != null ? demand.Payment_schedule__r.Interest_Percent__c : 0;
+        bookingInfo.amountPercent =  demand!= null && demand.Payment_schedule__r != null ?  demand.Payment_schedule__r.Without_Tds_Amount_Percent__c/100 : 0;
         bookingInfo.customerId = (booking.SLead__r != null && booking.SLead__r.Lead_ID__c != null) ? booking.SLead__r.Lead_ID__c : '';
         bookingInfo.customerName = booking.First_Applicant_Name__c != null ? booking.First_Applicant_Name__c : '';
         bookingInfo.unitNo = booking.Unit_No__c != null ? booking.Unit_No__c : '';
@@ -126,6 +138,23 @@ public class Demand_Note_send_Controller {
         bookingInfo.companyAddress = (block.Company_Address__c != null) 
             ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
             : '';
+        
+        bookingInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
+        if(booking.Project_Type__c == 'Villas')
+        {
+            if(demand.Payment_schedule__r.Type__c =='Land')
+            {
+                bookingInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            }
+            else if(demand.Payment_schedule__r.Type__c =='Construction')
+            {
+                bookingInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+            }
+        }
+        else
+        {
+            bookingInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        }
         
         /** ===================== CO APPLICANTS ===================== **/
         coapplicants = [SELECT Name, Salutation__c FROM Co_Applicant__c WHERE Booking__c = :bookingId];

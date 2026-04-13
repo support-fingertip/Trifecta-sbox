@@ -352,7 +352,7 @@
                         <valueListItems>
                             <value>Booking__c.Generate_NOC</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND ( 3 OR 4 )</booleanFilter>
+                                <booleanFilter>1 AND ((2 AND ( 3 OR 4 )) Or  (6 AND 5))</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>NE</operator>
@@ -373,6 +373,16 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Row House</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Project_Type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Villas</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Stage__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Possession / Handover</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
@@ -382,7 +392,7 @@
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
-                                    <rightValue>Registration</rightValue>
+                                    <rightValue>Land Registration</rightValue>
                                 </criteria>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
@@ -593,23 +603,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
-                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
-                <visibilityRule>
-                    <booleanFilter>1 OR 2</booleanFilter>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Credit Card</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Debit Card</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <fieldItem>Record.Block_Name__c</fieldItem>
+                <identifier>RecordBlock_Name_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-add77c2e-2e5c-4074-acbe-86dc1bbe4725</name>
@@ -694,6 +691,29 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Project_Type__c</fieldItem>
                 <identifier>RecordProject_Type_cField4</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
+                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Debit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-13dde832-0f68-4202-a9da-ec6fa36c5622</name>
@@ -856,7 +876,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Aadhaar_Uploaded__c</fieldItem>
                 <identifier>RecordAadhaar_Uploaded_cField</identifier>
@@ -866,7 +886,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Applicant_Photo_Uploaded__c</fieldItem>
                 <identifier>RecordApplicant_Photo_Uploaded_cField</identifier>
@@ -880,7 +900,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Pan_Uploaded__c</fieldItem>
                 <identifier>RecordPan_Uploaded_cField</identifier>
@@ -890,7 +910,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Proof_of_Address_Uploaded__c</fieldItem>
                 <identifier>RecordProof_of_Address_Uploaded_cField</identifier>
@@ -1040,7 +1060,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Signed_Agreement_Uploaded__c</fieldItem>
                 <identifier>RecordSigned_Agreement_Uploaded_cField</identifier>
@@ -1756,7 +1776,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Commencement_Certificate_Uploaded__c</fieldItem>
                 <identifier>RecordCommencement_Certificate_Uploaded_cField</identifier>
@@ -1766,7 +1786,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Building_Plan_Uploaded__c</fieldItem>
                 <identifier>RecordBuilding_Plan_Uploaded_cField</identifier>
@@ -1776,7 +1796,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Tax_Receipt_Uploaded__c</fieldItem>
                 <identifier>RecordTax_Receipt_Uploaded_cField</identifier>
@@ -1790,7 +1810,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Panchayati_License_Uploaded__c</fieldItem>
                 <identifier>RecordPanchayati_License_Uploaded_cField</identifier>
@@ -1800,7 +1820,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Khata_Document_Uploaded__c</fieldItem>
                 <identifier>RecordKhata_Document_Uploaded_cField</identifier>
@@ -2432,7 +2452,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.PLC_Charges__c</fieldItem>
                 <identifier>RecordPLC_Charges_cField3</identifier>
@@ -2486,7 +2506,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Plot_Land_Cost__c</fieldItem>
                 <identifier>RecordPlot_Land_Cost_cField2</identifier>
@@ -2496,7 +2516,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Extra_Land_Amount__c</fieldItem>
                 <identifier>RecordExtra_Land_Amount_cField2</identifier>
@@ -2506,7 +2526,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Construction_Cost__c</fieldItem>
                 <identifier>RecordConstruction_Cost_cField</identifier>
@@ -2792,7 +2812,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Cancellation_Agreement_Uploaded__c</fieldItem>
                 <identifier>RecordCancellation_Agreement_Uploaded_cField</identifier>

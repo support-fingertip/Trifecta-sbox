@@ -180,6 +180,7 @@ public with sharing class LeadStatusController {
                 leadRecord.OwnerId = ur.ManagerId;
                 leadRecord.Closed_Lost_Reason__c = rating;
                 leadRecord.Reasons_in_Detail__c = othercom;
+                leadRecord.Closed_Lost_At__c = System.now();
                 leadRecord.Owner_Update_on_Closed_Lost_Sales__c = true;
                 
                 Lead_Unqualification__c lq = new Lead_Unqualification__c(

@@ -8,6 +8,7 @@ public without sharing class RaiseDemandEmailController {
         @AuraEnabled public boolean lastPymtSchedule;
         @AuraEnabled public String paymentSchduleType;
         @AuraEnabled public boolean isCurrentMileStatusCompleted;
+        @AuraEnabled public boolean isVilla;
     }
     @AuraEnabled
     public static dataBox getData(Id bookingId) {
@@ -52,7 +53,7 @@ public without sharing class RaiseDemandEmailController {
         dt.paymentSchduleType = lastCompletedPaymentSchedule.Payment_Schedule_Type__c;
         dt.isCurrentMileStatusCompleted =   lastCompletedPaymentSchedule.status__c =='Completed' ? true : false;
         dt.lastPymtSchedule = lastPymtSchedule;
-        
+        dt.isVilla = bk.Project_Type__c == 'Villas' ? true : false;
         
         String companyName = 'TRIFECTA PROJECTS PVT LTD';
         if(bk.Project_Type__c == 'Villas')

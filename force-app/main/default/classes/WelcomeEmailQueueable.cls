@@ -73,6 +73,10 @@ public class WelcomeEmailQueueable implements Queueable, Database.AllowsCallouts
             if (projectType == 'Villas' && demandNote1 != null) {
                 demandNote1.setFileName('Land Agreement Demand Note.pdf');
             }
+            else
+            {
+                demandNote1.setFileName('Demand Note.pdf');
+            }
         }
 
         Messaging.EmailFileAttachment demandNote2;

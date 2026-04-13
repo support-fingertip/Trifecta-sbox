@@ -92,6 +92,7 @@ public Without Sharing class  CreateQuoteController {
         List<Payment_schedule__c> schdules = new List<Payment_schedule__c>();
         List<Master_payment_schedule__c> Master = new List<Master_payment_schedule__c>();
         
+        block__c block = [select Id,Type__c from block__c where Id =:blockId];
         // Step 1: Try to get block-wise schedule if blockId is present
         if (blockId != null) {
             Master = [ SELECT Id, Project__c, S_No__c, Name, Payment_Percent__c, Amount__c, Completed_Date__c, Due_Date__c, Status__c,
@@ -101,7 +102,11 @@ public Without Sharing class  CreateQuoteController {
         }
         for(Master_payment_schedule__c mps : Master){
             Payment_schedule__c ps = new Payment_schedule__c();
-            ps.Master_Payment_Schedule__c = mps.Id;
+            if(Pay == 'Standard')
+            {
+                ps.Master_Payment_Schedule__c = mps.Id;
+            }
+            
             ps.Payment_percent__c = mps.Payment_Percent__c;
             ps.Type__c = mps.Is_Land__c ? 'Land' : mps.Is_Construction__c ? 'Construction' : '';
             ps.Name = mps.Name;
@@ -109,9 +114,19 @@ public Without Sharing class  CreateQuoteController {
             ps.S_No__c = mps.S_No__c;
             ps.Include_Interest__c = mps.Include_Interest__c;
             // Make only FIRST schedule Completed When welcome mail sent 1st payment schdule need to completed
-            if(mps.S_No__c == 1){
-                ps.Status__c = 'Completed';
+            if(block.Type__c == 'Apartments' || block.Type__c == 'Row House')
+            {
+                if(mps.S_No__c == 1){
+                    ps.Status__c = 'Completed';
+                }
             }
+            else if(block.Type__c == 'Villas')
+            {
+                if(mps.S_No__c == 1 || mps.S_No__c == 2){
+                    ps.Status__c = 'Completed';
+                }
+            }
+           
             schdules.add(ps); 
         }
         

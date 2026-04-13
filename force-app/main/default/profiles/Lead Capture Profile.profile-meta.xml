@@ -921,6 +921,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>WelcomeEmailQueueable</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>WelcomeMailController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1440,6 +1444,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Block_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Block__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4169,6 +4178,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Lead.Closed_Lost_At__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Lead.Closed_Lost_Reason__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -4190,6 +4204,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Lead.Company_Name_of_Customer__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Lead.Completed_First_Site_Visits__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6140,6 +6159,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.Waive_Off_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Without_Tds_Amount_Percent__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

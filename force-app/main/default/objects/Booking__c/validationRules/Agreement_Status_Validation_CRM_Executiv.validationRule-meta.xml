@@ -5,6 +5,6 @@
     <errorConditionFormula>ISCHANGED(Stage_Status__c)
 &amp;&amp; TEXT(Stage_Status__c) = &apos;Completed&apos;
 &amp;&amp; TEXT(Stage__c) = &apos;Agreement&apos;
-&amp;&amp; (TEXT(Agreement_Status__c) &lt;&gt; 	&apos;Executed &amp; Registered&apos;)</errorConditionFormula>
-    <errorMessage>Please update the agreement status to &quot;Executed &amp; Registered&quot; before marking the Agreement stage as completed.</errorMessage>
+&amp;&amp; (TEXT(Agreement_Status__c) &lt;&gt; 	&apos;Executed&apos;)</errorConditionFormula>
+    <errorMessage>Please update the agreement status to Executed before marking the Agreement stage as completed.</errorMessage>
 </ValidationRule>

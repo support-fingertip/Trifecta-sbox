@@ -172,7 +172,7 @@
                 <p class="body-text">
                     The Total Sale Consideration of the Villa
                     <strong>Rs.&#160;<span class="val md">{!amount}</span>&#160;/-</strong>
-                    (Rupees {!amountInWords} Only).
+                    ({!amountInWords}).
                 </p>
                 <table class="payment-table">
                     <thead>
