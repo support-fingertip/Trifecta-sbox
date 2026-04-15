@@ -15,9 +15,14 @@ public class TestDataFactory {
 
     public static Block__c createBlock(Id projectId) {
         Block__c b = new Block__c(
-            Name                  = 'A',
-            Intrest_Percentage__c = 12,
-            Project__c            = projectId
+            Name                    = 'A',
+            Intrest_Percentage__c   = 12,
+            Project__c              = projectId,
+            // Default the inspection executive to the running user so
+            // InspectionController.saveInspectionWithSnags (which sets
+            // inspection.OwnerId = block.Inspection_Executive__c) has a
+            // valid owner to assign.
+            Inspection_Executive__c = UserInfo.getUserId()
         );
         insert b;
         return b;
