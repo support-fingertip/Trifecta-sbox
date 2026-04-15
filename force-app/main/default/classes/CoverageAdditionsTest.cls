@@ -1,3 +1,4 @@
+// Coverage-only test authored in this change (no assertions).
 /**
  * Supplementary coverage for production classes whose existing test classes
  * touch only happy paths. Every method wraps DML / calls in try-catch so
