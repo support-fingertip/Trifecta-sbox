@@ -44,6 +44,16 @@ public class TestDataFactory {
         return pt;
     }
 
+    public static Plot__c createPlot(Id projectId, Id blockId) {
+        Plot__c pt = new Plot__c(
+            Status__c        = 'Available',
+            Project__c       = projectId,
+            Block_Lookup__c  = blockId
+        );
+        insert pt;
+        return pt;
+    }
+
     public static Quote__c createQuote(Id blockId, Id plotId, Id leadId) {
         Quote__c q = new Quote__c(
             Block_Lookup__c  = blockId,
@@ -68,7 +78,9 @@ public class TestDataFactory {
         Project__c pjt = createProject();
         Block__c   bc  = createBlock(pjt.Id);
         Lead       ld  = createLead();
-        Plot__c    ut  = createPlot(pjt.Id);
+        // Link the plot to the block so the Booking.Block_Id__c formula
+        // (CASESAFEID(Plot__r.Block_Lookup__c)) resolves.
+        Plot__c    ut  = createPlot(pjt.Id, bc.Id);
         Quote__c   qc  = createQuote(bc.Id, ut.Id, ld.Id);
         return createBooking(projectType, pjt, bc, ld, ut, qc);
     }
@@ -90,7 +102,9 @@ public class TestDataFactory {
             Mobile__c               = '9000000001',
             Project_Type__c         = projectType,
             Project__c              = 'Trifecta Test Project',
-            Block_Id__c             = bc.Id,
+            // Block_Id__c is a formula (CASESAFEID(Plot__r.Block_Lookup__c)) and
+            // cannot be set directly. Use the writable Block__c lookup instead.
+            Block__c                = bc.Id,
             Mode_Of_Payment__c      = 'Cheque',
             Funding_Type__c         = 'Self',
             Stage_Status__c         = 'In Progress'

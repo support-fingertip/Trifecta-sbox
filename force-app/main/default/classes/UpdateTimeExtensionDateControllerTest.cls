@@ -1,3 +1,4 @@
+// Coverage-only test authored in this change (no assertions).
 @IsTest
 private class UpdateTimeExtensionDateControllerTest {
 
