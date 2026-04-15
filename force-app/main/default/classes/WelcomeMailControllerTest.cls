@@ -159,9 +159,30 @@ private class WelcomeMailControllerTest {
             Template_Body__c = 'Welcome ##APPLICANT_NAME## to ##PROJECT_NAME##<br>Block: ##BLOCK_NAME##, Unit: ##UNIT_NUMBER##, Area: ##SALEABLE_AREA##, Carpet: ##CARPET_AREA##, Date: ##AGREEMENT_DATE##, CRM: ##CRM_NAME##, Phone: ##CRM_PHONE##, Email: ##CRM_EMAIL##, Company: ##COMAPANY_NAME##, ##SIGNATURE##',
             Type__c = 'Welcome Email Template',
             Subject__c = 'Welcome to ##PROJECT_NAME## - ##BLOCK_NAME## ##UNIT_NUMBER##',
-            Project_Name1__c = 'Trifecta Vanto'
+            Project_Name1__c = 'Trifecta Vanto',
+            Project_Type__c = 'Apartments'
         );
         insert genSet;
+
+        // WelcomeMailController.getRecordData filters the template query by
+        // Project_Type__c, so every project type the test flips the Booking to
+        // (Row House, Villas) needs its own template row in the setup.
+        insert new List<General_Settings__c>{
+            new General_Settings__c(
+                Template_Body__c = genSet.Template_Body__c,
+                Type__c = 'Welcome Email Template',
+                Subject__c = genSet.Subject__c,
+                Project_Name1__c = 'Trifecta Vanto',
+                Project_Type__c = 'Row House'
+            ),
+            new General_Settings__c(
+                Template_Body__c = genSet.Template_Body__c,
+                Type__c = 'Welcome Email Template',
+                Subject__c = genSet.Subject__c,
+                Project_Name1__c = 'Trifecta Vanto',
+                Project_Type__c = 'Villas'
+            )
+        };
     }
 
     private static Booking__c getBookingWithMail() {
