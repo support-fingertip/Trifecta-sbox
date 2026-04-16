@@ -243,152 +243,60 @@ public without sharing class WelcomeMailController {
                          FROM Booking__c 
                          WHERE Id = :recordId 
                          LIMIT 1];
-        Payment_Schedule__c ps = [select id from Payment_Schedule__c where Booking__c =: bk.Id AND S_No__c = 1];
-        List<String> lstCCEmail = new List<String>();
-        
-        if (bk != null && bk.Email__c != null) {
-            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-            
-            string displayName = label.Default_Email_Address_Label;
-            //sender using Org-Wide Email Addres
-            OrgWideEmailAddress owea = [
-                SELECT Id 
-                FROM OrgWideEmailAddress 
-                WHERE DisplayName =:displayName 
-                LIMIT 1
-            ];
-            mail.setOrgWideEmailAddressId(owea.Id);
+        List<Payment_Schedule__c> psList = [
+            SELECT Id, S_No__c
+            FROM Payment_Schedule__c
+            WHERE Booking__c = :bk.Id AND S_No__c IN (1, 2)
+            ORDER BY S_No__c
+        ];
 
-            
-            List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
-            Set<Id> contentDocumentIds = new Set<Id>();
-            
-            for (ContentDocumentLink docLink : bk.ContentDocumentLinks) {
-                contentDocumentIds.add(docLink.ContentDocumentId);
+        Payment_Schedule__c ps;       // S_No = 1 — required for all project types
+        Payment_Schedule__c psSecond; // S_No = 2 — used for Villas only
+        for (Payment_Schedule__c p : psList) {
+            if (p.S_No__c == 1) { ps = p; }
+            else if (p.S_No__c == 2) { psSecond = p; }
+        }
+
+        if (bk != null && bk.Email__c != null) {
+            String projectType = bk.Project_Type__c;
+
+            //=====================
+            // Raising the First Demand (S_No = 1) — all project types
+            // raiseCustomDemand(id, Boolean) returns the Demand_Raised__c Id on success
+            //=====================
+            String demandId1 = DemandRaisedSave.raiseCustomDemand(ps.Id, false);
+            System.debug('Demand 1 Id: ' + demandId1);
+
+            //=====================
+            // Raising the Second Demand (S_No = 2) — Villas only
+            // skipPreviousDues = true so Previous_pendings__c, Pending_Payment_TDS_1__c
+            // and Pending_Dues_excluding_TDS__c are zero (both demands raised simultaneously).
+            //=====================
+            String demandId2;
+            if (projectType == 'Villas' && psSecond != null) {
+                demandId2 = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
+                System.debug('Demand 2 Id: ' + demandId2);
             }
-            
-            if (!contentDocumentIds.isEmpty()) {
-                List<ContentVersion> contentVersions = [SELECT Title,FileExtension, VersionData FROM ContentVersion WHERE ContentDocumentId IN :contentDocumentIds];
-                for (ContentVersion cv : contentVersions) {
-                    Messaging.EmailFileAttachment contentAttach = new Messaging.EmailFileAttachment();
-                    String fileNameWithExtension = cv.Title + '.' + cv.FileExtension;
-                    contentAttach.setFileName(fileNameWithExtension);
-                    contentAttach.setBody(cv.VersionData);
-                    emailAttachments.add(contentAttach);
-                }
-            }
-            
-            if(bk.CRM_Head__c!= null){
+
+            // ── CC list ──
+            List<String> lstCCEmail = new List<String>();
+            if (bk.CRM_Head__c != null) {
                 lstCCEmail.add(bk.CRM_Head__r.Email);
             }
-            
-            //=====================
-            //Rasing the Fist Demand
-            //====================
-            String mess= DemandRaisedSave.raiseCustomDemand(ps.Id);
-            System.debug(mess);
-            String projectType = bk.Project_Type__c;
-            
-            String quotePdf ='TrifectaCostsheet';
-            
-            String consolidatedReceipt ='ConsolidatedReceipt';
-            String demandInvioceCustom ='DemandNote';
-            
-            // Declare once at top
-            Messaging.EmailFileAttachment vfAttachment;
-            
-            // ===== Booking Form based on Project Type =====
-            if (projectType == 'Apartments') 
-            {
-                vfAttachment = generateVFPageAttachment('Trifecta_Booking_Form', recordId);
-                quotePdf = 'TrifectaCostsheet';
-            } 
-            else if (projectType == 'Row House') 
-            {
-                vfAttachment = generateVFPageAttachment('TrifectaRowHouseBookingForm', recordId);
-                quotePdf = 'TrifectaRowHouseCostSheet';
-            } 
-            else if (projectType == 'Villas') 
-            {
-                // For villas – you had two pages, so we attach first as main
-                vfAttachment = generateVFPageAttachment('LandVillaBookingForm', recordId);
-                
-                // Add second villa form directly to list
-                Messaging.EmailFileAttachment villaConst =
-                    generateVFPageAttachment('ConstructionVillaBookingForm', recordId);
-                
-                if (villaConst != null) {
-                    emailAttachments.add(villaConst);
-                }
-                
-                quotePdf = 'trifectaVillaCostSheet';
-            }
-            
-            // ===== Common Attachments =====
-            Messaging.EmailFileAttachment vfAttachment1 = generateVFPageAttachment(quotePdf, bk.Quote__c);
-            
-            Messaging.EmailFileAttachment vfAttachment2 = generateVFPageAttachment(demandInvioceCustom, recordId, ps.Id);
-            
-            Messaging.EmailFileAttachment vfAttachment3 = generateVFPageAttachment(consolidatedReceipt, recordId);
-        
-            
-            // ===== Add only if not null =====
-            if (vfAttachment != null) {
-                emailAttachments.add(vfAttachment);
-            }
-            if (vfAttachment1 != null) {
-                emailAttachments.add(vfAttachment1);
-            }
-            if (vfAttachment2 != null) {
-                emailAttachments.add(vfAttachment2);
-            }
-            if (vfAttachment3 != null) {
-                emailAttachments.add(vfAttachment3);
-            }
-            
-            system.debug(toAddresses);
-            
-            
-            // 2. Get Template Record (project wise)
+
+            // ── Subject (template + token replacement) ──
             General_Settings__c temp = [
-                SELECT Subject__c,Type__c FROM General_Settings__c WHERE    Project_Name1__c INCLUDES (:bk.Project__c)  AND
+                SELECT Subject__c,Type__c FROM General_Settings__c WHERE Project_Name1__c INCLUDES (:bk.Project__c) AND
                 Type__c ='Welcome Email Template' LIMIT 1
             ];
             String subject = temp.Subject__c;
-            // Project
-            subject = subject.replace(
-                '##PROJECT_NAME##',
-                bk.Project__c != null ? bk.Project__c : ''
-            );
-            
-            // -------- UNIT DETAILS--------
-            // BLOCK_NAME
-            subject = subject.replace(
-                '##BLOCK_NAME##',
-                bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : ''
-            );
-            
-            // BLOCK_NAME
-            subject = subject.replace(
-                '##UNIT_NUMBER##',
-                bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : ''
-            );
-            
-            // PROJECT_TYPE
-            subject = subject.replace(
-                '##PROJECT_TYPE##',
-                bk.Property_Type__c != null ? bk.Property_Type__c.toUpperCase() : ''
-            );
-            
-            // Project
-            subject = subject.replace(
-                '##PHASE##',
-                bk.Phase__c != null ? bk.Phase__c.toUpperCase() : ''
-            );
-            
-            
-            system.debug('emailContent'+emailContent);
-            mail.setToAddresses(toAddresses);
+            subject = subject.replace('##PROJECT_NAME##', bk.Project__c != null ? bk.Project__c : '');
+            subject = subject.replace('##BLOCK_NAME##', bk.Block_Name__c != null ? String.valueOf(bk.Block_Name__c) : '');
+            subject = subject.replace('##UNIT_NUMBER##', bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : '');
+            subject = subject.replace('##PROJECT_TYPE##', bk.Property_Type__c != null ? bk.Property_Type__c.toUpperCase() : '');
+            subject = subject.replace('##PHASE##', bk.Phase__c != null ? bk.Phase__c.toUpperCase() : '');
+
+            // ── Format email body ──
             Pattern p = Pattern.compile('([\\s\\S]*?)(<p>Thanks &amp; Regards</p>)([\\s\\S]*)');
             Matcher m = p.matcher(emailContent);
             if (m.find()) {
@@ -398,32 +306,20 @@ public without sharing class WelcomeMailController {
                 afterThanks = afterThanks.replace('<p>', '<p style="margin: 2px 0; line-height: 1.4;">');
                 emailContent = beforeThanks + thanksPart + afterThanks;
             }
-            // Set OrgWideEmailAddress
-            if (!Test.isRunningTest()) {
-                List<OrgWideEmailAddress> orgWideEmail =
-                    [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
-                if (!orgWideEmail.isEmpty()) {
-                    mail.setOrgWideEmailAddressId(orgWideEmail[0].Id);
-                }
-            }
-            if(lstCCEmail.size()>0){
-                mail.setCcAddresses(lstCCEmail);
-            }
-            mail.setSubject(subject);
-            mail.setHtmlBody(emailContent);
-            if (!emailAttachments.isEmpty()) {
-                mail.setFileAttachments(emailAttachments);
-            }
-            
-            List<Messaging.SendEmailResult> results = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-            system.debug(results);
-            
+
+            // ── Enqueue email sender (runs after DML commits so Demand_Note_Send can see records) ──
+            System.enqueueJob(new WelcomeEmailQueueable(
+                recordId, demandId1, demandId2, projectType, bk.Quote__c,
+                emailContent, toAddresses, contentIds, lstCCEmail, subject
+            ));
+
+            // ── WhatsApp + SMS (already async) ──
             WhatsappController controller = new WhatsappController(bk, '11');
             System.enqueueJob(controller);
-            
+
             SMSHandler smsctrl = new SMSHandler(bk,'11');
             System.enqueueJob(smsctrl);
-            
+
             bk.Welcome_Mail_Sent_Time__c = system.now();
             bk.Welcome_Email_Sent_to_Customer__c = true;
             bk.Booking_Form_Sent__c = true;
@@ -460,7 +356,7 @@ public without sharing class WelcomeMailController {
         
         return attachment;
     }
-    private static Messaging.EmailFileAttachment generateVFPageAttachment(String vfPageName, Id recordId) {
+    public static Messaging.EmailFileAttachment generateVFPageAttachment(String vfPageName, Id recordId) {
         PageReference vfPage = new PageReference('/apex/' + vfPageName);
         System.debug(vfPageName);
         

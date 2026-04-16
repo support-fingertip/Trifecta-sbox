@@ -6,7 +6,7 @@
     <picklistValues>
         <picklist>Agreement_Status__c</picklist>
         <values>
-            <fullName>Executed %26 Registered</fullName>
+            <fullName>Executed</fullName>
             <default>false</default>
         </values>
         <values>
@@ -429,11 +429,11 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Possession %2F Handover</fullName>
+            <fullName>Land Registration</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Registration</fullName>
+            <fullName>Possession %2F Handover</fullName>
             <default>false</default>
         </values>
     </picklistValues>

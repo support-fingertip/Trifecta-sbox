@@ -46,6 +46,7 @@ public class DemandInvioceController {
         
         public decimal interstPercent { get; set; }
         public decimal tdsPercent { get; set; }
+        public decimal amountPercent { get; set; }
     }
 
     /** ===================== PUBLIC VARIABLES ===================== **/
@@ -166,7 +167,7 @@ public class DemandInvioceController {
         /** ===================== GET LATEST COMPLETED MILESTONE ===================== **/
         List<Payment_Schedule__c> psRecordList = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,Type__c,Tds__c,Interest_Percent__c,
                                                   Last_Payment_Schedule__c, AmountB__c, Pending_Amount__c, PaymentDueDate__c,Default_Due_Date_in_days__c
-                                                  FROM Payment_Schedule__c WHERE Status__c = 'Completed' 
+                                                  ,Without_Tds_Amount_Percent__c FROM Payment_Schedule__c WHERE Status__c = 'Completed' 
                                                   AND Booking__c = :booking.Id ORDER BY S_No__c DESC];
 
         if (psRecordList.isEmpty()) {
@@ -179,6 +180,7 @@ public class DemandInvioceController {
         Payment_Schedule__c psRecord = psRecordList[0];
         bookingInfo.tdsPercent = psRecord.Tds__c/100;
         bookingInfo.interstPercent = psRecord.Interest_Percent__c;
+        bookingInfo.amountPercent =  psRecord.Without_Tds_Amount_Percent__c/100;
         
         currentCompletedStage = psRecord.Name;
         if(psRecord.PaymentDueDate__c != null)

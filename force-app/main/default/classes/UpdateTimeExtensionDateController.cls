@@ -8,12 +8,7 @@ public class UpdateTimeExtensionDateController {
     * @param newNote The comment to add to booking summary
     */
     @AuraEnabled
-    public static void updateBooking(
-        Id bookingId,
-        String newNote,
-        Decimal extensionDays,
-        String status
-    ) {
+    public static void updateBooking( Id bookingId, String newNote, Decimal extensionDays, String status) {
         try {
             
             // ================= VALIDATION =================
@@ -70,36 +65,25 @@ public class UpdateTimeExtensionDateController {
             // ================= HANDLE APPROVAL PROCESS =================
             if(String.isNotBlank(status)) {
                 
-                List<ProcessInstanceWorkitem> workItems = [
-                    SELECT Id, ProcessInstanceId
-                    FROM ProcessInstanceWorkitem
-                    WHERE ProcessInstance.TargetObjectId = :bookingId
-                    AND ProcessInstance.Status = 'Pending'
-                    AND ActorId = :UserInfo.getUserId()
-                    LIMIT 1
+                List<ProcessInstanceWorkitem> workItems = [ SELECT Id, ProcessInstanceId FROM ProcessInstanceWorkitem
+                    WHERE ProcessInstance.TargetObjectId = :bookingId AND ProcessInstance.Status = 'Pending' AND ActorId = :UserInfo.getUserId() LIMIT 1
                 ];
 
                 
                 if(!workItems.isEmpty()) {
                     
-                    Approval.ProcessWorkitemRequest req =
-                        new Approval.ProcessWorkitemRequest();
-                    
+                    Approval.ProcessWorkitemRequest req = new Approval.ProcessWorkitemRequest();
                     req.setWorkitemId(workItems[0].Id);
                     
-                    if(status == 'Approved') {
-                        req.setAction('Approve');
+                    if(status == 'Approved') {req.setAction('Approve');
                         bookingRec.Stage__c = 'Agreement Extension Approved';
                     }
-                    else if(status == 'Rejected') {
-                        req.setAction('Reject');
+                    else if(status == 'Rejected') {req.setAction('Reject');
                         bookingRec.Stage__c = 'Agreement Extension Rejected';
                     }
                     
                     req.setComments(newNote);
-                    
                     Approval.ProcessResult result = Approval.process(req);
-                    
                     if(!result.isSuccess()) {
                         throw new AuraHandledException('Approval process failed.');
                     }

@@ -124,16 +124,6 @@
                 <identifier>RecordProject_Address_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Project_Name__c</fieldItem>
-                <identifier>RecordProject_Name_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-211edad7-b4c8-463c-b56d-d04a2fbb7520</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -152,10 +142,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Email__c</fieldItem>
-                <identifier>RecordEmail_cField</identifier>
+                <fieldItem>Record.Project_Name__c</fieldItem>
+                <identifier>RecordProject_Name_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-8cbb5eeb-f666-43f1-84bf-dd2b48353583</name>
@@ -732,6 +722,12 @@
                         </valueListItems>
                         <valueListItems>
                             <value>Status__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Is_Land__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Is_Construction__c</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Completed_Date__c</value>

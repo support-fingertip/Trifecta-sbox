@@ -9,7 +9,7 @@
                 var url = '';
                 component.set("v.demandRaisedRecord",a.getReturnValue());
                 var demandRaisedValue = a.getReturnValue();
-                url = baseUrl+'/apex/Demand_Note_Send?Id='+demandRaisedValue.Id;
+                url = baseUrl+'/apex/Demand_Note_Send?id='+demandRaisedValue.Id;
                 if(demandRaisedValue.Demand_Email_Content__c && demandRaisedValue.Demand_Email_Content__c != ''){
                     
                     var raw = demandRaisedValue.Demand_Email_Content__c;

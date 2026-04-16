@@ -113,6 +113,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BulkLeadReassignmentControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BulkRaiseDemandController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -219,6 +223,10 @@
     <classAccesses>
         <apexClass>ContactFormatter</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CoverageAdditionsTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>CreateQuoteComponentController</apexClass>
@@ -329,6 +337,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>FlatKeyHandoverVfpControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>FollowUpTriggerHandler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -405,8 +417,8 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>InterestCalculatorHandler</apexClass>
-        <enabled>true</enabled>
+        <apexClass>InspectionTriggerHandlerTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>InvitationInspectionVFPController</apexClass>
@@ -481,6 +493,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>MarkBookingStageCompletedControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>MarkUnqualifiedController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -489,7 +505,15 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>MasterPaymentScheduleControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>MasterPaymentScheduleTriggerHandler</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>MasterPaymentScheduleTriggerHandlerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -537,6 +561,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>NumberToWordsTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>PaymentScheduleBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -545,12 +573,24 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>PaymentSchedulePercentEditController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PaymentSchedulePercentEditControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>PaymentScheduleReminderBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>PaymentScheduleReminderScheduler</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PaymentScheduleReminderSchedulerTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>PendingPaymentReminderScheduler</apexClass>
@@ -570,6 +610,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ProjectStatusReportController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ProjectStatusReportControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -645,11 +689,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>ReceiptTriggerHandler</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>ReceiptTriggerHandlerTest</apexClass>
+        <apexClass>ReceiptLineIemTriggerHandlerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -741,6 +781,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>SendReceiptToCustomerClassTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>SendSMSQueueable</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -805,6 +849,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>TestDataFactory</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>TicketClosureEmailService</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -857,7 +905,15 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>UpdateLeadStatusControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>UpdateTimeExtensionDateController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>UpdateTimeExtensionDateControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -893,10 +949,6 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>ValidationHandlerTest</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>WebhookLeadAPI</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -919,6 +971,14 @@
     <classAccesses>
         <apexClass>WelcomeCallReminderScheduler</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>WelcomeEmailQueueable</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>WelcomeEmailQueueableTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>WelcomeMailController</apexClass>
@@ -1444,6 +1504,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Block_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Block__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2444,6 +2509,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Reason_For_Swapping_Applicant__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Received_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4169,6 +4239,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Lead.Client_Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Lead.Closed_Lost_At__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6145,6 +6220,11 @@
         <editable>false</editable>
         <field>Payment_schedule__c.Waive_Off_Amount__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Without_Tds_Amount_Percent__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>

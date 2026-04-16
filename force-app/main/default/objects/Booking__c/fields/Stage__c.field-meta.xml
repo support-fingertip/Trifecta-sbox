@@ -22,6 +22,11 @@
                 <label>Agreement</label>
             </value>
             <value>
+                <fullName>Land Registration</fullName>
+                <default>false</default>
+                <label>Land Registration</label>
+            </value>
+            <value>
                 <fullName>Demands &amp; Progressive Collections</fullName>
                 <default>false</default>
                 <label>Demands &amp; Progressive Collections</label>

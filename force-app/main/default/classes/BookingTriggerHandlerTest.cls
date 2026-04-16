@@ -77,6 +77,7 @@ public class BookingTriggerHandlerTest {
             Booking_Amount__c = 50000,
             CRM_Executive__c  = UserInfo.getUserId()
         );
+  
         try { insert book; } catch (Exception e) { System.debug('insert book: ' + e.getMessage()); }
 
         // 2. Directly call beforeInsert to cover Credit_Source__c branch
@@ -178,7 +179,8 @@ public class BookingTriggerHandlerTest {
                 new Map<Id, Booking__c>{ book.Id => book }
             );
         } catch (Exception e) { System.debug('cancellation approved direct: ' + e.getMessage()); }
-
+        BookingTriggerHandler.updatePlotAvailability(new Set<Id>{ut.Id});
         Test.stopTest();
     }
+
 }

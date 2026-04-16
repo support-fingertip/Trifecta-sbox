@@ -128,6 +128,7 @@ public without sharing class BookingController {
             Booking__c bk = new Booking__c();
             bk=book;
             bk.Quote__c = qt.Id;
+            bk.Block__c = block.Id;
             bk.Stage__c = 'Booked';
             bk.SLead__c = qt.SLead__c;
             bk.Project__c = qt.Project__c;

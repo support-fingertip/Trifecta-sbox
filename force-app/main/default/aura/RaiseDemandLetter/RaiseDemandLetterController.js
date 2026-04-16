@@ -27,8 +27,10 @@
         var isLastPayment = component.get("v.lastPymtSchedule");
         var files = component.get("v.filesIDS");
         
+        var isVilla = component.get("v.isVilla");
+        
         //  Validation
-        if (isLastPayment && (!files || files.length === 0)) {
+        if (isLastPayment && (!files || files.length === 0) && !isVilla) {
             
             var toastEvent = $A.get("e.force:showToast");
             toastEvent.setParams({

@@ -1,30 +1,26 @@
 public with sharing class BookingStageController {
     
-    /**
-     * Get initial data for the component
-     * @param bookingId The ID of the booking record
-     * @return Map containing booking data, stage picklist values, and active CRM Executive users
-     */
     @AuraEnabled
     public static Map<String, Object> getInitData(Id bookingId) {
         try {
             Map<String, Object> result = new Map<String, Object>();
             
-            // Query the booking record
+            // Query the booking record (added RecordTypeId)
             Booking__c book = [
-                SELECT Id, Stage__c, OwnerId, Booking_Summary__c
+                SELECT Id, Stage__c, OwnerId, Booking_Summary__c, RecordTypeId
                 FROM Booking__c
                 WHERE Id = :bookingId
                 LIMIT 1
             ];
             
-            // Get picklist values for Stage__c field
-            Schema.DescribeFieldResult fieldResult = Booking__c.Stage__c.getDescribe();
+            //  Using ConnectApi to get picklist values filtered by Record Type
+            ConnectApi.PicklistValuesCollection picklistValues = 
+                ConnectApi.RecordUi.getPicklistValuesByRecordType('Booking__c', book.RecordTypeId);
+            
+            //  Get only Stage__c values for this Record Type
             List<String> pickValues = new List<String>();
-            for (Schema.PicklistEntry ple : fieldResult.getPicklistValues()) {
-                if(ple.isActive()) {
-                    pickValues.add(ple.getLabel());
-                }
+            for (ConnectApi.PicklistValue p : picklistValues.picklistFieldValues.get('Stage__c').values) {
+                pickValues.add(p.label);
             }
             
             // Get only active CRM Executive users
@@ -46,10 +42,9 @@ public with sharing class BookingStageController {
             throw new AuraHandledException('Error loading booking data: ' + e.getMessage());
         }
     }
-    
     /**
-     * Update booking record with new owner, stage, and comments
-     * @param bookingId The ID of the booking record
+* Update booking record with new owner, stage, and comments
+* @param bookingId The ID of the booking record
      * @param newOwnerId The new owner user ID
      * @param newStage The new stage value
      * @param newNote The comment to add to booking summary
@@ -131,7 +126,9 @@ public with sharing class BookingStageController {
             update bookingRec;
             
         } catch(Exception e) {
+               system.debug('Error updating booking: ' + e.getMessage());
             throw new AuraHandledException('Error updating booking: ' + e.getMessage());
+         
         }
     }
 }

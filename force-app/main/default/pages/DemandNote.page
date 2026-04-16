@@ -282,7 +282,7 @@
             
             <!-- Notes -->
             <div class="notes">
-                1. TDS {!bookingInfo.tdsPercent}% is applicable, we request you to pay {!bookingInfo.tdsPercent}% TDS as applicable to authorities and share the challan of this payment along with the payment for 99% towards payment.<br/>
+                1. TDS {!bookingInfo.tdsPercent}% is applicable, we request you to pay {!bookingInfo.tdsPercent}% TDS as applicable to authorities and share the challan of this payment along with the payment for {!bookingInfo.amountPercent}% towards payment.<br/>
                 2. Please note that Form 141 Schedule B is mandatory for tax audit, till then these amounts will appear as un.<br/>
                 3. Kindly note that in case of non-receipt of due amount within stipulated time, interest @{!bookingInfo.interstPercent} % p.a. shall be charged as per terms on the delayed payments.
             </div>

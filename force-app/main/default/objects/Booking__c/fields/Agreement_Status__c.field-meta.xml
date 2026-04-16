@@ -23,6 +23,11 @@
                 <label>Scheduled</label>
             </value>
             <value>
+                <fullName>Executed</fullName>
+                <default>false</default>
+                <label>Executed</label>
+            </value>
+            <value>
                 <fullName>Executed &amp; Registered</fullName>
                 <default>false</default>
                 <label>Executed &amp; Registered</label>
@@ -31,11 +36,6 @@
                 <fullName>Rescheduled</fullName>
                 <default>false</default>
                 <label>Rescheduled</label>
-            </value>
-            <value>
-                <fullName>Executed</fullName>
-                <default>false</default>
-                <label>Executed</label>
             </value>
         </valueSetDefinition>
     </valueSet>

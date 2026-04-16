@@ -13,6 +13,7 @@ public class TrifectaCustomerBookingFormConTest {
         // Create block
         Block__c bc = new Block__c(
             Name = 'A',
+            Intrest_Percentage__c = 12,
             Project__c = pjt.Id
         );
         insert bc;

@@ -13,9 +13,9 @@ public with sharing class InspectionController{
                 throw new AuraHandledException('Booking not found');
             }
             
-            Block__c block = [SELECT Id, Inspection_Executive__c,Inspection_Executive__r.ManagerId FROM Block__c WHERE Id = :bookings[0].Block_Id__c];
+            list<Block__c> blockList = [SELECT Id, Inspection_Executive__c,Inspection_Executive__r.ManagerId FROM Block__c WHERE Id = :bookings[0].Block_Id__c];
+            Block__c block = blockList[0];
             
-       
             // Create Inspection record
             Inspection__c inspection = new Inspection__c();
             inspection.Booking__c = bookingId;
@@ -75,7 +75,7 @@ public with sharing class InspectionController{
         }
     }
     
-    private static void sendInspectionNotifications(Inspection__c inspection, Id ownerId) {
+    public static void sendInspectionNotifications(Inspection__c inspection, Id ownerId) {
         
         // ── 1. EMAIL NOTIFICATION ────────────────────────────────────────────────
         try {

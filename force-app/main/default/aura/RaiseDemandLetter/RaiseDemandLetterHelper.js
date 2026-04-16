@@ -15,7 +15,7 @@
                 component.set("v.paymentSchduleType", returnData.paymentSchduleType);
                 component.set("v.isCurrentMileStatusCompleted", returnData.isCurrentMileStatusCompleted);
                 component.set("v.lastPymtSchedule", returnData.lastPymtSchedule);
-                
+                component.set("v.isVilla", returnData.isVilla);
                 
                 var raw = returnData.emailContent;
                 // 1. Decode HTML entities first

@@ -5,5 +5,5 @@
     <errorConditionFormula>(TEXT(Agreement_Status__c) = &apos;Executed&apos; || TEXT(Agreement_Status__c) = &apos;Executed &amp; Registered&apos;)
 &amp;&amp;  ISBLANK( Agreement_Executed_Date__c )</errorConditionFormula>
     <errorDisplayField>Agreement_Executed_Date__c</errorDisplayField>
-    <errorMessage>Please enter the “Agreement Executed Date” when the Agreement Status is “Executed” or “Executed &amp; Registered”.</errorMessage>
+    <errorMessage>Please enter the Agreement Executed Date when the Agreement Status is “Executed” or Executed &amp; Registered</errorMessage>
 </ValidationRule>

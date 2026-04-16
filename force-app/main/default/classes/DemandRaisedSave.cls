@@ -80,15 +80,26 @@ public class DemandRaisedSave {
     */
     @AuraEnabled
     public static String raiseCustomDemand(id milestoneId){
-        
-        Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c, 
-                                        Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c 
+        String result = raiseCustomDemand(milestoneId, false);
+        // Preserve LWC API: return success message, not the raw Demand_Raised__c Id
+        return (result != null && !result.startsWith('Error')) ? 'Demand raised successfully.' : result;
+    }
+
+    // Overload that allows the caller to force Previous_pendings__c,
+    // Pending_Payment_TDS_1__c and Pending_Dues_excluding_TDS__c to zero on the
+    // created Demand_Raised__c record. Used by the Villa welcome-email flow where
+    // S_No = 1 and S_No = 2 demands are raised at the same time and the second
+    // demand must not inherit the first demand's still-unpaid amount as a "previous due".
+    public static String raiseCustomDemand(id milestoneId, Boolean skipPreviousDues){
+
+        Payment_Schedule__c psRecord = [SELECT Id, Name, S_No__c, Completed_Date__c, Payment_percent__c,
+                                        Booking__c,Master_Payment_Schedule__r.S_No__c,Master_Payment_Schedule__c
                                         FROM Payment_Schedule__c WHERE Id = :milestoneId];
-        
+
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book,'',false,new List<id>());
+        return customScheduleCalculations(milestoneId,psRecord.Master_Payment_Schedule__c,book,'',false,new List<id>(),skipPreviousDues);
     }
 
     /**
@@ -106,7 +117,7 @@ public class DemandRaisedSave {
     *
     * @return String - Success or error message.
     */
-    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book,String emailContent,boolean sendEmail,List<Id> contentIds) {
+    public static String customScheduleCalculations(Id milestoneId, Id masterId, Booking__c book,String emailContent,boolean sendEmail,List<Id> contentIds,Boolean skipPreviousDues) {
         
         /** ==================VARIABLE DECLARATIONS =========================**/
         String totalAmountPayableInWords = '';
@@ -209,7 +220,11 @@ public class DemandRaisedSave {
         
 
         
-        if (!aggregateResults.isEmpty()) {
+        // When skipPreviousDues is true (e.g. raising Villa S_No = 1 and S_No = 2 demands
+        // simultaneously from the welcome email flow), treat previous pending/TDS/dues as
+        // zero so the downstream fields Previous_pendings__c, Pending_Payment_TDS_1__c and
+        // Pending_Dues_excluding_TDS__c are not carried forward onto this demand.
+        if (skipPreviousDues != true && !aggregateResults.isEmpty()) {
             AggregateResult ar = aggregateResults[0];
             balanceDueTillPrevMilestone = (Decimal)ar.get('totalPendingAmount') ?? 0;
             previousMileStoneInterest = (Decimal)ar.get('totalInterestAmount') ?? 0;
@@ -340,7 +355,7 @@ public class DemandRaisedSave {
                 sendDemandEmail(new List<Id>{re.Id},contentIds);
             }
             
-            return 'Demand raised successfully.';
+            return String.valueOf(re.Id);
             
         } catch (DmlException e) {
             return 'Error: ' + e.getMessage();
@@ -362,7 +377,9 @@ public class DemandRaisedSave {
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
                            Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
-        return customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds);
+        String result = customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds,false);
+        // Preserve LWC API: return success message, not the raw Demand_Raised__c Id
+        return (result != null && !result.startsWith('Error')) ? 'Demand raised successfully.' : result;
     }
     
     
