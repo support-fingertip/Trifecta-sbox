@@ -126,7 +126,9 @@ public with sharing class BookingStageController {
             update bookingRec;
             
         } catch(Exception e) {
+               system.debug('Error updating booking: ' + e.getMessage());
             throw new AuraHandledException('Error updating booking: ' + e.getMessage());
+         
         }
     }
 }

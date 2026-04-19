@@ -186,7 +186,7 @@ public class BookingTriggerHandler {
             }
             else if(oldBk.Stage__c != bk.Stage__c && bk.Stage__c != null)
             {
-                String title = bk.Lead_Name__c + ' booking moved to stage ' + bk.Stage__c + '.';
+                String title = bk.Lead_Name__c + ' booking moved to stage ' + bk.Stage__c + 'and has been assigned to you.';
                 String body = 'Booking: ' + bk.Name + '\n'
                     + 'Stage: ' + bk.Stage__c + '\n'
                     + 'Customer Name: ' + bk.Lead_Name__c + '\n';

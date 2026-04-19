@@ -9,7 +9,6 @@ private class InspectionTriggerHandlerTest {
         Inspection__c insp;
         try {
             insp = new Inspection__c(
-                Name = 'Insp 1',
                 Booking__c = bk.Id,
                 Status__c = 'New'
             );

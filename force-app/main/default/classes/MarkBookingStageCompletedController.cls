@@ -41,14 +41,7 @@ public class MarkBookingStageCompletedController {
             
             // Send Notification
             if (bookingRec.CRM_Manager__c != null) {
-                
-                
-                String title =
-                    bookingRec.Lead_Name__c +
-                    ' – Stage \'' + bookingRec.Stage__c + '\' marked as completed by ' +
-                    bookingRec.Owner_Full_Name__c;
-                
-                
+                String title = bookingRec.Lead_Name__c + ' – Stage \'' + bookingRec.Stage__c + '\' marked as completed by ' + bookingRec.Owner_Full_Name__c;
                 String body =
                     'Booking: ' + bookingRec.Name + '\n' +
                     'Stage: ' + (bookingRec.Stage__c != null ? bookingRec.Stage__c : '') + '\n' +
@@ -57,13 +50,7 @@ public class MarkBookingStageCompletedController {
                     (bookingRec.Owner_Full_Name__c != null ? bookingRec.Owner_Full_Name__c : '') + '\n' +
                     'Please proceed with the next steps.';
                 
-                CustomNotificationService.notificationSend(
-                    title,
-                    bookingRec.Id,
-                    body,
-                    new Set<String>{ bookingRec.CRM_Manager__c },
-                    getNotificationTypeId()
-                );
+                CustomNotificationService.notificationSend( title, bookingRec.Id,body,new Set<String>{ bookingRec.CRM_Manager__c }, getNotificationTypeId());
             }
         }
         catch(Exception e) {
@@ -80,7 +67,7 @@ public class MarkBookingStageCompletedController {
     * Returns:
     * @return String - CustomNotificationType Id
     */
-    private static String getNotificationTypeId() {
+    public static String getNotificationTypeId() {
         
         CustomNotificationType nt = [
             SELECT Id

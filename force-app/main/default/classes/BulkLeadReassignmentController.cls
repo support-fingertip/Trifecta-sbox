@@ -248,39 +248,31 @@ public with sharing class BulkLeadReassignmentController {
             String curStatus = String.isBlank(con.Lead_Status__c) ? '' : con.Lead_Status__c;
 
             // CASE 1: Sales → Pre-Sales
-            if (currentType == 'Sales' && targetType == 'Pre Sales') {
-                up.RecordTypeId = preSalesRTId;
+            if (currentType == 'Sales' && targetType == 'Pre Sales') {up.RecordTypeId = preSalesRTId;
                 up.Pre_Sales_User__c = assignToId;
                 up.Sales_User__c = null;
                 up.Lead_Status__c = curStatus.equalsIgnoreCase('Closed Lost') ? 'New' : 'inValid';
                 leadScenarioMap.put(up.Id, new Set<String>{ 'Normal' });
             }
             // CASE 2: Pre-Sales → Sales
-            else if (currentType == 'Pre Sales' && targetType == 'Sales') {
-                up.RecordTypeId = salesRTId;
+            else if (currentType == 'Pre Sales' && targetType == 'Sales') {up.RecordTypeId = salesRTId;
                 up.Pre_Sales_User__c = null;
                 up.Sales_User__c = assignToId;
                 up.Lead_Status__c = curStatus.equalsIgnoreCase('RNR') ? 'RNR' : 'New sales enquiry';
                 leadScenarioMap.put(up.Id, new Set<String>{ 'Normal' });
             }
             // CASE 3: Sales → Sales
-            else if (currentType == 'Sales' && targetType == 'Sales') {
-                up.RecordTypeId = salesRTId;
+            else if (currentType == 'Sales' && targetType == 'Sales') {up.RecordTypeId = salesRTId;
                 up.Sales_User__c = assignToId;
-                if (curStatus.equalsIgnoreCase('Closed Lost') || curStatus.equalsIgnoreCase('Site Visit Schedule')) {
-                    up.Lead_Status__c = 'New sales enquiry';
+                if (curStatus.equalsIgnoreCase('Closed Lost') || curStatus.equalsIgnoreCase('Site Visit Schedule')) {up.Lead_Status__c = 'New sales enquiry';
                 }
                 leadScenarioMap.put(up.Id, new Set<String>{ 'PreSaleCheck' });
             }
             // CASE 4: Pre-Sales → Pre-Sales
-            else if (currentType == 'Pre Sales' && targetType == 'Pre Sales') {
-                up.RecordTypeId = preSalesRTId;
+            else if (currentType == 'Pre Sales' && targetType == 'Pre Sales') {up.RecordTypeId = preSalesRTId;
                 up.Pre_Sales_User__c = assignToId;
-                if (curStatus.equalsIgnoreCase('Unqualified')) {
-                    up.Lead_Status__c = 'New';
-                } else if (curStatus.equalsIgnoreCase('Site Visit Schedule')) {
-                    up.Lead_Status__c = 'Potential Site Visit';
-                }
+                if (curStatus.equalsIgnoreCase('Unqualified')) {up.Lead_Status__c = 'New'; } 
+                else if (curStatus.equalsIgnoreCase('Site Visit Schedule')) { up.Lead_Status__c = 'Potential Site Visit';}
                 leadScenarioMap.put(up.Id, new Set<String>{ 'Normal' });
             }
 
@@ -296,16 +288,9 @@ public with sharing class BulkLeadReassignmentController {
         if (!leadScenarioMap.isEmpty()) {
             // Cancel site visits
             List<Site_Visit__c> svToUpdate = new List<Site_Visit__c>();
-            for (Site_Visit__c sv : [
-                SELECT Id, SLead__c, CreatedById, CreatedBy.Profile.Name, Status__c, Canceled_Reason__c
-                FROM Site_Visit__c
-                WHERE SLead__c IN :leadScenarioMap.keySet()
-                AND (Status__c = 'Scheduled' OR Status__c = 'Rescheduled')
-            ]) {
+            for (Site_Visit__c sv : [ SELECT Id, SLead__c, CreatedById, CreatedBy.Profile.Name, Status__c, Canceled_Reason__c FROM Site_Visit__c WHERE SLead__c IN :leadScenarioMap.keySet()  ]) {
                 Set<String> flags = leadScenarioMap.get(sv.SLead__c);
-                if (flags != null && flags.contains('PreSaleCheck') && sv.CreatedBy.Profile.Name == 'Pre-Sales Executive') {
-                    continue; // preserve pre-sales created SVs in Sales→Sales
-                }
+                if (flags != null && flags.contains('PreSaleCheck') && sv.CreatedBy.Profile.Name == 'Pre-Sales Executive') { continue;}
                 sv.Status__c = 'Cancelled';
                 sv.Canceled_Reason__c = 'Cancelled by system due to lead Re-Assignment.';
                 svToUpdate.add(sv);
@@ -313,11 +298,7 @@ public with sharing class BulkLeadReassignmentController {
 
             // Mark follow-ups as missed
             List<Follow_Up__c> fuToUpdate = new List<Follow_Up__c>();
-            for (Follow_Up__c fu : [
-                SELECT Id, SLead__c, Status__c, Description__c
-                FROM Follow_Up__c
-                WHERE SLead__c IN :leadScenarioMap.keySet()
-                AND Status__c = 'Scheduled'
+            for (Follow_Up__c fu : [ SELECT Id, SLead__c, Status__c, Description__c FROM Follow_Up__c WHERE SLead__c IN :leadScenarioMap.keySet()AND Status__c = 'Scheduled'
             ]) {
                 fu.Status__c = 'Missed';
                 fu.Description__c = 'Missed by system due to lead Re-Assignment.';

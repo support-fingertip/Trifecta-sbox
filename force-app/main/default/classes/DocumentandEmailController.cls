@@ -315,7 +315,6 @@ public class DocumentandEmailController {
         return returnMessage;
     }
     
-    //@InvocableMethod
     public static void sendEmailGenerateDemand(List<Id> recIds,List<Id> contentIds) {
         try {
             
@@ -631,112 +630,112 @@ public class DocumentandEmailController {
         
         return result;
     }
-@AuraEnabled
-public static String sendKeyHandoverEmail(Id bookingId) {
-    try {
-        Booking__c booking = [
-            SELECT Id,
-                   First_Applicant_Name__c,
-                   Email__c,
-                   Email1__c,
-                   Owner.Email,
-                   Project_Type__c
-            FROM Booking__c
-            WHERE Id = :bookingId
-            LIMIT 1
-        ];
-        
-        if (booking == null || String.isBlank(booking.Email__c)) {
-            return 'Error: The primary email field (Email__c) is empty. Please provide a recipient email.';
-        }
-
-        PageReference pr;
-        String pType = booking.Project_Type__c;
-        
-        if (pType == 'Villas') {
-            pr = Page.VillasKeyHandoverVfp;
-        } else if (pType == 'Row House') {
-            pr = Page.RowHouseKeyHandoverVfp;
-        } else if (pType == 'Apartments' || pType == 'Plots') {
-            pr = Page.FlatKeyHandoverVfp;
-        } else {
-            return 'Error: No Key Handover document exists for Project Type: ' + pType;
-        }
-        
-        pr.getParameters().put('id', String.valueOf(bookingId));
-        Blob pdfBlob = Test.isRunningTest()
-            ? Blob.valueOf('Test PDF Content')
-            : pr.getContentAsPDF();
-
-        List<String> toList = new List<String>();
-        toList.add(booking.Email__c);
-        
-        if (String.isNotBlank(booking.Email1__c)) {
-            toList.add(booking.Email1__c);
-        }
-
-        for (Co_Applicant__c ca : [
-            SELECT Email__c
-            FROM Co_Applicant__c
-            WHERE Booking__c = :bookingId
-        ]) {
-            if (String.isNotBlank(ca.Email__c)) {
-                toList.add(ca.Email__c);
+    @AuraEnabled
+    public static String sendKeyHandoverEmail(Id bookingId) {
+        try {
+            Booking__c booking = [
+                SELECT Id,
+                First_Applicant_Name__c,
+                Email__c,
+                Email1__c,
+                Owner.Email,
+                Project_Type__c
+                FROM Booking__c
+                WHERE Id = :bookingId
+                LIMIT 1
+            ];
+            
+            if (booking == null || String.isBlank(booking.Email__c)) {
+                return 'Error: The primary email field (Email__c) is empty. Please provide a recipient email.';
             }
+            
+            PageReference pr;
+            String pType = booking.Project_Type__c;
+            
+            if (pType == 'Villas') {
+                pr = Page.VillasKeyHandoverVfp;
+            } else if (pType == 'Row House') {
+                pr = Page.RowHouseKeyHandoverVfp;
+            } else if (pType == 'Apartments' || pType == 'Plots') {
+                pr = Page.FlatKeyHandoverVfp;
+            } else {
+                return 'Error: No Key Handover document exists for Project Type: ' + pType;
+            }
+            
+            pr.getParameters().put('id', String.valueOf(bookingId));
+            Blob pdfBlob = Test.isRunningTest()
+                ? Blob.valueOf('Test PDF Content')
+                : pr.getContentAsPDF();
+            
+            List<String> toList = new List<String>();
+            toList.add(booking.Email__c);
+            
+            if (String.isNotBlank(booking.Email1__c)) {
+                toList.add(booking.Email1__c);
+            }
+            
+            for (Co_Applicant__c ca : [
+                SELECT Email__c
+                FROM Co_Applicant__c
+                WHERE Booking__c = :bookingId
+            ]) {
+                if (String.isNotBlank(ca.Email__c)) {
+                    toList.add(ca.Email__c);
+                }
+            }
+            
+            toList = validateEmails(toList);
+            
+            if (toList.isEmpty()) {
+                return 'Error: No valid email addresses found in the Booking or Co-Applicants.';
+            }
+            
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setToAddresses(toList);
+            
+            if (String.isNotBlank(booking.Owner.Email)) {
+                email.setCcAddresses(new List<String>{ booking.Owner.Email });
+            }
+            
+            email.setSubject('Key Handover Confirmation – Zuari Garden City');
+            
+            String custName = String.isNotBlank(booking.First_Applicant_Name__c)
+                ? booking.First_Applicant_Name__c
+                : 'Customer';
+            
+            String body = ''
+                + '<p>Dear ' + custName + ',</p>'
+                + '<p>We are delighted to inform you that the keys for your unit at '
+                + '<strong>Zuari Garden City</strong>, located at KRS Road, Hulikere, '
+                + 'Sreerangapatna Taluk, Mandya Dist-571606, have been handed over to you.</p>'
+                + '<p>Please find the attached letter for your reference.</p>'
+                + '<p>Kindly acknowledge receipt by signing the attached document, confirming that '
+                + 'you have inspected all the keys and verified their working condition prior to the handover.</p>'
+                + '<p>Thank you for choosing <strong>Zuari Infraworld India Limited</strong>. '
+                + 'We look forward to serving you.</p>'
+                + '<br/>'
+                + '<p>Best regards,<br/>'
+                + 'CRM Representative<br/>'
+                + 'Zuari Infraworld India Limited</p>';
+            
+            email.setHtmlBody(body);
+            email.setWhatId(bookingId);
+            email.setSaveAsActivity(true);
+            
+            Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
+            attach.setFileName('Key Handover Document.pdf');
+            attach.setBody(pdfBlob);
+            attach.setContentType('application/pdf');
+            email.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
+            
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+            
+            return 'Success: Key Handover email sent to ' + String.join(toList, ', ');
+            
+        } catch (Exception e) {
+            return 'Error: ' + e.getMessage();
         }
-
-        toList = validateEmails(toList);
-        
-        if (toList.isEmpty()) {
-            return 'Error: No valid email addresses found in the Booking or Co-Applicants.';
-        }
-
-        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        email.setToAddresses(toList);
-        
-        if (String.isNotBlank(booking.Owner.Email)) {
-            email.setCcAddresses(new List<String>{ booking.Owner.Email });
-        }
-        
-        email.setSubject('Key Handover Confirmation – Zuari Garden City');
-        
-        String custName = String.isNotBlank(booking.First_Applicant_Name__c)
-            ? booking.First_Applicant_Name__c
-            : 'Customer';
-        
-        String body = ''
-            + '<p>Dear ' + custName + ',</p>'
-            + '<p>We are delighted to inform you that the keys for your unit at '
-            + '<strong>Zuari Garden City</strong>, located at KRS Road, Hulikere, '
-            + 'Sreerangapatna Taluk, Mandya Dist-571606, have been handed over to you.</p>'
-            + '<p>Please find the attached letter for your reference.</p>'
-            + '<p>Kindly acknowledge receipt by signing the attached document, confirming that '
-            + 'you have inspected all the keys and verified their working condition prior to the handover.</p>'
-            + '<p>Thank you for choosing <strong>Zuari Infraworld India Limited</strong>. '
-            + 'We look forward to serving you.</p>'
-            + '<br/>'
-            + '<p>Best regards,<br/>'
-            + 'CRM Representative<br/>'
-            + 'Zuari Infraworld India Limited</p>';
-        
-        email.setHtmlBody(body);
-        email.setWhatId(bookingId);
-        email.setSaveAsActivity(true);
-
-        Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
-        attach.setFileName('Key Handover Document.pdf');
-        attach.setBody(pdfBlob);
-        attach.setContentType('application/pdf');
-        email.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
-
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
-        
-        return 'Success: Key Handover email sent to ' + String.join(toList, ', ');
-
-    } catch (Exception e) {
-        return 'Error: ' + e.getMessage();
     }
-}
     @AuraEnabled
     public static String sendPossessionLetterViaProjectType(Id bookingId) {
         try {

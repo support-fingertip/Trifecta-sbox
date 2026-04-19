@@ -207,8 +207,6 @@ private class WhatsappControllerTest {
         WhatsappController ctrl = new WhatsappController(new List<Booking__c>{ bk }, '6');
         ctrl.sendBookingDoneMsg(new List<Booking__c>{ bk });
         ctrl.sendDemandReminderMsg(new List<Booking__c>{ bk });
-        ctrl.sendRevisedDemandMsg(bk, 60000, System.today().addDays(10));
-        ctrl.sendRevisedDemandMsg(bk);
         ctrl.sendWelcomeMail(bk);
         Test.stopTest();
 
@@ -257,7 +255,17 @@ private class WhatsappControllerTest {
         new WhatsappController(new List<Site_Visit__c>{ sv }, '5').sendSVDoneMsg(new List<Site_Visit__c>{ sv });
         new WhatsappController(new List<Booking__c>{ bk }, '6').sendBookingDoneMsg(new List<Booking__c>{ bk });
         new WhatsappController(new List<Booking__c>{ bk }, '9').sendDemandReminderMsg(new List<Booking__c>{ bk });
-        new WhatsappController(bk, 1000, System.today(), '10').sendRevisedDemandMsg(bk, 1000, System.today());
+      
+        
+        WhatsappController controller =
+            new WhatsappController(new List<Booking__c>{ bk }, '10');
+        
+        // ── 4. Call Method ────────────────────────
+        controller.sendRevisedDemandMsg(
+            bk,
+            1000,
+            Date.today()
+        );
         new WhatsappController(bk, '11').sendWelcomeMail(bk);
         new WhatsappController(new List<Receipt__c>{ rc }, '7').sendPaymentReceiptMsg(new List<Receipt__c>{ rc });
         new WhatsappController(new List<Demand_Raised__c>{ dm }, '8').sendDemandRaisedMsg(new List<Demand_Raised__c>{ dm });

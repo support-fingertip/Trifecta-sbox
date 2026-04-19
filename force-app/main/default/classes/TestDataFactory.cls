@@ -5,8 +5,8 @@ public class TestDataFactory {
 
     public static Project__c createProject() {
         Project__c p = new Project__c(
-            Name        = 'Trifecta Test Project',
-            Project__c  = 'Trifecta Test Project',
+            Name        = 'Trifecta Vanto',
+            Project__c  = 'Trifecta Vanto',
             Active__c   = true
         );
         insert p;
@@ -29,7 +29,7 @@ public class TestDataFactory {
             Company              = 'testcompany',
             Phone__c             = '8778987789',
             Source_Type__c       = 'Google',
-            Allocated_Project__c = 'Trifecta Test Project'
+            Allocated_Project__c = 'Trifecta Vanto'
         );
         insert l;
         return l;
@@ -58,8 +58,7 @@ public class TestDataFactory {
         Quote__c q = new Quote__c(
             Block_Lookup__c  = blockId,
             Quote_status__c  = 'Drafted',
-            Block__c         = 'A',
-            Project__c       = 'Trifecta Test Project',
+            Project__c       = 'Trifecta Vanto',
             Payment_Type__c  = 'Standard',
             Sale_Area__c     = 2567,
             Built_up_area__c = 4567,
@@ -101,13 +100,14 @@ public class TestDataFactory {
             Email__c                = 'customer@example.com',
             Mobile__c               = '9000000001',
             Project_Type__c         = projectType,
-            Project__c              = 'Trifecta Test Project',
+            Project__c              = 'Trifecta Vanto',
             // Block_Id__c is a formula (CASESAFEID(Plot__r.Block_Lookup__c)) and
             // cannot be set directly. Use the writable Block__c lookup instead.
             Block__c                = bc.Id,
             Mode_Of_Payment__c      = 'Cheque',
             Funding_Type__c         = 'Self',
-            Stage_Status__c         = 'In Progress'
+            Stage_Status__c         = 'In Progress',
+            CRM_Manager__c = UserInfo.getUserId()
         );
         Id rtId = getBookingRecordTypeId(recordTypeDevNameFor(projectType));
         if (rtId != null) book.RecordTypeId = rtId;
@@ -149,7 +149,7 @@ public class TestDataFactory {
         Receipt__c r = new Receipt__c(
             Booking__c       = bookingId,
             Receipt_Date__c  = Date.today(),
-            Received_Amount__c = 10000
+            Amount_Received__c = 10000
         );
         insert r;
         return r;

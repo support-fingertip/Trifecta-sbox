@@ -356,7 +356,7 @@ public without sharing class WelcomeMailController {
         
         return attachment;
     }
-    private static Messaging.EmailFileAttachment generateVFPageAttachment(String vfPageName, Id recordId) {
+    public static Messaging.EmailFileAttachment generateVFPageAttachment(String vfPageName, Id recordId) {
         PageReference vfPage = new PageReference('/apex/' + vfPageName);
         System.debug(vfPageName);
         

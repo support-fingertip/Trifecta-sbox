@@ -48,6 +48,7 @@
                     <table class="slds-table slds-table_bordered slds-table_cell-buffer">
                         <thead>
                             <tr class="slds-line-height_reset">
+                                <th scope="col">S.No.</th>
                                 <th scope="col">Name</th>
                                 <th scope="col" class="slds-text-align_right">Payment %</th>
                                 <th scope="col" class="slds-text-align_right">Amount</th>
@@ -57,6 +58,7 @@
                         <tbody>
                             <template for:each={rows} for:item="row">
                                 <tr key={row.id} class={row.rowClass}>
+                                    <td data-label="Name">{row.sNo}</td>
                                     <td data-label="Name">{row.name}</td>
                                     <td data-label="Payment %" class="slds-text-align_right">
                                         <lightning-input

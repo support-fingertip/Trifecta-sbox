@@ -34,6 +34,7 @@ private class ReceiptVFPControllerTest {
         // 3. Setup Plot
         Plot__c plot = new Plot__c(
             Name = 'P1',
+            Block_Lookup__c = blk.Id,
             Status__c = 'Available',
             Project__c = proj.Id,
             Block__c = 'A2' 
@@ -125,7 +126,7 @@ private class ReceiptVFPControllerTest {
 
     @isTest
     static void testApartmentReceipt() {
-        Receipt__c rc = [SELECT Id FROM Receipt__c WHERE Receipt_Name__c = 'REC-APT-001' LIMIT 1];
+        Receipt__c rc = [SELECT Id FROM Receipt__c limit 1];
         
         Test.startTest();
         ApexPages.StandardController sc = new ApexPages.StandardController(rc);

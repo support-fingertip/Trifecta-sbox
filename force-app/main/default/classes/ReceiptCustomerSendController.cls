@@ -61,7 +61,7 @@ public with sharing class ReceiptCustomerSendController {
 
         Receipt__c receipt = [
             SELECT Id, Booking__c, Name, Receipt_Date__c, Total_Received_Amount__c,
-                   Amount_Received__c, Project_Block_Name__c,Type__c
+            Receipt_Amount_Without_Tds__c, Project_Block_Name__c,Type__c
             FROM Receipt__c
             WHERE Id = :receiptId
             LIMIT 1
@@ -192,9 +192,10 @@ public with sharing class ReceiptCustomerSendController {
 
     private static String sendReceiptInternal(Id receiptId, String emailContent, List<Id> extraFileIds) {
         ReceiptEmailPreviewWrapper preview = buildReceiptEmailPreview(receiptId);
-
+        
         Receipt__c receipt = [
-            SELECT Id, Booking__c, Name, Receipt_Date__c, Amount_Received__c, Project_Block_Name__c
+            SELECT Id, Booking__c, Name, Receipt_Date__c, Total_Received_Amount__c,
+            Receipt_Amount_Without_Tds__c, Project_Block_Name__c
             FROM Receipt__c
             WHERE Id = :receiptId
             LIMIT 1
@@ -341,12 +342,13 @@ public with sharing class ReceiptCustomerSendController {
         if (Label.Enable_whatsapp_notifications == 'TRUE') {
             List<Receipt__c> receipts = [
                 SELECT Id,
-                       Booking__r.First_Applicant_Name__c,
-                       Booking__r.Mobile__c,
-                       Amount_Received__c,
-                       Booking__r.Unit_No__c,
-                       Project_Block_Name__c,
-                       Booking__r.CRM_Executive_Contact_No__c
+                Booking__r.First_Applicant_Name__c,
+                Booking__r.Mobile__c,
+                Total_Received_Amount__c,
+                Receipt_Amount_Without_Tds__c,
+                Booking__r.Unit_No__c,
+                Project_Block_Name__c,
+                Booking__r.CRM_Executive_Contact_No__c
                 FROM Receipt__c
                 WHERE Id = :receiptId
             ];

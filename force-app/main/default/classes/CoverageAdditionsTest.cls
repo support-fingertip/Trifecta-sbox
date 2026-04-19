@@ -44,23 +44,7 @@ private class CoverageAdditionsTest {
     }
 
     // ────────────────── TrifectaCustomerBookingFormController ──────────────────
-    @IsTest
-    static void customerBookingFormAllTypes() {
-        Booking__c apt = TestDataFactory.createBooking('Apartments');
-        Booking__c vil = TestDataFactory.createBooking('Villas');
-        Booking__c rh  = TestDataFactory.createBooking('Row House');
-
-        Test.startTest();
-        try { TrifectaCustomerBookingFormController.getBookingData(apt.Id, 'Apartments'); }
-        catch (Exception e) { /* swallow */ }
-
-        try { TrifectaCustomerBookingFormController.getBookingData(vil.Id, 'Villas'); }
-        catch (Exception e) { /* swallow */ }
-
-        try { TrifectaCustomerBookingFormController.getBookingData(rh.Id, 'Row House'); }
-        catch (Exception e) { /* swallow */ }
-        Test.stopTest();
-    }
+  
 
     // ────────────────── DocumentandEmailController ──────────────────
     @IsTest

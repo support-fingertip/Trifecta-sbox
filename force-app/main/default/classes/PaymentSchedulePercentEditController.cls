@@ -2,44 +2,22 @@ public with sharing class PaymentSchedulePercentEditController {
 
     /**
      * Returns every Payment_schedule__c under the same Booking as the record
-     * the calling component was launched from. The record can be either a
-     * Payment_schedule__c (Quick Action on a PS page) or a Booking__c (button
-     * embedded on the Booking record page).
+     * the Quick Action was launched from, along with booking context
+     * (Total_Amount__c, Project_Type__c) and the expected percent total.
      */
     @AuraEnabled(cacheable=false)
     public static Map<String, Object> getSchedules(Id recordId) {
         try {
             if (recordId == null) {
-                throw new AuraHandledException('Record Id is required.');
+                throw new AuraHandledException('Booking Id is required.');
             }
 
-            String objectName = recordId.getSObjectType().getDescribe().getName();
-            Id bookingId;
-
-            if (objectName == 'Booking__c') {
-                bookingId = recordId;
-            } else if (objectName == 'Payment_schedule__c') {
-                Payment_schedule__c source = [
-                    SELECT Id, Booking__c
-                    FROM Payment_schedule__c
-                    WHERE Id = :recordId
-                    LIMIT 1
-                ];
-                bookingId = source.Booking__c;
-            } else {
-                throw new AuraHandledException(
-                    'Unsupported record type: ' + objectName);
-            }
-
-            if (bookingId == null) {
-                throw new AuraHandledException(
-                    'Could not resolve Booking for this record.');
-            }
+          
 
             Booking__c booking = [
                 SELECT Id, Name, Total_Amount__c, Project_Type__c
                 FROM Booking__c
-                WHERE Id = :bookingId
+                WHERE Id = :recordId
                 LIMIT 1
             ];
 
@@ -124,9 +102,9 @@ public with sharing class PaymentSchedulePercentEditController {
 
                 Decimal newPct = (e.Payment_percent__c == null)
                     ? 0 : e.Payment_percent__c;
-                if (newPct < 0) {
+                if (newPct <= 0) {
                     throw new AuraHandledException(
-                        'Percentage cannot be negative (S.No '
+                        'Percentage cannot be negative or Zero (S.No '
                         + ref.S_No__c + ').');
                 }
 
