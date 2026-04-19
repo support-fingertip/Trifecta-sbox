@@ -1793,7 +1793,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Booking__c.Customer_Service_Complaints__c</field>
+        <field>Booking__c.Customer_Service_CRM_Executive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
