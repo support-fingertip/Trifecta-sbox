@@ -1309,6 +1309,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Agreement_CRM_Executive__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Agreement_Executed_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -1784,6 +1789,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Customer_Service_Complaints__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.DD_Uploaded_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -1835,6 +1845,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Demanded_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Demands_Collections_CRM_Executive__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2520,6 +2535,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Refund_Expected_Date__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Registration_CRM_Executive__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -10155,10 +10175,6 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Inspection__c</tab>
-        <visibility>Hidden</visibility>
-    </tabVisibilities>
-    <tabVisibilities>
-        <tab>Interest_Percentage__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

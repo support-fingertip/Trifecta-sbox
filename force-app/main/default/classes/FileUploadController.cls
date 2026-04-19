@@ -267,6 +267,78 @@ public with sharing class FileUploadController {
         
         return files;
     }
+    /**
+     * Post-upload processor used by <lightning:fileUpload> in
+     * GenricFileUploadComponent. Because lightning:fileUpload creates the
+     * ContentVersion + ContentDocumentLink itself (supporting files up to 2 GB
+     * via internal chunking), we only need to:
+     *   1. Rename the ContentVersion Title so it matches the picklist-
+     *      selected documentName (e.g. "Pan Card_001") — otherwise the title
+     *      is the raw uploaded filename and the existing filter
+     *      (see getFiles, Title.startsWith(fileName)) won't find it.
+     *   2. Flip the matching Booking__c flag (Aadhaar_Uploaded__c etc.).
+     */
+    @AuraEnabled
+    public static String handleUploadedFile(Id parentId, Id contentDocumentId, String documentName) {
+        try {
+            if (String.isBlank(parentId) || String.isBlank(contentDocumentId)) {
+                throw new AuraHandledException('Parent Id and ContentDocument Id are required.');
+            }
+
+            // 1. Rename the latest ContentVersion to the picklist-selected name
+            if (String.isNotBlank(documentName)) {
+                List<ContentVersion> cvs = [
+                    SELECT Id, Title FROM ContentVersion
+                    WHERE ContentDocumentId = :contentDocumentId
+                    ORDER BY VersionNumber DESC LIMIT 1
+                ];
+                if (!cvs.isEmpty() && cvs[0].Title != documentName) {
+                    cvs[0].Title = documentName;
+                    try { update cvs[0]; } catch (Exception e) { System.debug(e); }
+                }
+            }
+
+            // 2. Extract main document name (before underscore) and flip booking flag
+            String mainDocName = documentName;
+            if (documentName != null && documentName.contains('_')) {
+                mainDocName = documentName.substringBefore('_');
+            }
+
+            // Only touch Booking__c if the parent is actually a Booking
+            if (parentId != null &&
+                parentId.getSObjectType() == Booking__c.SObjectType) {
+
+                Booking__c bk = new Booking__c(Id = parentId);
+                Boolean changed = false;
+
+                if (mainDocName == 'Government Photo Identity')   { bk.Aadhaar_Uploaded__c              = true; changed = true; }
+                else if (mainDocName == 'Pan Card')               { bk.Pan_Uploaded__c                  = true; changed = true; }
+                else if (mainDocName == 'Applicant Photo')        { bk.Applicant_Photo_Uploaded__c      = true; changed = true; }
+                else if (mainDocName == 'Address Proof')          { bk.Proof_of_Address_Uploaded__c     = true; changed = true; }
+                else if (mainDocName == 'Cancellation Agreement') { bk.Cancellation_Agreement_Uploaded__c = true; changed = true; }
+                else if (mainDocName == 'Signed Agreement')       { bk.Signed_Agreement_Uploaded__c     = true; changed = true; }
+                else if (mainDocName == 'Signed Sales Deed')      { bk.Signed_Sales_Deed_Uploaded__c    = true; bk.Sale_Deed_Date__c = Date.today(); changed = true; }
+                else if (mainDocName == 'Final NOC')              { bk.Final_NOC_Uploaded__c            = true; bk.Final_NOC_Uploaded_Date__c = Date.today(); changed = true; }
+                else if (mainDocName == 'DD')                     { bk.DD_Uploaded__c                   = true; bk.DD_Uploaded_Date__c = Date.today(); changed = true; }
+                else if (mainDocName == 'Possession Certificate') { bk.Possession_Certificate_Uploaded__c = true; bk.Possession_Date__c = Date.today(); changed = true; }
+                else if (mainDocName == 'Key Handover Letter')    { bk.Key_Handover_Letter_Uploaded__c  = true; bk.Key_Handover_Letter_Uploaded_Date__c = Date.today(); changed = true; }
+                else if (mainDocName == 'Commencement Certificate'){ bk.Commencement_Certificate_Uploaded__c = true; changed = true; }
+                else if (mainDocName == 'Panchayati License')     { bk.Panchayati_License_Uploaded__c   = true; changed = true; }
+                else if (mainDocName == 'Building Plan')          { bk.Building_Plan_Uploaded__c        = true; changed = true; }
+                else if (mainDocName == 'Khata Document')         { bk.Khata_Document_Uploaded__c       = true; changed = true; }
+                else if (mainDocName == 'Tax Receipt')            { bk.Tax_Receipt_Uploaded__c          = true; changed = true; }
+
+                if (changed) {
+                    try { update bk; } catch (Exception e) { System.debug(e); }
+                }
+            }
+
+            return contentDocumentId;
+        } catch (Exception ex) {
+            throw new AuraHandledException('Post-upload processing failed: ' + ex.getMessage());
+        }
+    }
+
     @AuraEnabled
     public static void deleteFileFromSalesforce(String fileId) {
         try {

@@ -22,25 +22,18 @@
             <div class="slds-grid slds-gutters slds-text-align_center">
                 <aura:if isTrue="{!v.selectedDocumentName != ''}">
                     <div class="slds-col">
-                        <lightning:input type="file" 
-                                         aura:id="fileUpload"
-                                         label="File Upload" 
-                                         name="file" 
-                                         multiple="false" 
-                                         onchange="{!c.filesChangeHandler}"/>
-                        <aura:if isTrue="{!v.fileName.length > 0}">
-                            <aura:iteration items="{!v.fileName}" var="val">
-                                <div class="slds-text-color_success">
-                                    {!val}<br/>
-                                </div>
-                            </aura:iteration>
-                            <aura:set attribute="else">
-                                <div class="slds-text-color_error">
-                                    No Files Selected...
-                                </div>
-                            </aura:set>
-                        </aura:if>
-                        <lightning:button name="Upload File" label="Upload File" variant="brand" onclick="{!c.uploadFiles}"/>
+                        <!--
+                            lightning:fileUpload handles chunked upload internally
+                            and supports files up to 2 GB, bypassing the ~5 MB
+                            Aura action-payload cap we used to hit with the manual
+                            FileReader + Apex fileUpload flow.
+                        -->
+                        <lightning:fileUpload label="File Upload"
+                                              name="fileUploader"
+                                              multiple="false"
+                                              accept=".pdf,.png,.jpg,.jpeg,.gif,.bmp,.tif,.tiff,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
+                                              recordId="{!v.recordId}"
+                                              onuploadfinished="{!c.handleUploadFinished}"/>
                     </div>
                 </aura:if>
             </div>
