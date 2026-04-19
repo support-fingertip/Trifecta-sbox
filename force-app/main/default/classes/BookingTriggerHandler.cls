@@ -212,6 +212,7 @@ public class BookingTriggerHandler {
             }
         }
         syncChildOwner(bookingToOwnerMap);
+        shareBookingWithCRMExecutives(newBookingList, oldBookingMap);
         sendCancellationRequestEmail(newBookingList, oldBookingMap);
         sendCancellationApprovedEmail(newBookingList, oldBookingMap);
         if(!unitSet.isEmpty())
@@ -292,12 +293,226 @@ public class BookingTriggerHandler {
         if (!inspectionList.isEmpty()) {
             update inspectionList;
         }
-        
+
     }
-    
-    
-    
-    
+
+    /**
+    * Method Name  : shareBookingWithCRMExecutives
+    * Description  : When any of the 5 stage-specific CRM Executive lookup fields
+    *                on Booking__c change, grant Read share to the newly assigned
+    *                user and revoke the previously assigned user. The share is
+    *                cascaded to the lookup children Payment_Schedule__c,
+    *                Refund__c and Inspection__c. Master-Detail children
+    *                (Co_Applicant__c, Receipt__c, Demand_Raised__c) inherit
+    *                automatically and need no code.
+    *
+    *                The Booking Owner is always excluded from share insertion
+    *                because the owner already has implicit Read/Write; inserting
+    *                a Read share for the owner raises FIELD_FILTER_VALIDATION_EXCEPTION.
+    */
+    public static void shareBookingWithCRMExecutives(
+        List<Booking__c> newBookingList,
+        Map<Id, Booking__c> oldBookingMap
+    ) {
+        Map<Id, Set<Id>> toShare  = new Map<Id, Set<Id>>();
+        Map<Id, Set<Id>> toRevoke = new Map<Id, Set<Id>>();
+
+        List<String> fields = new List<String>{
+            'Agreement_CRM_Executive__c',
+            'Registration_CRM_Executive__c',
+            'Demands_Collections_CRM_Executive__c',
+            'Possession_Handover_CRM_Executive__c',
+            'Customer_Service_CRM_Executive__c'
+        };
+
+        for (Booking__c bk : newBookingList) {
+            Booking__c oldBk = oldBookingMap.get(bk.Id);
+            if (oldBk == null) continue;
+
+            Set<Id> stillAssigned = new Set<Id>();
+            for (String f : fields) {
+                Id v = (Id) bk.get(f);
+                if (v != null) stillAssigned.add(v);
+            }
+
+            for (String f : fields) {
+                Id newVal = (Id) bk.get(f);
+                Id oldVal = (Id) oldBk.get(f);
+                if (newVal == oldVal) continue;
+
+                if (oldVal != null
+                    && !stillAssigned.contains(oldVal)
+                    && oldVal != bk.OwnerId) {
+                    if (!toRevoke.containsKey(bk.Id)) toRevoke.put(bk.Id, new Set<Id>());
+                    toRevoke.get(bk.Id).add(oldVal);
+                }
+
+                if (newVal != null && newVal != bk.OwnerId) {
+                    if (!toShare.containsKey(bk.Id)) toShare.put(bk.Id, new Set<Id>());
+                    toShare.get(bk.Id).add(newVal);
+                }
+            }
+        }
+
+        if (toShare.isEmpty() && toRevoke.isEmpty()) return;
+
+        if (!toRevoke.isEmpty()) {
+            Set<Id> bookingIds = toRevoke.keySet();
+            List<Booking__Share> existing = [
+                SELECT Id, ParentId, UserOrGroupId
+                FROM Booking__Share
+                WHERE ParentId IN :bookingIds
+                  AND RowCause = 'Manual'
+            ];
+            List<Booking__Share> toDelete = new List<Booking__Share>();
+            for (Booking__Share s : existing) {
+                Set<Id> users = toRevoke.get(s.ParentId);
+                if (users != null && users.contains(s.UserOrGroupId)) {
+                    toDelete.add(s);
+                }
+            }
+            if (!toDelete.isEmpty()) {
+                Database.delete(toDelete, false);
+            }
+        }
+
+        if (!toShare.isEmpty()) {
+            List<Booking__Share> toInsert = new List<Booking__Share>();
+            for (Id bookingId : toShare.keySet()) {
+                for (Id userId : toShare.get(bookingId)) {
+                    Booking__Share s = new Booking__Share();
+                    s.ParentId = bookingId;
+                    s.UserOrGroupId = userId;
+                    s.AccessLevel = 'Read';
+                    s.RowCause = Schema.Booking__Share.RowCause.Manual;
+                    toInsert.add(s);
+                }
+            }
+            if (!toInsert.isEmpty()) {
+                Database.insert(toInsert, false);
+            }
+        }
+
+        Set<Id> bookingIdsAll = new Set<Id>();
+        bookingIdsAll.addAll(toShare.keySet());
+        bookingIdsAll.addAll(toRevoke.keySet());
+        cascadeShareToChildren(bookingIdsAll, toShare, toRevoke);
+    }
+
+    /**
+    * Cascade Booking-level share/revoke to its Lookup child records:
+    * Payment_Schedule__c, Refund__c, Inspection__c. Master-Detail children
+    * inherit access from the parent Booking share automatically.
+    */
+    private static void cascadeShareToChildren(
+        Set<Id> bookingIds,
+        Map<Id, Set<Id>> toShare,
+        Map<Id, Set<Id>> toRevoke
+    ) {
+        if (bookingIds == null || bookingIds.isEmpty()) return;
+
+        Map<Id, List<Id>> bookingToPS   = new Map<Id, List<Id>>();
+        Map<Id, List<Id>> bookingToRef  = new Map<Id, List<Id>>();
+        Map<Id, List<Id>> bookingToInsp = new Map<Id, List<Id>>();
+
+        for (Payment_Schedule__c c : [
+            SELECT Id, Booking__c FROM Payment_Schedule__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToPS.containsKey(c.Booking__c)) bookingToPS.put(c.Booking__c, new List<Id>());
+            bookingToPS.get(c.Booking__c).add(c.Id);
+        }
+        for (Refund__c c : [
+            SELECT Id, Booking__c FROM Refund__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToRef.containsKey(c.Booking__c)) bookingToRef.put(c.Booking__c, new List<Id>());
+            bookingToRef.get(c.Booking__c).add(c.Id);
+        }
+        for (Inspection__c c : [
+            SELECT Id, Booking__c FROM Inspection__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToInsp.containsKey(c.Booking__c)) bookingToInsp.put(c.Booking__c, new List<Id>());
+            bookingToInsp.get(c.Booking__c).add(c.Id);
+        }
+
+        insertChildShares('Payment_Schedule__Share', bookingToPS,   toShare);
+        insertChildShares('Refund__Share',           bookingToRef,  toShare);
+        insertChildShares('Inspection__Share',       bookingToInsp, toShare);
+
+        deleteChildShares('Payment_Schedule__Share', bookingToPS,   toRevoke);
+        deleteChildShares('Refund__Share',           bookingToRef,  toRevoke);
+        deleteChildShares('Inspection__Share',       bookingToInsp, toRevoke);
+    }
+
+    private static void insertChildShares(
+        String shareObjectName,
+        Map<Id, List<Id>> bookingToChildIds,
+        Map<Id, Set<Id>> toShare
+    ) {
+        if (toShare == null || toShare.isEmpty() || bookingToChildIds.isEmpty()) return;
+        Schema.SObjectType shareType = Schema.getGlobalDescribe().get(shareObjectName);
+        if (shareType == null) return;
+
+        List<SObject> shares = new List<SObject>();
+        for (Id bookingId : toShare.keySet()) {
+            List<Id> childIds = bookingToChildIds.get(bookingId);
+            if (childIds == null || childIds.isEmpty()) continue;
+            for (Id childId : childIds) {
+                for (Id userId : toShare.get(bookingId)) {
+                    SObject s = shareType.newSObject();
+                    s.put('ParentId', childId);
+                    s.put('UserOrGroupId', userId);
+                    s.put('AccessLevel', 'Read');
+                    s.put('RowCause', 'Manual');
+                    shares.add(s);
+                }
+            }
+        }
+        if (!shares.isEmpty()) {
+            Database.insert(shares, false);
+        }
+    }
+
+    private static void deleteChildShares(
+        String shareObjectName,
+        Map<Id, List<Id>> bookingToChildIds,
+        Map<Id, Set<Id>> toRevoke
+    ) {
+        if (toRevoke == null || toRevoke.isEmpty() || bookingToChildIds.isEmpty()) return;
+        Schema.SObjectType shareType = Schema.getGlobalDescribe().get(shareObjectName);
+        if (shareType == null) return;
+
+        Set<Id> childIds = new Set<Id>();
+        Map<Id, Set<Id>> childToRevokeUsers = new Map<Id, Set<Id>>();
+        for (Id bookingId : toRevoke.keySet()) {
+            List<Id> kids = bookingToChildIds.get(bookingId);
+            if (kids == null) continue;
+            for (Id k : kids) {
+                childIds.add(k);
+                childToRevokeUsers.put(k, toRevoke.get(bookingId));
+            }
+        }
+        if (childIds.isEmpty()) return;
+
+        String soql = 'SELECT Id, ParentId, UserOrGroupId FROM ' + shareObjectName +
+                      ' WHERE ParentId IN :childIds AND RowCause = \'Manual\'';
+        List<SObject> existing = Database.query(soql);
+        List<SObject> toDelete = new List<SObject>();
+        for (SObject s : existing) {
+            Id parentId = (Id) s.get('ParentId');
+            Id userId   = (Id) s.get('UserOrGroupId');
+            Set<Id> users = childToRevokeUsers.get(parentId);
+            if (users != null && users.contains(userId)) {
+                toDelete.add(s);
+            }
+        }
+        if (!toDelete.isEmpty()) {
+            Database.delete(toDelete, false);
+        }
+    }
+
     /**
     * Method Name  : getNotificationTypeId
     * Description  : Fetches Custom Notification Type Id for

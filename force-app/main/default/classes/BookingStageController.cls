@@ -85,8 +85,20 @@ public with sharing class BookingStageController {
             bookingRec.OwnerId = newOwnerId;
             bookingRec.Stage__c = newStage;
 
-           
-            
+            // Stamp the new owner onto the stage-specific CRM Executive lookup
+            if (newStage == 'Agreement') {
+                bookingRec.Agreement_CRM_Executive__c = newOwnerId;
+            } else if (newStage == 'Land Registration' || newStage == 'Registration') {
+                bookingRec.Registration_CRM_Executive__c = newOwnerId;
+            } else if (newStage == 'Demands & Progressive Collections') {
+                bookingRec.Demands_Collections_CRM_Executive__c = newOwnerId;
+            } else if (newStage == 'Possession / Handover') {
+                bookingRec.Possession_Handover_CRM_Executive__c = newOwnerId;
+            } else if (newStage == 'Customer Service & Complaints') {
+                bookingRec.Customer_Service_CRM_Executive__c = newOwnerId;
+            }
+
+
             // Format and append the comment
             Datetime dt = Datetime.now();
             String strTimeInAMorPM = dt.format('dd-MM-yy HH:mm a');
