@@ -127,19 +127,24 @@
         font-size: 0.75rem;
         }
         .rli-row {
-        padding: 4px 6px 8px 6px;
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        column-gap: 8px;
+        row-gap: 4px;
+        padding: 4px 8px 8px 8px;
+        align-items: end;
         }
         .rli-field {
-        padding: 0 4px;
-        margin-bottom: 8px;
-        box-sizing: border-box;
+        min-width: 0;
+        width: auto !important;
+        padding: 0;
+        margin-bottom: 4px;
         }
         .rli-actions {
         display: flex;
         align-items: flex-end;
         gap: 6px;
-        padding: 22px 4px 0 4px;
-        box-sizing: border-box;
+        padding: 22px 0 0 0;
         }
 
     </aura:html>
