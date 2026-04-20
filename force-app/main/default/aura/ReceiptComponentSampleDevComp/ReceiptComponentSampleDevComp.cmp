@@ -130,7 +130,7 @@
         padding: 4px 6px 8px 6px;
         }
         .rli-field {
-        padding: 0 6px;
+        padding: 0 4px;
         margin-bottom: 8px;
         box-sizing: border-box;
         }
@@ -138,8 +138,8 @@
         display: flex;
         align-items: flex-end;
         gap: 6px;
-        padding-top: 22px;
-        padding-left: 6px;
+        padding: 22px 4px 0 4px;
+        box-sizing: border-box;
         }
 
     </aura:html>
@@ -236,7 +236,7 @@
                 <aura:iteration items="{!v.recptItemList}" var="qt" indexVar="index">
                     <lightning:card title="{!index+1+(')')}" class="slds-p-left_xx-small groove" >
                         <div class="slds-grid slds-wrap rli-row">
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}" onchange="{!c.selectingType}">
                                     <lightning:select name="select1" aura:id="field" label="Payment Type" required="true" value="{!qt.Payment_Type__c}">
                                         <option value="">choose one...</option>
@@ -255,7 +255,7 @@
                                 </div>
                             </div>
                             <aura:if isTrue="{!qt.Payment_Type__c == 'TDS'}">
-                                <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div class="slds-col slds-size_1-of-6 rli-field">
                                     <div data-record="{!index}">
                                         <lightning:select aura:id="field" name="tdsStatusSel"
                                                           label="TDS Status" required="true"
@@ -268,13 +268,13 @@
                                     </div>
                                 </div>
                             </aura:if>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input name="Amount" type="decimal" label="Pending Amount"
                                                      value="{!qt.Pending_Amount__c}" disabled="true"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:select aura:id="field" name="select1" label="Payment From"
                                                       required="true" value="{!qt.Payment_From__c}">
@@ -284,7 +284,7 @@
                                     </lightning:select>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div>
                                     <lightning:select aura:id="field" class="select slds-size_1-of-1"
                                                       required="true" label="Mode of Payment"
@@ -297,39 +297,39 @@
                                 </div>
                             </div>
                             <aura:if isTrue="{!qt.Mode_of_Payment__c == 'Cheque'}">
-                                <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div class="slds-col slds-size_1-of-6 rli-field">
                                     <div data-record="{!index}">
                                         <lightning:input type="Date" aura:id="field" label="Cheque Date" required="true" value="{!qt.Cheque_Date__c}"/>
                                     </div>
                                 </div>
                             </aura:if>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input type="text" aura:id="field" label="Bank Name"
                                                      required="true" value="{!qt.Bank_Name__c}"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input type="text" aura:id="field" label="Branch Name"
                                                      required="true" value="{!qt.Branch__c}"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input aura:id="field" type="text" required="true"
                                                      label="Transaction/ChequeNo."
                                                      value="{!qt.Cheque_no_Transaction_Number__c}"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input type="date" aura:id="field"
                                                      label="Drawn on" required="true"
                                                      value="{!qt.Drawn_On__c}"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-field">
+                            <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div onchange="{!c.validateReceivedAmount}" data-record="{!index}">
                                     <lightning:input aura:id="field" type="number"
                                                      step="0.01" required="true"
@@ -337,7 +337,7 @@
                                                      value="{!qt.Received_Amount__c}"/>
                                 </div>
                             </div>
-                            <div class="slds-col slds-size_1-of-4 rli-actions">
+                            <div class="slds-col slds-size_1-of-6 rli-actions">
                                 <a onclick="{!c.removeRow}" data-record="{!index}">
                                     <lightning:buttonIcon iconName="utility:delete" iconClass="red" size="x-large" variant="destructive" alternativeText="Delete"/>
                                 </a>
