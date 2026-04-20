@@ -415,7 +415,7 @@ public without sharing class RaiseDemandEmailController {
             ];
             
             // 2. Get email template and fill merge fields
-            String template = String.isBlank(emailContent)
+            String cleanHtml = String.isBlank(emailContent)
                 ? getDemandEmailTemplate(book)
                 : emailContent;
             
@@ -441,10 +441,34 @@ public without sharing class RaiseDemandEmailController {
             
             email.setSubject(rawSubject);
             
-            // HTML Body
-            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                + template +
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 2: Unescape
+            cleanHtml = cleanHtml.unescapeHtml4();
+            
+            // Step 3: Remove empty paragraphs AGAIN after unescaping
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+            
+            // Step 5: Collapse multiple breaks
+            cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+            
+            // Step 6: Merge footer 3 separate <p> into one tight block
+            cleanHtml = cleanHtml.replaceAll(
+                '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+            );
+            
+            // Step 7: Add spacing to remaining <p> tags (without style only)
+            cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+            
+            String htmlBody =
+                '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
+                + cleanHtml +
                 '</body></html>';
+                    
             email.setHtmlBody(htmlBody);
             
             // Attach PDF and any ContentVersion files
@@ -713,7 +737,7 @@ public without sharing class RaiseDemandEmailController {
                 LIMIT 1
             ];
             
-            String template = String.isBlank(emailContent)
+            String cleanHtml = String.isBlank(emailContent)
                 ? getPenaltyDemandEmailTemplate(book)
                 : emailContent;
             
@@ -742,9 +766,34 @@ public without sharing class RaiseDemandEmailController {
             
             email.setSubject(rawSubject);
             
-            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                + template +
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 2: Unescape
+            cleanHtml = cleanHtml.unescapeHtml4();
+            
+            // Step 3: Remove empty paragraphs AGAIN after unescaping
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+            
+            // Step 5: Collapse multiple breaks
+            cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+            
+            // Step 6: Merge footer 3 separate <p> into one tight block
+            cleanHtml = cleanHtml.replaceAll(
+                '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+            );
+            
+            // Step 7: Add spacing to remaining <p> tags (without style only)
+            cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+            
+            String htmlBody =
+                '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
+                + cleanHtml +
                 '</body></html>';
+            
             email.setHtmlBody(htmlBody);
             
             List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();

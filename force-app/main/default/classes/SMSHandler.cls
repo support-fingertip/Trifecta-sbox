@@ -311,7 +311,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
         for (Receipt__c receipt : receipts) {
             String customerPhoneNumber = receipt.Booking__r.Mobile__c;
             String customerName = receipt.Booking__r.First_Applicant_Name__c;
-            String amount = String.valueOf(receipt.Receipt_Amount_Without_Tds__c);
+            String amount = String.valueOf(receipt.Total_Received_Amount__c);
             String flatNo = receipt.Booking__r.Plot__r.Name;
             String projectName = receipt.Booking__r.Project1__r.Name;
 

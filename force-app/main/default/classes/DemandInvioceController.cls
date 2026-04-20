@@ -132,16 +132,13 @@ public class DemandInvioceController {
         Block__c block = booking.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,Company_Address__c,
                                                         Construction_Company_Name__c,Land_Company_Name__c,Project_Name__c,
                                                         Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
+                                                        Constriction_Bank_Name__c,Constriction_Account_Number__c,Constriction_IFSC_Code__c,
+                                                        Constriction_Type_of_Account__c,Constriction_Branch__c,
                                                         Bank_Name__c FROM Block__c WHERE Id = :booking.Block_Id__c LIMIT 1] : null;
 
         /** ===================== MAPPING HEADER INFO ===================== **/
        
 
-        bookingInfo.bankName = (block != null && block.Bank_Name__c != null) ? block.Bank_Name__c : '';
-        bookingInfo.accountNumber = (block != null && block.Account_Number__c != null) ? block.Account_Number__c : '';
-        bookingInfo.ifscCode = (block != null && block.IFSC_Code__c != null) ? block.IFSC_Code__c : '';
-        bookingInfo.typeOfAccount = (block != null && block.Type_of_Account__c != null) ? block.Type_of_Account__c : '';
-        bookingInfo.branch = (block != null && block.Branch__c != null) ? block.Branch__c : '';
 
         bookingInfo.demandDate = System.today(); 
         bookingInfo.customerId = (booking.SLead__r != null && booking.SLead__r.Lead_ID__c != null) ? booking.SLead__r.Lead_ID__c : '';
@@ -198,15 +195,43 @@ public class DemandInvioceController {
             if(psRecord.Type__c =='Land')
             {
                 bookingInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+                
+                
+                bookingInfo.bankName = (block != null && block.Bank_Name__c != null) ? block.Bank_Name__c : '';
+                bookingInfo.accountNumber = (block != null && block.Account_Number__c != null) ? block.Account_Number__c : '';
+                bookingInfo.ifscCode = (block != null && block.IFSC_Code__c != null) ? block.IFSC_Code__c : '';
+                bookingInfo.typeOfAccount = (block != null && block.Type_of_Account__c != null) ? block.Type_of_Account__c : '';
+                bookingInfo.branch = (block != null && block.Branch__c != null) ? block.Branch__c : '';
+                
+                
+                
             }
             else if(psRecord.Type__c =='Construction')
             {
                 bookingInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
+                
+                
+                bookingInfo.bankName = (block != null && block.Constriction_Bank_Name__c != null) ? block.Constriction_Bank_Name__c : '';
+                bookingInfo.accountNumber = (block != null && block.Constriction_Account_Number__c != null) ? block.Constriction_Account_Number__c : '';
+                bookingInfo.ifscCode = (block != null && block.Constriction_IFSC_Code__c != null) ? block.Constriction_IFSC_Code__c : '';
+                bookingInfo.typeOfAccount = (block != null && block.Constriction_Type_of_Account__c != null) ? block.Constriction_Type_of_Account__c : '';
+                bookingInfo.branch = (block != null && block.Constriction_Branch__c != null) ? block.Constriction_Branch__c : '';
+                
+                
             }
         }
         else
         {
             bookingInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+            
+                            
+            bookingInfo.bankName = (block != null && block.Bank_Name__c != null) ? block.Bank_Name__c : '';
+            bookingInfo.accountNumber = (block != null && block.Account_Number__c != null) ? block.Account_Number__c : '';
+            bookingInfo.ifscCode = (block != null && block.IFSC_Code__c != null) ? block.IFSC_Code__c : '';
+            bookingInfo.typeOfAccount = (block != null && block.Type_of_Account__c != null) ? block.Type_of_Account__c : '';
+            bookingInfo.branch = (block != null && block.Branch__c != null) ? block.Branch__c : '';
+            
+            
         }
         
         /** ===================== PREVIOUS DUES ===================== **/

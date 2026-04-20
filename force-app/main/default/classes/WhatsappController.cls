@@ -321,7 +321,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         for (Receipt__c rec : receipts) {
             String customerPhoneNumber = rec.Booking__r.Mobile__c;
             String customerName = rec.Booking__r.First_Applicant_Name__c;
-            Decimal amount = rec.Receipt_Amount_Without_Tds__c;
+            Decimal amount = rec.Total_Received_Amount__c;//Receipt_Amount_Without_Tds__c
             String unit = rec.Booking__r.Unit_No__c;
             String projectandBlockName = rec.Project_Block_Name__c;
             String crmExectutivePhone = rec.Booking__r.CRM_Executive_Contact_No__c;

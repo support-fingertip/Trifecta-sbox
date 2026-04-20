@@ -15,56 +15,81 @@
 * Ver | Author        | Date        | Description
 * ----------------------------------------------------------------
 * 1.0 | Durga Prasad | 06-02-2026  | Initial version
+* 1.1 | Durga Prasad | 20-04-2026  | Grouped Receipt Line Items by
+*     |              |             | Receipt__c + Payment_Type__c;
+*     |              |             | Fixed formatIndianCurrency to
+*     |              |             | static for inner class access
 * ----------------------------------------------------------------
 *****************************************************************/
 public class ReceiptVFPController {
-
+    
     public Id receiptId { get; set; }
     public String amountInWords { get; set; }
     public Co_Applicant__c firstCoApplicant { get; set; }
-  
+    
     public List<Receipt_Line_Item__c> receiptLineItems { get; set; }
     public Decimal totalReceivedAmount { get; set; }
     public ReceiptInfoWrapper receiptInfo { get; set; }
     public String totalAmountFormatted { get; set; }
+    public List<LineItemWrapper> receiptLineItemWrappers { get; set; }
     
+    // ─────────────────────────────────────────────────────────────
+    // Inner Wrapper: Groups line items by Receipt__c + Payment_Type__c
+    // formatIndianCurrency is static so it can be called from here
+    // ─────────────────────────────────────────────────────────────
     public class LineItemWrapper {
-        public Receipt_Line_Item__c item { get; set; }
-        public String formattedAmount { get; set; }
+        public String  paymentType       { get; set; }
+        public String  modeOfPayment     { get; set; }
+        public Date    receiptDate       { get; set; }
+        public String  chequeOrTxnNumber { get; set; }
+        public String  bankName          { get; set; }
+        public Decimal totalAmount       { get; set; }
+        public String  formattedAmount   { get; set; }
+        public String  receiptId         { get; set; }
         
-        public LineItemWrapper(Receipt_Line_Item__c item, String formattedAmount) {
-            this.item = item;
-            this.formattedAmount = formattedAmount;
+        public LineItemWrapper(String receiptId, String paymentType, Receipt_Line_Item__c item, Decimal total) {
+            this.receiptId         = receiptId;
+            this.paymentType       = paymentType;
+            this.modeOfPayment     = item.Mode_of_Payment__c;
+            this.receiptDate       = item.Receipt_Date__c;
+            this.chequeOrTxnNumber = item.Cheque_no_Transaction_Number__c;
+            this.bankName          = item.Bank_Name__c;
+            this.totalAmount       = total;
+            // Static call is valid from inner class
+            this.formattedAmount   = ReceiptVFPController.formatIndianCurrency(total);
         }
     }
-
-public List<LineItemWrapper> receiptLineItemWrappers { get; set; }
     
+    // ─────────────────────────────────────────────────────────────
+    // Inner Wrapper: Holds header/meta info for the receipt
+    // ─────────────────────────────────────────────────────────────
     public class ReceiptInfoWrapper {
+        public String receiptNo        { get; set; }
+        public String customerId       { get; set; }
+        public String customerName     { get; set; }
+        public String unitNo           { get; set; }
+        public String block            { get; set; }
+        public String receiptDate      { get; set; }
+        public String project          { get; set; }
+        public String projectAddress   { get; set; }
+        public String email            { get; set; }
+        public String contactNo        { get; set; }
+        public String webAddress       { get; set; }
+        public String companyAddress   { get; set; }
+        public String companyName      { get; set; }
         
-        public String receiptNo { get; set; }
-        public String customerId { get; set; }
-        public String customerName { get; set; }
-        public String unitNo { get; set; }
-        public String block { get; set; }
-        public String receiptDate { get; set; }
-        public String project { get; set; }
-        
-        public String projectAddress { get; set; }
-        public String email { get; set; }
-        public String contactNo { get; set; }
-        public String webAddress { get; set; }
-        public String companyAddress { get; set; }
-        public String companyName { get; set; }
-        
-        // Constructor
         public ReceiptInfoWrapper() { }
     }
     
-    private String formatIndianCurrency(Decimal amount) {
+    // ─────────────────────────────────────────────────────────────
+    // Static utility: Formats a Decimal into Indian currency style
+    // e.g. 1234567 => 12,34,567
+    // Made static so LineItemWrapper inner class can access it
+    // ─────────────────────────────────────────────────────────────
+    private static String formatIndianCurrency(Decimal amount) {
         if (amount == null) amount = 0;
         
-        String intPart = String.valueOf(amount.longValue()); // No decimals
+        String intPart = String.valueOf(amount.longValue());
         
         if (intPart.length() <= 3) {
             return intPart;
@@ -88,102 +113,111 @@ public List<LineItemWrapper> receiptLineItemWrappers { get; set; }
         
         return String.join(reversed, ',') + ',' + lastThree;
     }
+    
+    // ─────────────────────────────────────────────────────────────
+    // Constructor
+    // ─────────────────────────────────────────────────────────────
     /**
-     * Method Name  : ReceiptVFPController (Constructor)
-     * Description  : Initializes data required for Receipt Visualforce page.
-     *
-     * Functionality:
-     * 1. Retrieves Receipt record and related booking/plot details.
-     * 2. Converts total received amount into words format.
-     * 3. Fetches first co-applicant linked to the booking.
-     * 4. Fetches receipt line items excluding TDS payments.
-     * 5. Calculates total received amount from line items.
-     *
-     * Parameters:
-     * @param stdController - StandardController instance from VF page
-     *
-     * Used From:
-     * - Receipt Visualforce Page Controller
-     */
+    * Method Name  : ReceiptVFPController (Constructor)
+    * Description  : Initializes data required for Receipt Visualforce page.
+    *
+    * Functionality:
+    * 1. Retrieves Receipt record and related booking/plot details.
+    * 2. Converts total received amount into words format.
+    * 3. Fetches first co-applicant linked to the booking.
+    * 4. Fetches receipt line items and groups them by Payment_Type__c.
+    * 5. Calculates total received amount from line items.
+    *
+    * Parameters:
+    * @param stdController - StandardController instance from VF page
+    *
+    * Used From:
+    * - Receipt Visualforce Page Controller
+    */
     public ReceiptVFPController(ApexPages.StandardController stdController) {
         
         receiptId = stdController.getId();
         
-        // Retrieve Receipt record with all required relationships
+        // ── 1. Retrieve Receipt record with all required relationships ──
         Receipt__c receiptRecord = [
-            SELECT Name, Total_Received_Amount__c, Booking__c,
-            Booking__r.Plot__r.Name,
-            Booking__r.First_Applicant_Name__c, Booking__r.SLead__r.Lead_ID__c,
-            Booking__r.Project1__r.Name,
-            Booking__r.Project_Type__c,Owner_Email_Id__c,
-            Booking__r.Project1__r.Company_Address__c,Type__c,
-            Booking__r.Unit_No__c, Booking__r.Block_Name__c,Booking__r.Block_Id__c,
-            CreatedDate,Booking__r.CRM_Executive_Contact_No__c,Booking__r.Company_Name__c
+            SELECT Name,
+                   Total_Received_Amount__c,
+                   Booking__c,
+                   Booking__r.Plot__r.Name,
+                   Booking__r.First_Applicant_Name__c,
+                   Booking__r.SLead__r.Lead_ID__c,
+                   Booking__r.Project1__r.Name,
+                   Booking__r.Project_Type__c,
+                   Owner_Email_Id__c,
+                   Booking__r.Project1__r.Company_Address__c,
+                   Type__c,
+                   Booking__r.Unit_No__c,
+                   Booking__r.Block_Name__c,
+                   Booking__r.Block_Id__c,
+                   CreatedDate,
+                   Booking__r.CRM_Executive_Contact_No__c,
+                   Booking__r.Company_Name__c
             FROM Receipt__c
             WHERE Id = :receiptId
         ];
         
-        //Block 
-        Block__c block = [select Id,Name,Email__c,Project_Address__c,Construction_Company_Name__c,Land_Company_Name__c,Project_Name__c,
-                          Company_Name__c,Company_Address__c from Block__c where Id =: receiptRecord.Booking__r.Block_Id__c];
+        // ── 2. Retrieve Block details ──
+        Block__c block = [
+            SELECT Id, Name, Email__c, Project_Address__c,
+                   Construction_Company_Name__c, Land_Company_Name__c,
+                   Project_Name__c, Company_Name__c, Company_Address__c
+            FROM Block__c
+            WHERE Id = :receiptRecord.Booking__r.Block_Id__c
+        ];
         
-        // Convert number to words – safe check
+        // ── 3. Build ReceiptInfoWrapper ──
         NumberTOWordConvertion conversion = new NumberTOWordConvertion();
-        // Initialize wrapper
         receiptInfo = new ReceiptInfoWrapper();
-        receiptInfo.receiptNo = receiptRecord.Name;
-        receiptInfo.customerId = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.SLead__r != null)
-            ? receiptRecord.Booking__r.SLead__r.Lead_ID__c : '';
-        receiptInfo.customerName = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.First_Applicant_Name__c!= null)
-            ? receiptRecord.Booking__r.First_Applicant_Name__c : '';
-        receiptInfo.unitNo = (receiptRecord.Booking__r != null) ? receiptRecord.Booking__r.Unit_No__c : '';
-        receiptInfo.block = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Block_Name__c != null)
-            ? receiptRecord.Booking__r.Block_Name__c : '';
-        receiptInfo.receiptDate = receiptRecord.CreatedDate != null 
-            ? String.valueOf(receiptRecord.CreatedDate.day()).leftPad(2, '0') + '/' +
-            String.valueOf(receiptRecord.CreatedDate.month()).leftPad(2, '0') + '/' +
-            String.valueOf(receiptRecord.CreatedDate.year())
-            : '';
-        receiptInfo.project = (block!= null && block.Project_Name__c != null) ? block.Project_Name__c : '';
         
-        receiptInfo.email = (receiptRecord != null && receiptRecord.Owner_Email_Id__c != null) ? receiptRecord.Owner_Email_Id__c  : '';
+        receiptInfo.receiptNo     = receiptRecord.Name;
+        receiptInfo.customerId    = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.SLead__r != null)
+                                        ? receiptRecord.Booking__r.SLead__r.Lead_ID__c : '';
+        receiptInfo.customerName  = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.First_Applicant_Name__c != null)
+                                        ? receiptRecord.Booking__r.First_Applicant_Name__c : '';
+        receiptInfo.unitNo        = (receiptRecord.Booking__r != null) ? receiptRecord.Booking__r.Unit_No__c : '';
+        receiptInfo.block         = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.Block_Name__c != null)
+                                        ? receiptRecord.Booking__r.Block_Name__c : '';
+        receiptInfo.receiptDate   = receiptRecord.CreatedDate != null
+                                        ? String.valueOf(receiptRecord.CreatedDate.day()).leftPad(2, '0')   + '/' +
+                                          String.valueOf(receiptRecord.CreatedDate.month()).leftPad(2, '0') + '/' +
+                                          String.valueOf(receiptRecord.CreatedDate.year())
+                                        : '';
+        receiptInfo.project        = (block != null && block.Project_Name__c != null) ? block.Project_Name__c : '';
+        receiptInfo.email          = (receiptRecord.Owner_Email_Id__c != null) ? receiptRecord.Owner_Email_Id__c : '';
         receiptInfo.projectAddress = (block != null && block.Project_Address__c != null) ? block.Project_Address__c : '';
+        receiptInfo.webAddress     = 'www.trifectaprojects.com';
+        receiptInfo.contactNo      = (receiptRecord.Booking__r != null && receiptRecord.Booking__r.CRM_Executive_Contact_No__c != null)
+                                        ? receiptRecord.Booking__r.CRM_Executive_Contact_No__c : '';
+        receiptInfo.companyAddress = (block.Company_Address__c != null)
+                                        ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
+                                        : '';
         
-        receiptInfo.webAddress = 'www.trifectaprojects.com';
-        receiptInfo.contactNo =  (receiptRecord.Booking__r != null && receiptRecord.Booking__r.CRM_Executive_Contact_No__c != null)
-            ? receiptRecord.Booking__r.CRM_Executive_Contact_No__c : '';
-        
-        receiptInfo.companyAddress = (block.Company_Address__c != null) 
-            ? block.Company_Address__c.replaceAll('(?i),?\\s*Bangalore', '<br/>Bangalore')
-            : '';
-        
+        // Company name logic based on Project Type and Receipt Type
         receiptInfo.companyName = 'TRIFECTA PROJECTS PVT LTD';
-        if(receiptRecord.Booking__r.Project_Type__c == 'Villas')
-        {
-            if(receiptRecord.Type__c =='Land')
-            {
-                receiptInfo.companyName =(block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+        if (receiptRecord.Booking__r.Project_Type__c == 'Villas') {
+            if (receiptRecord.Type__c == 'Land') {
+                receiptInfo.companyName = (block.Land_Company_Name__c != null) ? block.Land_Company_Name__c : '';
+            } else if (receiptRecord.Type__c == 'Construction') {
+                receiptInfo.companyName = (block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c : '';
             }
-            else if(receiptRecord.Type__c =='Construction')
-            {
-                receiptInfo.companyName =(block.Construction_Company_Name__c != null) ? block.Construction_Company_Name__c: '';
-            }
-            
-        }
-        else
-        {
-            receiptInfo.companyName =(block.Company_Name__c != null ) ? block.Company_Name__c : '';
+        } else {
+            receiptInfo.companyName = (block.Company_Name__c != null) ? block.Company_Name__c : '';
         }
         
+        // ── 4. Initialize lists and totals ──
+        receiptLineItems        = new List<Receipt_Line_Item__c>();
+        receiptLineItemWrappers = new List<LineItemWrapper>();
+        totalReceivedAmount     = 0;
         
-        // Initialize lists
-        receiptLineItems = new List<Receipt_Line_Item__c>();
-        totalReceivedAmount = 0;
-        
-        // Fetch related data only if Booking exists
+        // ── 5. Fetch related data only if Booking exists ──
         if (receiptRecord.Booking__c != null) {
-
-            // Co-applicants
+            
+            // ── 5a. Co-applicants (first only) ──
             List<Co_Applicant__c> coApplicants = [
                 SELECT Name,
                        Salutation__c,
@@ -225,44 +259,76 @@ public List<LineItemWrapper> receiptLineItemWrappers { get; set; }
                 firstCoApplicant = coApplicants[0];
             }
             
-            // Here TDS Amount we are Excluding into the receipt which is sending to the customer
-            // TDS Customer will pay to GOVT but for the Calculation purpose we are Creating TDS as one of the receipt
+            // ── 5b. Fetch Receipt Line Items for this Receipt ──
             receiptLineItems = [
                 SELECT Payment_Type__c,
-                Cheque_no_Transaction_Number__c,
-                Received_Amount__c,
-                Bank_Name__c,
-                Mode_of_Payment__c,
-                Drawn_On__c,Receipt_Date__c,
-                Payment_schedule__r.Name
+                       Cheque_no_Transaction_Number__c,
+                       Received_Amount__c,
+                       Bank_Name__c,
+                       Mode_of_Payment__c,
+                       Receipt__c,
+                       Drawn_On__c,
+                       Receipt_Date__c,
+                       Payment_schedule__r.Name
                 FROM Receipt_Line_Item__c
                 WHERE Booking__c = :receiptRecord.Booking__c
-                AND Payment_Type__c != 'TDS'
-                AND Receipt__c = :receiptId
+                AND   Receipt__c = :receiptId
             ];
             
-            receiptLineItemWrappers = new List<LineItemWrapper>();
+            // ── 5c. Group by Receipt__c + Payment_Type__c ──
+            // Key format: Receipt__c|Payment_Type__c
+            Map<String, Decimal>               groupedAmounts  = new Map<String, Decimal>();
+            Map<String, Receipt_Line_Item__c>  groupedItemMeta = new Map<String, Receipt_Line_Item__c>();
             
             for (Receipt_Line_Item__c item : receiptLineItems) {
-                if (item.Received_Amount__c != null) {
-                    totalReceivedAmount += item.Received_Amount__c;
+                String  groupKey = item.Receipt__c + '|' + item.Payment_Type__c;
+                Decimal amt      = item.Received_Amount__c != null ? item.Received_Amount__c : 0;
+                
+                if (groupedAmounts.containsKey(groupKey)) {
+                    // Accumulate amount for same group
+                    groupedAmounts.put(groupKey, groupedAmounts.get(groupKey) + amt);
+                } else {
+                    // First occurrence — store amount and item metadata
+                    groupedAmounts.put(groupKey, amt);
+                    groupedItemMeta.put(groupKey, item);
                 }
-                receiptLineItemWrappers.add(new LineItemWrapper(
-                    item,
-                    item.Received_Amount__c != null 
-                    ? formatIndianCurrency(item.Received_Amount__c) 
-                    : '0.00'
-                ));
+                
+                totalReceivedAmount += amt;
             }
             
+            // ── 5d. Build ordered wrappers from grouped map ──
+            // Defined order controls the sequence of rows in the UI
+            List<String> paymentTypeOrder = new List<String>{
+                'Flat Amount',
+                'GST Amount',
+                'TDS',
+                'Additional Charges',
+                'Villa Amount',
+                'Interest',
+                'Plot Amount',
+                'Row House Amount',
+                'Booking Amount'
+            };
             
-       
+            for (String paymentType : paymentTypeOrder) {
+                String groupKey = receiptId + '|' + paymentType;
+                if (groupedAmounts.containsKey(groupKey)) {
+                    receiptLineItemWrappers.add(new LineItemWrapper(
+                        receiptId,
+                        paymentType,
+                        groupedItemMeta.get(groupKey),
+                        groupedAmounts.get(groupKey)
+                    ));
+                }
+            }
+            
+            // ── 5e. Format totals ──
             totalAmountFormatted = totalReceivedAmount != null
                 ? totalReceivedAmount.setScale(2).format()
                 : '0.00';
-            amountInWords = totalReceivedAmount != null ?conversion.getNumberTOWordConvertion(totalReceivedAmount) : null;
-            
-
+            amountInWords = totalReceivedAmount != null
+                ? conversion.getNumberTOWordConvertion(totalReceivedAmount)
+                : null;
         }
     }
 }

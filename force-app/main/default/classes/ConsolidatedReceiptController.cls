@@ -17,6 +17,7 @@ public class ConsolidatedReceiptController {
         public String bankName { get; set; }
         public String receiptNo { get; set; }
         public Date refdate { get; set; }
+        public String  paymentType { get; set; } // added for grouping
     }
 
     public bookingInfoWrapper bookingInfo { get; set; }
@@ -164,6 +165,8 @@ public class ConsolidatedReceiptController {
                 Mode_of_Payment__c,
                 Cheque_no_Transaction_Number__c,
                 Cheque_Date__c,
+                Receipt__c, 
+                Payment_Type__c,
                 Bank_Name__c,
                 Receipt__r.Name,
                 Receipt__r.Receipt_Date__c,
@@ -171,8 +174,8 @@ public class ConsolidatedReceiptController {
                 FROM Receipt_Line_Item__c
                 WHERE Booking__c = :bookingId
                 AND Approval_Status__c = 'Approved'
-                AND Payment_Type__c != 'TDS'
  				AND Payment_schedule__r.Type__c = :typeVal
+                Order by CreatedDate
             ];
         }
         else
@@ -187,47 +190,83 @@ public class ConsolidatedReceiptController {
                 Cheque_no_Transaction_Number__c,
                 Cheque_Date__c,
                 Bank_Name__c,
+                Receipt__c,
+                Payment_Type__c,
                 Receipt__r.Name,
                 Receipt__r.Receipt_Date__c,
                 Booking__c
                 FROM Receipt_Line_Item__c
                 WHERE Booking__c = :bookingId
                 AND Approval_Status__c = 'Approved'
-                AND Payment_Type__c != 'TDS'
+                Order by CreatedDate
             ];
         }
        
 
         List<ReceiptWrapper> reppList = new List<ReceiptWrapper>();
 
+        // Step 1: Group by Receipt__r + Payment_Type__c
+        // Key => Receipt__c|Payment_Type__c
+        Map<String, Decimal>              groupedAmounts  = new Map<String, Decimal>();
+        Map<String, Receipt_Line_Item__c> groupedItemMeta = new Map<String, Receipt_Line_Item__c>();
+        
         for (Receipt_Line_Item__c re : repLst) {
-
-            if (re.Received_Amount__c != null) {
-                totalAmount += re.Received_Amount__c;
+            String  groupKey = re.Receipt__c + '|' + re.Payment_Type__c;
+            Decimal amt      = re.Received_Amount__c != null ? re.Received_Amount__c : 0;
+            
+            if (groupedAmounts.containsKey(groupKey)) {
+                groupedAmounts.put(groupKey, groupedAmounts.get(groupKey) + amt);
+            } else {
+                groupedAmounts.put(groupKey, amt);
+                groupedItemMeta.put(groupKey, re); // first item's metadata
             }
-
-            ReceiptWrapper rw = new ReceiptWrapper();
-
-            rw.receiptDate = re.Receipt__r != null
-                ? re.Receipt__r.Receipt_Date__c
-                : null;
-
-            rw.receiptAmount = re.Received_Amount__c != null
-                ? re.Received_Amount__c.setScale(2).format()
-                : '0.00';
-
-            rw.modeOfPayment = re.Mode_of_Payment__c;
-            rw.instruMentNo = re.Cheque_no_Transaction_Number__c;
-            rw.payNameName = re.Payment_schedule__r != null ? re.Payment_schedule__r.Name : '';
-
-            rw.bankName = re.Bank_Name__c;
-            rw.receiptNo =  re.Receipt__r != null ?  re.Receipt__r.Name : '';
-            rw.refdate =   re.Cheque_Date__c != null ? re.Cheque_Date__c : re.Receipt__r != null
-                ? re.Receipt__r.Receipt_Date__c
-                : null;
-            reppList.add(rw);
+            
+            totalAmount += amt;
         }
-
+        
+        // Step 2: Build wrappers in defined Payment_Type__c order
+        List<String> paymentTypeOrder = new List<String>{
+            'Flat Amount', 'GST Amount', 'TDS', 'Additional Charges',
+                'Villa Amount', 'Interest', 'Plot Amount', 'Row House Amount', 'Booking Amount'
+                };
+                    
+                    // Collect all unique Receipt__c Ids in the order they appear
+                    List<String> orderedReceiptIds = new List<String>();
+        Set<String>  seenReceiptIds    = new Set<String>();
+        
+        for (Receipt_Line_Item__c re : repLst) {
+            if (!seenReceiptIds.contains(re.Receipt__c)) {
+                seenReceiptIds.add(re.Receipt__c);
+                orderedReceiptIds.add(re.Receipt__c);
+            }
+        }
+        
+        // Step 3: Outer loop = Receipt, Inner loop = Payment Type (preserves grouping order)
+        for (String rId : orderedReceiptIds) {
+            for (String paymentType : paymentTypeOrder) {
+                String groupKey = rId + '|' + paymentType;
+                
+                if (groupedAmounts.containsKey(groupKey)) {
+                    Receipt_Line_Item__c meta = groupedItemMeta.get(groupKey);
+                    Decimal groupTotal        = groupedAmounts.get(groupKey);
+                    
+                    ReceiptWrapper rw  = new ReceiptWrapper();
+                    rw.paymentType     = paymentType;
+                    rw.receiptDate     = meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null;
+                    rw.receiptAmount   = groupTotal.setScale(2).format();
+                    rw.modeOfPayment   = meta.Mode_of_Payment__c;
+                    rw.instruMentNo    = meta.Cheque_no_Transaction_Number__c;
+                    rw.payNameName     = meta.Payment_schedule__r != null ? meta.Payment_schedule__r.Name : '';
+                    rw.bankName        = meta.Bank_Name__c;
+                    rw.receiptNo       = meta.Receipt__r != null ? meta.Receipt__r.Name : '';
+                    rw.refdate         = meta.Cheque_Date__c != null
+                        ? meta.Cheque_Date__c
+                        : (meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null);
+                            reppList.add(rw);
+                }
+            }
+        }
+        
         repList = reppList;
         
         totalAmountFormatted = totalAmount != null

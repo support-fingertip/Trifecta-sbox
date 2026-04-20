@@ -22,7 +22,7 @@ public with sharing class ReceiptCustomerSendController {
         List<Receipt__c> receipts = [
             SELECT Id, Name
             FROM Receipt__c
-            WHERE Booking__c = :bookingId and Receipt_Amount_Without_Tds__c > 0
+            WHERE Booking__c = :bookingId
             ORDER BY CreatedDate DESC
         ];
 

@@ -5,7 +5,7 @@
     <externalId>false</externalId>
     <label>Possession / Handover CRM Executive</label>
     <referenceTo>User</referenceTo>
-    <relationshipName>BookingsSHK1</relationshipName>
+    <relationshipName>Bookingsr49V</relationshipName>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

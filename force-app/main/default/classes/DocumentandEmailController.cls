@@ -358,14 +358,32 @@ public class DocumentandEmailController {
                     
                     String cleanHtml = demand.Demand_Email_Content__c.unescapeHtml4();
                     system.debug('cleanHtml'+cleanHtml);
-                    // Remove empty paragraphs like <p>&nbsp;</p> or <p> </p>
-                    cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+                    // Step 1: Remove empty paragraphs BEFORE unescaping
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
                     
-                    // Also normalize multiple <br>
+                    // Step 2: Unescape
+                    cleanHtml = cleanHtml.unescapeHtml4();
+                    
+                    // Step 3: Remove empty paragraphs AGAIN after unescaping
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+                    
+                    // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+                    
+                    // Step 5: Collapse multiple breaks
                     cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
                     
+                    // Step 6: Merge footer 3 separate <p> into one tight block
+                    cleanHtml = cleanHtml.replaceAll(
+                        '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                        '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+                    );
+                    
+                    // Step 7: Add spacing to remaining <p> tags (without style only)
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+                    
                     String htmlBody =
-                        '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                        '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
                         + cleanHtml +
                         '</body></html>';
                     

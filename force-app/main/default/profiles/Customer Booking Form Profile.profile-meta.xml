@@ -1214,6 +1214,31 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Block__c.Constriction_Account_Number__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Constriction_Bank_Name__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Constriction_Branch__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Constriction_IFSC_Code__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Block__c.Constriction_Type_of_Account__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Block__c.Construction_Company_Name__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2084,6 +2109,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Is_open_by_Admin__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Key_Handover_Letter_Uploaded_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2424,6 +2454,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Possession_Handover_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Posting_in_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2455,6 +2490,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Project_Block_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Project_Brand_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2670,6 +2710,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Shaft_room_No_Of_Keys__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Show_Custom_Buttons__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7994,6 +8039,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt_Line_Item__c.Challan_Reference_Number__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Receipt_Line_Item__c.Cheque_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -8025,6 +8075,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Receipt_Line_Item__c.Received_Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt_Line_Item__c.TDS_Status__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -9230,11 +9285,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Ticket__c.Block__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Ticket__c.Booking__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>

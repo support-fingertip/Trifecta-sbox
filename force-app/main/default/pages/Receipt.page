@@ -226,14 +226,14 @@
                             <tr>
                                 <apex:variable var="index" value="{!index + 1}" />
                                 <td class="center">{!index}</td>
-                                <td class="center">{!wrapper.item.Mode_of_Payment__c}</td>
+                                <td class="center">{!wrapper.modeOfPayment}</td>
                                 <td class="center">
                                     <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
-                                        <apex:param value="{!wrapper.item.Receipt_Date__c}"/>
+                                        <apex:param value="{!wrapper.receiptDate}"/>
                                     </apex:outputText>
                                 </td>
-                                <td class="center">{!wrapper.item.Cheque_no_Transaction_Number__c}</td>
-                                <td class="center">{!wrapper.item.Bank_Name__c}</td>
+                                <td class="center">{!wrapper.chequeOrTxnNumber}</td>
+                                <td class="center">{!wrapper.bankName}</td>
                                 <td class="right">{!wrapper.formattedAmount}</td>
                             </tr>
                         </apex:repeat>

@@ -35,7 +35,7 @@
                         <valueListItems>
                             <value>Booking__c.Welcome_Mail</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -53,6 +53,11 @@
                                 </criteria>
                                 <criteria>
                                     <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
@@ -176,7 +181,7 @@
                         <valueListItems>
                             <value>Booking__c.Create_Receipt</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND (3 OR 4)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Pending_Amount__c}</leftValue>
                                     <operator>NE</operator>
@@ -187,12 +192,22 @@
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Raise_Demand</value>
                             <visibilityRule>
-                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -207,6 +222,16 @@
                                     <leftValue>{!Record.Pending_Amount__c}</leftValue>
                                     <operator>GT</operator>
                                     <rightValue>5</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -295,7 +320,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Booking_Cancellation</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -311,12 +336,17 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>CRM Executive</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6 AND (7 OR 8)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Time_Extension_Approval_Status__c}</leftValue>
                                     <operator>NE</operator>
@@ -347,12 +377,22 @@
                                     <operator>NE</operator>
                                     <rightValue>Executed &amp; Registered</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Generate_NOC</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND ((2 AND ( 3 OR 4 )) Or  (6 AND 5))</booleanFilter>
+                                <booleanFilter>1 AND ((2 AND ( 3 OR 4 )) Or  (6 AND 5)) AND (7 OR 8)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>NE</operator>
@@ -383,12 +423,22 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Land_NOC</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -404,45 +454,99 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Villas</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Unit_Readiness_Email</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Generate_Key_Handover_Letter</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Possession_Letter</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Inspection</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>

@@ -7,7 +7,7 @@ public class BookingPDFController {
     public list<Receipt_Line_Item__c> receiptLineItems { get; set; }
     public list<Receipt_Line_Item__c> landreceiptLineItems { get; set; }
     public list<Receipt_Line_Item__c> constructionreceiptLineItems { get; set; }
-    
+    public String projectHead { get; set; }
     
     public List<CoApplicantWrapper> coApplicantList { get; set; }
     
@@ -30,13 +30,13 @@ public class BookingPDFController {
                    Permanent_Address1__c,Pincode__c,Rate_per_sqft__c,Basic_Cost__c,Quote__c,Email__c,
                    Bescom_STP_and_Generator_per_Sq_ft__c,Bescom_STP_and_Generator_Changes__c,
                    Car_Parking_Amount__c,Legal_Charge__c,Amenity_Charges__c,GST_Amount__c,Total_Amount__c,Plot_Land_Area__c,
-                   
+                   Project_Brand_Name__c,
                    Total_Land_Amount__c,Extra_Land_Amount__c,Construction_Cost__c
                    FROM Booking__c WHERE Id = :bookingId];
         
         list<Payment_schedule__c> paymentSchdulesList = [select id ,Name,Payment_percent__c,Amount1__c,S_No__c,Type__c
                                                      from Payment_schedule__c where Quote__c =:booking.Quote__c  order by S_No__c asc];
-        
+        projectHead = booking.Project_Brand_Name__c;
         if(!paymentSchdulesList.isEmpty())
         {
             paymentSchdules = paymentSchdulesList;
