@@ -72,12 +72,74 @@
         align-items: center;
         }
         .card-border {
-        border: 1px solid #d8dde6;     
-        border-radius: 15px;             
-        padding: 12px;                 
-        background-color: #ffffff;      
+        border: 1px solid #d8dde6;
+        border-radius: 15px;
+        padding: 12px;
+        background-color: #ffffff;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        margin-top: 10px;              
+        margin-top: 10px;
+        }
+        .tds-refund-banner {
+        background-color: #fff7e6;
+        border: 1px solid #fec972;
+        border-left: 4px solid #fe9339;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 8px 4px 16px 4px;
+        }
+        .tds-refund-banner .tds-refund-title {
+        font-weight: 700;
+        color: #2e2e2e;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        }
+        .tds-refund-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+        }
+        .tds-refund-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background-color: #ffffff;
+        border: 1px solid #fec972;
+        border-radius: 14px;
+        text-decoration: none;
+        color: #0176d3;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        }
+        .tds-refund-pill:hover {
+        background-color: #fff1d6;
+        text-decoration: none;
+        }
+        .tds-refund-amount {
+        color: #2e2e2e;
+        font-weight: 600;
+        }
+        .tds-refund-receipt {
+        color: #706e6b;
+        font-size: 0.75rem;
+        }
+        .rli-row {
+        padding: 4px 6px 8px 6px;
+        }
+        .rli-field {
+        padding: 0 6px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+        }
+        .rli-actions {
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        padding-top: 22px;
+        padding-left: 6px;
         }
 
     </aura:html>
@@ -87,25 +149,26 @@
         <div class="card-border">
             <!-- TDS Refund Warning Banner -->
             <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
-                <div class="slds-box slds-theme_warning slds-m-around_small">
-                    <p class="slds-text-title_bold">
+                <div class="tds-refund-banner">
+                    <div class="tds-refund-title">
                         <lightning:icon iconName="utility:warning" size="x-small" variant="warning"/>
-                        &nbsp;These TDS Refund need to paid by customer:
-                    </p>
-                    <ul class="slds-list_dotted slds-p-left_medium">
+                        <span>TDS Refund pending &mdash; to be paid by customer</span>
+                    </div>
+                    <div class="tds-refund-list">
                         <aura:iteration items="{!v.pendingTdsRefunds}" var="refund">
-                            <li>
-                                <a onclick="{!c.navigateToRefund}"
-                                   data-record-id="{!refund.Id}">
-                                    {!refund.Name}
-                                </a>
-                                &nbsp;— ₹ {!refund.Received_Amount__c}
+                            <a class="tds-refund-pill"
+                               onclick="{!c.navigateToRefund}"
+                               data-record-id="{!refund.Id}"
+                               title="Open record">
+                                <lightning:icon iconName="utility:link" size="xx-small"/>
+                                <span>{!refund.Name}</span>
+                                <span class="tds-refund-amount">&#8377; {!refund.Received_Amount__c}</span>
                                 <aura:if isTrue="{!not(empty(refund.Receipt__r.Name))}">
-                                    &nbsp;(Receipt: {!refund.Receipt__r.Name})
+                                    <span class="tds-refund-receipt">({!refund.Receipt__r.Name})</span>
                                 </aura:if>
-                            </li>
+                            </a>
                         </aura:iteration>
-                    </ul>
+                    </div>
                 </div>
             </aura:if>
             <!-- Page Header -->
@@ -172,10 +235,10 @@
             <div class="slds-modal__content">
                 <aura:iteration items="{!v.recptItemList}" var="qt" indexVar="index">
                     <lightning:card title="{!index+1+(')')}" class="slds-p-left_xx-small groove" >
-                        <div class="slds-grid slds-wrap slds-grid_pull-padded-x-small" style="padding-right:10px" >
-                            <td width="20%" style="padding-right: 10px;padding-left: 20px;">
-                                <div  data-record="{!index}" onchange="{!c.selectingType}">
-                                    <lightning:select name="select1"  aura:id="field" label="Payment Type" required="true" value="{!qt.Payment_Type__c}" >
+                        <div class="slds-grid slds-wrap rli-row">
+                            <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div data-record="{!index}" onchange="{!c.selectingType}">
+                                    <lightning:select name="select1" aura:id="field" label="Payment Type" required="true" value="{!qt.Payment_Type__c}">
                                         <option value="">choose one...</option>
                                         <aura:if isTrue="{!v.bookingType == 'Apartments'}">
                                             <option value="Flat Amount">Flat Amount</option>
@@ -190,10 +253,9 @@
                                         <option value="TDS">TDS</option>
                                     </lightning:select>
                                 </div>
-
-                            </td>
+                            </div>
                             <aura:if isTrue="{!qt.Payment_Type__c == 'TDS'}">
-                                <td width="15%" style="padding-right: 10px;">
+                                <div class="slds-col slds-size_1-of-4 rli-field">
                                     <div data-record="{!index}">
                                         <lightning:select aura:id="field" name="tdsStatusSel"
                                                           label="TDS Status" required="true"
@@ -204,90 +266,83 @@
                                             </aura:iteration>
                                         </lightning:select>
                                     </div>
-                                </td>
+                                </div>
                             </aura:if>
-
-                            <td width="20%" style="padding-right: 10px;">
-                                <div  data-record="{!index}">
-                                    <lightning:input name="Amount" type="decimal"  label="Pending Amount"
-                                                     value="{!qt.Pending_Amount__c}" disabled="true"  />
-                                </div>                                                   
-                            </td>
-                            <td width="10%" style="padding-right: 10px;">
-                                <div  data-record="{!index}" >
+                            <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div data-record="{!index}">
+                                    <lightning:input name="Amount" type="decimal" label="Pending Amount"
+                                                     value="{!qt.Pending_Amount__c}" disabled="true"/>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div data-record="{!index}">
                                     <lightning:select aura:id="field" name="select1" label="Payment From"
                                                       required="true" value="{!qt.Payment_From__c}">
                                         <option value="">choose one...</option>
                                         <option value="Bank">Bank</option>
                                         <option value="Customer">Customer</option>
-                                    </lightning:select>                                        
+                                    </lightning:select>
                                 </div>
-                            </td>
-                            <td width="10%" style="padding-right: 10px;">
-                                <div  >
-                                    <lightning:select aura:id="field" class="select slds-size_1-of-1" 
-                                                      required="true" label="Mode of Payment"   
-                                                      value="{!qt.Mode_of_Payment__c}"   disabled="false"  >
-                                        <option value="" >None</option>
-                                        <aura:iteration items="{!v.paymentTypePicklist}"  var="option">
-                                            
-                                            <option text="{!option}" ></option>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div>
+                                    <lightning:select aura:id="field" class="select slds-size_1-of-1"
+                                                      required="true" label="Mode of Payment"
+                                                      value="{!qt.Mode_of_Payment__c}" disabled="false">
+                                        <option value="">None</option>
+                                        <aura:iteration items="{!v.paymentTypePicklist}" var="option">
+                                            <option text="{!option}"></option>
                                         </aura:iteration>
                                     </lightning:select>
                                 </div>
-                            </td>
-                            <aura:if isTrue="{!qt.Mode_of_Payment__c == 'Cheque'}"> 
-                                <td width="10%" style="padding-right: 10px;">
+                            </div>
+                            <aura:if isTrue="{!qt.Mode_of_Payment__c == 'Cheque'}">
+                                <div class="slds-col slds-size_1-of-4 rli-field">
                                     <div data-record="{!index}">
-                                        <lightning:input  type="Date" aura:id="field" label="Cheque Date" required="true" value="{!qt.Cheque_Date__c}" /> 
+                                        <lightning:input type="Date" aura:id="field" label="Cheque Date" required="true" value="{!qt.Cheque_Date__c}"/>
                                     </div>
-                                </td>
+                                </div>
                             </aura:if>
-                            <td width="10%" style="padding-right: 10px;">
+                            <div class="slds-col slds-size_1-of-4 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input  type="text" aura:id="field" label="Bank Name" 
-                                                     required="true" value="{!qt.Bank_Name__c}" /> 
+                                    <lightning:input type="text" aura:id="field" label="Bank Name"
+                                                     required="true" value="{!qt.Bank_Name__c}"/>
                                 </div>
-                            </td>
-                            <td width="10%" style="padding-right: 10px;">
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input  type="text" aura:id="field" label="Branch Name"
-                                                     required="true" value="{!qt.Branch__c}" /> 
+                                    <lightning:input type="text" aura:id="field" label="Branch Name"
+                                                     required="true" value="{!qt.Branch__c}"/>
                                 </div>
-                            </td>
-                            <td width="10%" style="padding-right: 10px;">
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input aura:id="field" type="text" required="true" 
+                                    <lightning:input aura:id="field" type="text" required="true"
                                                      label="Transaction/ChequeNo."
-                                                     value="{!qt.Cheque_no_Transaction_Number__c}" /> 
+                                                     value="{!qt.Cheque_no_Transaction_Number__c}"/>
                                 </div>
-                            </td>
-                            <td width="10%"
-                                style="{!qt.Mode_of_Payment__c == 'Cheque'
-                                       ? 'padding-left: 20px;'
-                                       : 'padding-left: 10px; padding-right: 10px;' }">
-                                
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input  type="date" aura:id="field" 
-                                                     label=" Drawn on" required="true" 
-                                                     value="{!qt.Drawn_On__c}" /> 
+                                    <lightning:input type="date" aura:id="field"
+                                                     label="Drawn on" required="true"
+                                                     value="{!qt.Drawn_On__c}"/>
                                 </div>
-                            </td>
-                            <td width="20%" style="padding-left: 20px;padding-right: 10px;">
-                                    <div  onchange="{!c.validateReceivedAmount}"  data-record="{!index}">
-                                        <lightning:input aura:id="field" type="number" 
-                                                         step="0.01" required="true"
-                                                         label="Amount Received" 
-                                                         value="{!qt.Received_Amount__c}" /> 
-                                    </div>
-                                </td>
-                  
-                            <td width="10%" style="padding-top: 25px;">
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-field">
+                                <div onchange="{!c.validateReceivedAmount}" data-record="{!index}">
+                                    <lightning:input aura:id="field" type="number"
+                                                     step="0.01" required="true"
+                                                     label="Amount Received"
+                                                     value="{!qt.Received_Amount__c}"/>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4 rli-actions">
                                 <a onclick="{!c.removeRow}" data-record="{!index}">
-                                    <lightning:buttonIcon iconName="utility:delete" iconClass="red"  size="x-large" variant="destructive" alternativeText="Delete" />
+                                    <lightning:buttonIcon iconName="utility:delete" iconClass="red" size="x-large" variant="destructive" alternativeText="Delete"/>
                                 </a>
-                                <lightning:buttonIcon iconName="utility:add" iconClass="green"  size="x-large" variant="success" alternativeText="Add" onclick="{!c.addRow}"/>
-                            </td>
+                                <lightning:buttonIcon iconName="utility:add" iconClass="green" size="x-large" variant="success" alternativeText="Add" onclick="{!c.addRow}"/>
+                            </div>
                         </div>
                     </lightning:card>
                 </aura:iteration>
