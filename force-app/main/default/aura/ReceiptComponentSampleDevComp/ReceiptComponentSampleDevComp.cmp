@@ -36,6 +36,8 @@
     <aura:attribute name="additionlCharges" type="List[]" />
     <aura:attribute name="bookingType" type="String" />
     <aura:attribute name="totalPendingTds" type="Decimal" default="0"/>
+    <aura:attribute name="tdsStatusPicklist" type="String[]" />
+    <aura:attribute name="pendingTdsRefunds" type="Object[]" default="[]"/>
     <aura:html tag="style">
         .slds-p-around–medium {
         padding: 0rem !important;
@@ -83,6 +85,29 @@
     
     <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
         <div class="card-border">
+            <!-- TDS Refund Warning Banner -->
+            <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
+                <div class="slds-box slds-theme_warning slds-m-around_small">
+                    <p class="slds-text-title_bold">
+                        <lightning:icon iconName="utility:warning" size="x-small" variant="warning"/>
+                        &nbsp;These TDS Refund need to paid by customer:
+                    </p>
+                    <ul class="slds-list_dotted slds-p-left_medium">
+                        <aura:iteration items="{!v.pendingTdsRefunds}" var="refund">
+                            <li>
+                                <a onclick="{!c.navigateToRefund}"
+                                   data-record-id="{!refund.Id}">
+                                    {!refund.Name}
+                                </a>
+                                &nbsp;— ₹ {!refund.Received_Amount__c}
+                                <aura:if isTrue="{!not(empty(refund.Receipt__r.Name))}">
+                                    &nbsp;(Receipt: {!refund.Receipt__r.Name})
+                                </aura:if>
+                            </li>
+                        </aura:iteration>
+                    </ul>
+                </div>
+            </aura:if>
             <!-- Page Header -->
             <div class="slds-page-header" style="border-radius: 15px; margin: 5px;">
                 <div class="slds-page-header__row">
@@ -148,7 +173,7 @@
                 <aura:iteration items="{!v.recptItemList}" var="qt" indexVar="index">
                     <lightning:card title="{!index+1+(')')}" class="slds-p-left_xx-small groove" >
                         <div class="slds-grid slds-wrap slds-grid_pull-padded-x-small" style="padding-right:10px" >
-                            <td width="20%" style="padding-right: 10px;padding-left: 20px;"> 
+                            <td width="20%" style="padding-right: 10px;padding-left: 20px;">
                                 <div  data-record="{!index}" onchange="{!c.selectingType}">
                                     <lightning:select name="select1"  aura:id="field" label="Payment Type" required="true" value="{!qt.Payment_Type__c}" >
                                         <option value="">choose one...</option>
@@ -163,11 +188,25 @@
                                         </aura:if>
                                         <option value="Interest Amount">Interest Amount</option>
                                         <option value="TDS">TDS</option>
-                                    </lightning:select>                                        
+                                    </lightning:select>
                                 </div>
-                                
+
                             </td>
-                            
+                            <aura:if isTrue="{!qt.Payment_Type__c == 'TDS'}">
+                                <td width="15%" style="padding-right: 10px;">
+                                    <div data-record="{!index}">
+                                        <lightning:select aura:id="field" name="tdsStatusSel"
+                                                          label="TDS Status" required="true"
+                                                          value="{!qt.TDS_Status__c}">
+                                            <aura:iteration items="{!v.tdsStatusPicklist}" var="st">
+                                                <option text="{!st}" value="{!st}"
+                                                        selected="{!st == qt.TDS_Status__c}"></option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                </td>
+                            </aura:if>
+
                             <td width="20%" style="padding-right: 10px;">
                                 <div  data-record="{!index}">
                                     <lightning:input name="Amount" type="decimal"  label="Pending Amount"

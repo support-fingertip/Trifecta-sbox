@@ -20,7 +20,8 @@
             'Drwan_On__c':'',
             'GRAND_TOTAL__c':'',
             'Pending_Amount__c': '',
-            'Additional_Charges__c':''
+            'Additional_Charges__c':'',
+            'TDS_Status__c': 'TDS Refund'
         });
         component.set("v.recptItemList", productList);
     },
@@ -33,6 +34,8 @@
                 component.set('v.additionlCharges',  data.additionalCharges);
                 component.set('v.paymentschdl',  data.paymentSchdules);
                 component.set("v.paymentTypePicklist",data.paymentTypePicklist);
+                component.set("v.tdsStatusPicklist", data.tdsStatusPicklist);
+                component.set("v.pendingTdsRefunds", data.pendingTdsRefunds || []);
                 component.set("v.totalPendingTds", data.tdsAmount);
                 component.set("v.projectName", data.bookingRecord.Project__c);
                 component.set("v.flatNumber", data.bookingRecord.Unit_Number__c);
