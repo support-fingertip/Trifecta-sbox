@@ -270,8 +270,8 @@ public class ConsolidatedReceiptController {
         repList = reppList;
         
         totalAmountFormatted = totalAmount != null
-            ? totalAmount.setScale(2).format()
-            : '0.00';
+            ? totalAmount.setScale(0, RoundingMode.HALF_UP).format()
+            : '0';
         // ===================== AMOUNT IN WORDS =====================
         NumberTOWordConvertion conversion =
             new NumberTOWordConvertion();

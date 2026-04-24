@@ -21,6 +21,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingAmountAdjustmentController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingCancellApprovalControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1868,6 +1872,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Booking__c.Default_Interest_Percentage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Booking__c.Demand_Raised__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -2567,6 +2576,11 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Received_Amount_Crores__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Booking__c.Received_Amount__c</field>
         <readable>true</readable>
@@ -2909,6 +2923,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Total_Land_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Total_Pending_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3755,6 +3774,11 @@
         <editable>false</editable>
         <field>Follow_up__c.Completed_Date__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Follow_up__c.Dashboard_Filter__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -6302,6 +6326,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X1st_Reminder_Sent__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X2nd_Interest_Reminder_Date__c</field>
         <readable>false</readable>
@@ -6312,8 +6341,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X2nd_Reminder_Sent__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X3rd_Interest_Reminder_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X3rd_Reminder_Sent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6485,6 +6524,11 @@
         <editable>false</editable>
         <field>Plot__c.Current_AOP__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Plot__c.Dashboard_Filter__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -7089,6 +7133,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Project__c.Company_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Project__c.Dashboard_Filter__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8635,6 +8684,11 @@
         <editable>false</editable>
         <field>Site_Visit__c.Customer_Visit_Not_Required__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Site_Visit__c.Dashboard_Filter__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>

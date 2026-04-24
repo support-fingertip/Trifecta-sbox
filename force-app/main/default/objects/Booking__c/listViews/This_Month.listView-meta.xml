@@ -6,10 +6,10 @@
     <columns>Project_Type__c</columns>
     <columns>Project1__c</columns>
     <columns>Block__c</columns>
+    <columns>Phase__c</columns>
     <columns>Plot__c</columns>
     <columns>Stage__c</columns>
     <columns>Mobile__c</columns>
-    <columns>Email__c</columns>
     <columns>Booking_Amount__c</columns>
     <columns>Total_Amount__c</columns>
     <columns>Booking_Date__c</columns>

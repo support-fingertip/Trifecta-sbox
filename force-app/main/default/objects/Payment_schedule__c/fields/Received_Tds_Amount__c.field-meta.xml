@@ -9,6 +9,11 @@
         <operation>equals</operation>
         <value>TDS</value>
     </summaryFilterItems>
+    <summaryFilterItems>
+        <field>Receipt_Line_Item__c.TDS_Status__c</field>
+        <operation>equals</operation>
+        <value>TDS Paid</value>
+    </summaryFilterItems>
     <summaryForeignKey>Receipt_Line_Item__c.Payment_schedule__c</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>
     <trackHistory>false</trackHistory>

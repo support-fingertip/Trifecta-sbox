@@ -78,8 +78,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Amount1__c</fieldItem>
-                <identifier>RecordAmount1_cField</identifier>
+                <fieldItem>Record.Amount__c</fieldItem>
+                <identifier>RecordAmount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -110,6 +110,24 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Pending_Amount__c</fieldItem>
                 <identifier>RecordPending_Amount_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.X1st_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX1st_Reminder_Sent__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.X2nd_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX2nd_Reminder_Sent__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.X3rd_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX3rd_Reminder_Sent__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-a7105d8d-6bdb-4216-ad5a-92b481c4465e</name>

@@ -92,6 +92,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         if(this.ACTION == '9') sendDemandReminderMsg(this.bookings);
         if(this.ACTION == '10') sendRevisedDemandMsg(this.booking, this.demandAmount, this.demandDueDate);
         if(this.ACTION == '11') sendWelcomeMail(this.booking);
+        if(this.ACTION == '12') sendPenalityDemandMsg(this.booking, this.demandAmount, this.demandDueDate);
     }
     
     // Method to send WELCOME WhatsApp message to multiple leads
@@ -516,13 +517,59 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             + '{"type":"text","text":"'+amountStr+'"},'
             + '{"type":"text","text":"'+unit+'"},'
             + '{"type":"text","text":"'+projectandBlockName+'"},'
-            + '{"type":"text","text":"'+dueDateStr+'"}'
+            + '{"type":"text","text":"'+dueDateStr+'"},'
+            + '{"type":"text","text":"'+crmExecutivePhone+'"}'
             + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
         
         // Send the message
         Boolean res = sendWhatsAppMessage(jsonBody, config);
         System.debug('Revised Demand Message Sent: ' + res);
     }
+    
+    // Method to send REVISED DEMAND WhatsApp message - Single Booking
+    public void sendPenalityDemandMsg(Booking__c booking, Decimal amount, Date dueDate) {
+        
+        // Fetch WhatsApp configuration from Custom Metadata
+        Whatsapp_Setting__mdt config = getWhatsAppConfig('trifecta_penality_demand');
+        
+        if(config == null){
+            System.debug('Template not found: No Active Whatsapp template is available!');
+            return;
+        }
+        
+        String customerPhoneNumber = booking.Mobile__c;
+        String customerName        = booking.First_Applicant_Name__c;
+        String unit                = booking.Unit_No__c;
+        String projectandBlockName = booking.Project_Block_Name__c;
+        String crmExecutivePhone   = booking.CRM_Executive_Contact_No__c;
+        String interestPercentage   = booking.Default_Interest_Percentage__c;
+        String dueDateStr          = dueDate != null 
+            ? String.valueOf(dueDate.format())
+            : 'N/A';
+        String amountStr           = amount != null ? String.valueOf(amount) : '0';
+        
+        if (String.isBlank(customerPhoneNumber)) {
+            System.debug('No phone number found for booking: ' + booking.Id);
+            return;
+        }
+        
+        // Construct the dynamic JSON body
+        // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date]
+        String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'",'
+            + '"senderId":"'+config.Sender_ID__c+'",'
+            + '"component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template",'
+            + '"template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},'
+            + '"components":[{"type":"body","index":0,"parameters":['
+            + '{"type":"text","text":"'+customerName+'"},'
+            + '{"type":"text","text":"'+interestPercentage+'"},'
+            + '{"type":"text","text":"'+crmExecutivePhone+'"}'
+            + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+        
+        // Send the message
+        Boolean res = sendWhatsAppMessage(jsonBody, config);
+        System.debug('Revised Demand Message Sent: ' + res);
+    }
+    
   
     // Method to send REVISED DEMAND WhatsApp message - Single Booking
     public void sendWelcomeMail(Booking__c booking) {

@@ -332,6 +332,23 @@ public class DocumentandEmailController {
                 return;
             }
             system.debug('contentIds'+ contentIds);
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Name, Salutation__c ,Email__c
+                FROM Co_Applicant__c 
+                WHERE Booking__c = :demandRecords[0].booking__c 
+                ORDER BY CreatedDate ASC 
+            ];
+            List<String> emailList = new List<String>();
+            if (!coApplicants.isEmpty()) {
+                for(Co_Applicant__c cpp : coApplicants)
+                {
+                    if(cpp.Email__c != null)
+                    {
+                        emailList.add(cpp.Email__c );
+                    }               
+                }
+            }
+            
             
             for (Demand_Raised__c demand : demandRecords) {
                 // Convert comma-separated string of content IDs to Set<Id>
@@ -352,7 +369,10 @@ public class DocumentandEmailController {
                     lstCCEmail.add(booking.Owner.Email);
                     if (booking.CRM_Head_Manager_Email__c != null) {
                         lstCCEmail.add(booking.CRM_Head_Manager_Email__c);
-                    }        
+                    }   
+                    if (!emailList.isEmpty()) {
+                        sendTo.addAll(emailList);
+                    }
                     email.setToAddresses(sendTo);
                     email.setSubject('Demand Note for Completion of '+demand.Demand_Name__c +' In '+demand.Booking__r.Project1__r.name);
                     

@@ -8,7 +8,7 @@
     <relationshipLabel>Receipt Line Items</relationshipLabel>
     <relationshipName>Receipt_Line_Items</relationshipName>
     <required>false</required>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

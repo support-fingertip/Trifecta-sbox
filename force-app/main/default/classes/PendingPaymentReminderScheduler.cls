@@ -56,12 +56,12 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             ORDER BY Booking__c, S_No__c ASC
         ]);
     }
-
+    
     // ================= EXECUTE =================
     global void execute(Database.BatchableContext bc, List<Payment_Schedule__c> scope) {
-
+        
         Date today = Date.today();
-
+        
         // Fetch Templates (Correct Type__c values)
         List<General_Settings__c> allTemplates = [
             SELECT Template_Body__c, Subject__c, Type__c, Project_Name1__c
@@ -72,144 +72,148 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
                 'Demand_3RD_REMINDER'
             )
         ];
-        // Set OrgWideEmailAddress
         
+        // Set OrgWideEmailAddress
         List<OrgWideEmailAddress> orgWideEmail =
             [SELECT Id FROM OrgWideEmailAddress WHERE DisplayName = 'Trifecta Admin' LIMIT 1];
-        
         
         // Build Project → Reminder → Template Map
         Map<String, Map<String, General_Settings__c>> projectTemplateMap =
             new Map<String, Map<String, General_Settings__c>>();
-
+        
         for (General_Settings__c gs : allTemplates) {
-
+            
             if (String.isBlank(gs.Project_Name1__c)) continue;
-
+            
             for (String project : gs.Project_Name1__c.split(';')) {
-
+                
                 project = project.trim();
-
+                
                 if (!projectTemplateMap.containsKey(project)) {
-                    projectTemplateMap.put(project, 
-                        new Map<String, General_Settings__c>());
+                    projectTemplateMap.put(project,
+                                           new Map<String, General_Settings__c>());
                 }
-
+                
                 projectTemplateMap.get(project).put(gs.Type__c, gs);
             }
         }
-
+        
         // Group schedules by booking
         Map<Id, List<Payment_Schedule__c>> bookingToSchedules =
             new Map<Id, List<Payment_Schedule__c>>();
-
+        
         for (Payment_Schedule__c ps : scope) {
-			system.debug('ps==>'+ps);
+            System.debug('ps==>' + ps);
             if (ps.Booking__c == null) continue;
-
+            
             if (!bookingToSchedules.containsKey(ps.Booking__c)) {
-                bookingToSchedules.put(ps.Booking__c, 
-                    new List<Payment_Schedule__c>());
+                bookingToSchedules.put(ps.Booking__c,
+                                       new List<Payment_Schedule__c>());
             }
-
+            
             bookingToSchedules.get(ps.Booking__c).add(ps);
         }
-
+        
         List<Messaging.SingleEmailMessage> emails =
             new List<Messaging.SingleEmailMessage>();
-
+        
         Integer batchCustomerEmails = 0;
         Integer batchInternalEmails = 0;
-
+        
+        // Track email index → schedule IDs and reminder type for precise success tracking
+        Map<Integer, List<Id>> emailIndexToScheduleIds = new Map<Integer, List<Id>>();
+        Map<Integer, String> emailIndexToReminderType  = new Map<Integer, String>();
+        
         for (Id bookingId : bookingToSchedules.keySet()) {
-
+            
             List<Payment_Schedule__c> schedules =
                 bookingToSchedules.get(bookingId);
-            system.debug('schedules==>'+schedules);
+            System.debug('schedules==>' + schedules);
+            
             if (schedules.isEmpty()) continue;
-
+            
             Booking__c booking = schedules[0].Booking__r;
             if (booking == null) continue;
+            
             // Call WhatsappController for demand reminder (action '9')
             List<Booking__c> bookingList = new List<Booking__c>{ booking };
                 WhatsappController controller = new WhatsappController(bookingList, '9');
             System.enqueueJob(controller);
-            SMSHandler smsctrl = new SMSHandler(bookingList, '9');
-            System.enqueueJob(smsctrl);
+            //SMSHandler smsctrl = new SMSHandler(bookingList, '9');
+            //System.enqueueJob(smsctrl);
             
-
             String reminderType =
                 determineReminderTypeForBooking(schedules, today);
-
+            
             if (String.isBlank(reminderType)) continue;
-
+            
             bookingsProcessed++;
             emailsByType.put(reminderType,
-                emailsByType.get(reminderType) + 1);
-
+                             emailsByType.get(reminderType) + 1);
+            
             String projectName =
                 booking.Project1__r != null ?
                 booking.Project1__r.Name : '';
-
+            
             if (!projectTemplateMap.containsKey(projectName)) continue;
-
+            
             Map<String, General_Settings__c> reminderMap =
                 projectTemplateMap.get(projectName);
-
+            
             if (reminderMap == null) continue;
-
-            General_Settings__c temp =
-                reminderMap.get(reminderType);
-
+            
+            General_Settings__c temp = reminderMap.get(reminderType);
+            
             if (temp == null) continue;
-
+            
             String template = temp.Template_Body__c;
             String subject  = temp.Subject__c;
             
             subject = subject.replace('##PROJECT_NAME##', projectName ?? '');
-            subject = subject.replace('##BLOCK_NAME##',  booking.Block_Name__c ?? '');
+            subject = subject.replace('##BLOCK_NAME##',   booking.Block_Name__c ?? '');
             subject = subject.replace('##UNIT_NUMBER##',  booking.Unit_No__c ?? '');
-
+            
             // Replace merge fields
             template = template.replace('##APPLICANT_NAME##',
-                booking.First_Applicant_Name__c ?? '');
-
-            template = template.replace('##PROJECT_NAME##',
-                projectName ?? '');
-
-            template = template.replace('##COMPANY_NAME##',
-                booking.Company_Name__c ?? '');
-
-            template = template.replace('##CRM_PHONE##',
-                booking.Owner_Phone__c ?? '');
+                                        booking.First_Applicant_Name__c ?? '');
             
+            template = template.replace('##PROJECT_NAME##',
+                                        projectName ?? '');
+            
+            template = template.replace('##COMPANY_NAME##',
+                                        booking.Company_Name__c ?? '');
+            
+            template = template.replace('##CRM_PHONE##',
+                                        booking.Owner_Phone__c ?? '');
             
             String cleanHtml = template.unescapeHtml4();
-            system.debug('cleanHtml'+cleanHtml);
+            System.debug('cleanHtml' + cleanHtml);
+            
             // Remove empty paragraphs like <p>&nbsp;</p> or <p> </p>
             cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
             
-            // Also normalize multiple <br>
+            // Normalize multiple <br>
             cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
-
+            
             String body =
                 '<html><body style="font-family: Arial; font-size:14px;">'
                 + cleanHtml +
                 '</body></html>';
-
+            
             // ========== CUSTOMER EMAIL ==========
             if (!String.isBlank(booking.Email__c)) {
-                system.debug('booking.Email__c'+booking.Email__c);
+                System.debug('booking.Email__c' + booking.Email__c);
+                
                 Messaging.SingleEmailMessage mail =
                     new Messaging.SingleEmailMessage();
-
-                mail.setToAddresses(
-                    new String[] { booking.Email__c });
-
+                
+                mail.setToAddresses(new String[] { booking.Email__c });
                 mail.setSubject(subject);
+                
                 if (!orgWideEmail.isEmpty()) {
                     mail.setOrgWideEmailAddressId(orgWideEmail[0].Id);
                 }
+                
                 mail.setHtmlBody(body);
                 mail.setSaveAsActivity(false);
                 
@@ -227,38 +231,76 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
                 attachment.setBody(pdfBlob);
                 attachment.setContentType('application/pdf');
                 
-                mail.setFileAttachments( new Messaging.EmailFileAttachment[] { attachment });
+                mail.setFileAttachments(
+                    new Messaging.EmailFileAttachment[] { attachment });
                 
+                // Track this email's index → schedule IDs + reminderType
+                Integer emailIndex = emails.size();
                 
+                List<Id> psIds = new List<Id>();
+                for (Payment_Schedule__c ps : schedules) {
+                    psIds.add(ps.Id);
+                }
+                emailIndexToScheduleIds.put(emailIndex, psIds);
+                emailIndexToReminderType.put(emailIndex, reminderType);
                 
-
                 emails.add(mail);
                 batchCustomerEmails++;
             }
-
         }
-
+        
+        // ========== SEND EMAILS ==========
         if (!emails.isEmpty()) {
             System.debug('Entered to Mails');
             
             Messaging.SendEmailResult[] results = Messaging.sendEmail(emails);
             
-            for (Messaging.SendEmailResult r : results) {
-                if (!r.isSuccess()) {
-                    for (Messaging.SendEmailError e : r.getErrors()) {
-                        System.debug('Email Error: ' + e.getMessage());
+            List<Payment_Schedule__c> schedulesToUpdate =
+                new List<Payment_Schedule__c>();
+            
+            for (Integer i = 0; i < results.size(); i++) {
+                
+                if (results[i].isSuccess()) {
+                    System.debug('Email Sent Successfully for index: ' + i);
+                    
+                    String reminder  = emailIndexToReminderType.get(i);
+                    List<Id> psIds   = emailIndexToScheduleIds.get(i);
+                    
+                    if (psIds != null && !String.isBlank(reminder)) {
+                        for (Id psId : psIds) {
+                            Payment_Schedule__c psUpdate =
+                                new Payment_Schedule__c(Id = psId);
+                            
+                            if (reminder == 'Demand_1ST_REMINDER') {
+                                psUpdate.X1st_Reminder_Sent__c = true;
+                            } else if (reminder == 'Demand_2ND_REMINDER') {
+                                psUpdate.X2nd_Reminder_Sent__c = true;
+                            } else if (reminder == 'Demand_3RD_REMINDER') {
+                                psUpdate.X3rd_Reminder_Sent__c = true;
+                            }
+                            
+                            schedulesToUpdate.add(psUpdate);
+                        }
                     }
+                    
                 } else {
-                    System.debug('Email Sent Successfully');
+                    for (Messaging.SendEmailError e : results[i].getErrors()) {
+                        System.debug('Email Error at index ' + i + ': ' + e.getMessage());
+                    }
                 }
             }
             
-            totalEmailsSent += emails.size();
-            customerEmailsSent += batchCustomerEmails;
-            internalEmailsSent += batchInternalEmails;
+            // Update reminder flags only for successfully sent emails
+            if (!schedulesToUpdate.isEmpty()) {
+                update schedulesToUpdate;
+            }
+            
+            totalEmailsSent     += emails.size();
+            customerEmailsSent  += batchCustomerEmails;
+            internalEmailsSent  += batchInternalEmails;
         }
     }
-
+    
     // ================= FINISH =================
     global void finish(Database.BatchableContext bc) {
         sendAdminSummaryEmail();
@@ -317,7 +359,6 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             + '<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Total Emails Sent</strong></td><td style="padding: 8px; border: 1px solid #ddd;">' + totalEmailsSent + '</td></tr>'
             + '<tr style="background-color: #f2f2f2;"><td style="padding: 8px; border: 1px solid #ddd;"><strong>Customer Emails Sent</strong></td><td style="padding: 8px; border: 1px solid #ddd;">' + customerEmailsSent + '</td></tr>'
             + '<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Internal Emails Sent</strong></td><td style="padding: 8px; border: 1px solid #ddd;">' + internalEmailsSent + '</td></tr>'
-            + '<tr style="background-color: #f2f2f2;"><td style="padding: 8px; border: 1px solid #ddd;"><strong>Bookings Cancelled</strong></td><td style="padding: 8px; border: 1px solid #ddd;">' + bookingsCancelled + '</td></tr>'
             + '</table>'
             + '<br/>'
             + '<h3>Email Breakdown by Reminder Type</h3>'
@@ -325,19 +366,14 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             + '<tr style="background-color: #4CAF50; color: white;"><th style="padding: 8px; border: 1px solid #ddd;">Reminder Type</th><th style="padding: 8px; border: 1px solid #ddd;">Count</th></tr>'
             + '<tr><td style="padding: 8px; border: 1px solid #ddd;">1st Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('Demand_1ST_REMINDER') + '</td></tr>'
             + '<tr style="background-color: #f2f2f2;"><td style="padding: 8px; border: 1px solid #ddd;">2nd Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('Demand_2ND_REMINDER') + '</td></tr>'
-            + '<tr><td style="padding: 8px; border: 1px solid #ddd;">1st Interest Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('1ST_INTEREST') + '</td></tr>'
-            + '<tr style="background-color: #f2f2f2;"><td style="padding: 8px; border: 1px solid #ddd;">2nd Interest Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('2ND_INTEREST') + '</td></tr>'
-            + '<tr><td style="padding: 8px; border: 1px solid #ddd;">3rd Interest Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('3RD_INTEREST') + '</td></tr>'
-            + '<tr style="background-color: #f2f2f2;"><td style="padding: 8px; border: 1px solid #ddd;">Pre-Termination</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('PRE_TERMINATION') + '</td></tr>'
-            + '<tr style="background-color: #ffebee;"><td style="padding: 8px; border: 1px solid #ddd;"><strong>Termination</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><strong>' + emailsByType.get('TERMINATION') + '</strong></td></tr>'
-            + '<tr style="background-color: #ffe0e0;"><td style="padding: 8px; border: 1px solid #ddd;"><strong>Cancellation (30 days post-termination)</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><strong>' + emailsByType.get('CANCEL_BOOKING') + '</strong></td></tr>'
+            + '<tr><td style="padding: 8px; border: 1px solid #ddd;">3rd Reminder</td><td style="padding: 8px; border: 1px solid #ddd;">' + emailsByType.get('Demand_3RD_REMINDER') + '</td></tr>'
             + '</table>'
             + '<br/>'
             + '<hr/>'
             + '<p style="color: #666; font-size: 12px;"><em>This is an automated summary generated by the Payment Reminder Scheduler batch job.</em></p>'
             + '<p style="color: #666; font-size: 12px;"><em>For any queries, please contact the CRM Team.</em></p>'
             + '<br/>'
-            + '<p>Best Regards,<br/><strong>Zuari CRM Automation System</strong></p>';
+            + '<p>Best Regards,<br/><strong>Trifecta CRM Automation System</strong></p>';
         
         try {
             System.debug('Creating admin summary email...');

@@ -524,10 +524,6 @@
             <fullName>Booked</fullName>
             <default>false</default>
         </values>
-        <values>
-            <fullName>Sold</fullName>
-            <default>false</default>
-        </values>
     </picklistValues>
     <picklistValues>
         <picklist>Tower__c</picklist>

@@ -12,6 +12,7 @@
                 var result = response.getReturnValue();
                 var result = response.getReturnValue();
                 component.set("v.record", result.bookingRecord);
+                component.set("v.coApplicantEmails", result.coApplicantEmails);
                 if(result.bookingRecord.Agreement_Expected_Date__c == null || result.bookingRecord.Agreement_Expected_Date__c == undefined)
                 {
                     helper.showToast('Error', 'Error!', "Please update the Expected Agreement Date before sending the Welcome Mail.");
@@ -85,6 +86,10 @@
         }
         if (record.Email__c) {
             toAddresses.push(record.Email__c);
+        }
+        var coApplicantEmails = component.get("v.coApplicantEmails");
+        if (coApplicantEmails && coApplicantEmails.length > 0) {
+            toAddresses = toAddresses.concat(coApplicantEmails);
         }
         
         if (toAddresses.length === 0) {

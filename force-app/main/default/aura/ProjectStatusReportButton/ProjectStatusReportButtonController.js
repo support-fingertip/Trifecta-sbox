@@ -8,10 +8,15 @@
             var record = component.get("v.bookingRecord");
             
             var showCustomButtons = record.fields.Show_Custom_Buttons__c.value;
-            
             console.log("showCustomButtons:", showCustomButtons);
-            
             component.set("v.showCustomButtons", showCustomButtons);
+            
+            var projectType = record.fields.Project_Type__c.value;
+            var showAdjustLandAmountButton = projectType == 'Villas';
+            console.log("showAdjustLandAmountButton:", showAdjustLandAmountButton);
+            component.set("v.showAdjustLandAmountButton", showAdjustLandAmountButton);
+            
+            
         }
     },
     
@@ -29,5 +34,11 @@
     },
     handlePaymentScheduleClose : function(component, event, helper) {
         component.set("v.showPaymentSchduleEdit", false);
-    }
+    },
+    landAmountEditClick : function(component, event, helper) {
+        component.set("v.showAdjustLandAmount", true);
+    },
+    landAmountEditClickClose : function(component, event, helper) {
+        component.set("v.showAdjustLandAmount", false);
+    },
 })

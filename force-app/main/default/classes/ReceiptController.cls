@@ -32,7 +32,7 @@ public without sharing class ReceiptController {
         dt.additionalCharges = [select id,name,Pending_Amount__c
                                 from Additional_Charges__c where Booking__c =: recid and Pending_Amount__c> 0];
         dt.paymentSchdules = [SELECT Id,Name,Payment_percent__c,
-                              Payment_Due_Date__c,Recived_Per__c,Amount1__c,S_No__c,
+                              Payment_Due_Date__c,Recived_Per__c,S_No__c,
                               status__c,Booking__c,Quote__c FROM Payment_schedule__c
                               WHERE Booking__c =:recid ORDER BY S_No__c ASC];
         dt.paymentTypePicklist = getPicklistValues('Receipt_Line_Item__c','Mode_of_Payment__c');
@@ -114,7 +114,7 @@ public without sharing class ReceiptController {
         
         //  FIX: Added Pending_Tds_Amount__c to the query
         List<Payment_Schedule__c> payList = [
-            SELECT Id, Amount1__c, Is_Demanded__c, Interest_Pending_Amount__c,
+            SELECT Id, Is_Demanded__c, Interest_Pending_Amount__c,
             Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,Pending_Amount_Without_Tds__c,
             S_No__c, Pending_Tds_Amount__c
             FROM Payment_Schedule__c 

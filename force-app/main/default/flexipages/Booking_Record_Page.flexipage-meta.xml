@@ -713,6 +713,29 @@
                 <identifier>RecordBlock_Name_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
+                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Debit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-add77c2e-2e5c-4074-acbe-86dc1bbe4725</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -801,23 +824,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
-                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
-                <visibilityRule>
-                    <booleanFilter>1 OR 2</booleanFilter>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Credit Card</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Debit Card</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <fieldItem>Record.Phase__c</fieldItem>
+                <identifier>RecordPhase_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-13dde832-0f68-4202-a9da-ec6fa36c5622</name>
@@ -2986,8 +2996,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Total_received_Amount__c</fieldItem>
-                <identifier>RecordTotal_received_Amount__cField</identifier>
+                <fieldItem>Record.Total_Amount__c</fieldItem>
+                <identifier>RecordTotal_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -2996,8 +3006,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Received_Interest_Amount__c</fieldItem>
-                <identifier>RecordReceived_Interest_Amount_cField</identifier>
+                <fieldItem>Record.Pending_Amount__c</fieldItem>
+                <identifier>RecordPending_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-780e9eb3-99cc-4ca3-9ee7-bc4e0e05d75d</name>
@@ -3010,8 +3020,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Pending_Amount__c</fieldItem>
-                <identifier>RecordPending_Amount_cField</identifier>
+                <fieldItem>Record.Total_received_Amount__c</fieldItem>
+                <identifier>RecordTotal_received_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-5673afc2-ab59-40c7-aecd-932ca592cc05</name>
@@ -4062,7 +4072,7 @@
                             <value>Payment_percent__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Amount1__c</value>
+                            <value>Amount__c</value>
                         </valueListItems>
                         <valueListItems>
                             <value>status__c</value>

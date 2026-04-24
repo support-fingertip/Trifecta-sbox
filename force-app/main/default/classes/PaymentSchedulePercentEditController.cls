@@ -68,17 +68,19 @@ public with sharing class PaymentSchedulePercentEditController {
             }
 
             Booking__c booking = [
-                SELECT Id, Total_Amount__c, Project_Type__c
+                SELECT Id, Total_Amount__c, Project_Type__c,Total_Land_Amount__c,Construction_Cost__c
                 FROM Booking__c
                 WHERE Id = :bookingId
                 LIMIT 1
             ];
-
+            Decimal landTotal  = booking.Total_Land_Amount__c != null ? booking.Total_Land_Amount__c : 0;
+            Decimal constTotal = booking.Construction_Cost__c != null ? booking.Construction_Cost__c : 0;
+            
             Decimal expectedTotal =
                 (booking.Project_Type__c == 'Villas') ? 200 : 100;
 
             Map<Id, Payment_schedule__c> existing = new Map<Id, Payment_schedule__c>([
-                SELECT Id, Payment_percent__c, Is_Demanded__c,
+                SELECT Id, Payment_percent__c, Is_Demanded__c,Type__c,
                        Received_Amount1__c, S_No__c
                 FROM Payment_schedule__c
                 WHERE Booking__c = :bookingId
@@ -107,8 +109,21 @@ public with sharing class PaymentSchedulePercentEditController {
                         'Percentage cannot be negative or Zero (S.No '
                         + ref.S_No__c + ').');
                 }
-
-                Decimal newAmount = (bookingTotal * newPct / 100).setScale(2);
+                Decimal newAmount = 0;
+                
+                if(ref.Type__c == 'Land'){
+                    newAmount = (landTotal * newPct) / 100;
+                }
+                else if(ref.Type__c == 'Construction'){
+                    newAmount = (constTotal * newPct) / 100;
+                }
+                else{
+                    newAmount = (bookingTotal != null) ? (bookingTotal * newPct / 100) : 0;
+                }
+                
+                
+                
+                //Decimal newAmount = (bookingTotal * newPct / 100).setScale(2);
                 Decimal received = (ref.Received_Amount1__c == null)
                     ? 0 : ref.Received_Amount1__c;
                 if (newAmount < received) {

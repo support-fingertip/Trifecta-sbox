@@ -166,6 +166,19 @@ public class UnitReadinessMailController {
                 bk.Unit_No__c != null ? String.valueOf(bk.Unit_No__c) : ''
             );
             
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Id, Name, Email__c, Booking__c
+                FROM Co_Applicant__c
+                WHERE Booking__c = :bk.Id
+            ];
+            
+            
+            for (Co_Applicant__c coApp : coApplicants) {
+                if (coApp.Email__c != null) {
+                    toAddresses.add(coApp.Email__c);
+                }
+            }
+            
             
             
             mail.setToAddresses(toAddresses);

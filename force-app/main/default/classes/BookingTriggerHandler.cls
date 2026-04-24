@@ -165,6 +165,7 @@ public class BookingTriggerHandler {
         String notificationTypeId = getNotificationTypeId();
         Map<Id, Id> bookingToOwnerMap = new Map<Id, Id>();
         Set<Id> unitSet = new Set<Id>();
+        Set<Id> unitSetToUpdateSoldStatus = new Set<Id>();
         for (Booking__c bk : newBookingList) {
             Booking__c oldBk = oldBookingMap.get(bk.Id);
             if (oldBk.OwnerId != bk.OwnerId && bk.OwnerId != null) {
@@ -197,6 +198,14 @@ public class BookingTriggerHandler {
                         unitSet.add(bk.Plot__c);
                     }
                 }
+                else if(bk.Stage__c == 'Possession / Handover')
+                {
+                    if(bk.Plot__c != null)
+                    {
+                        unitSetToUpdateSoldStatus.add(bk.Plot__c);
+                    }
+                    body += 'Please proceed with the next steps.';
+                }
                 else
                 {
                     body += 'Please proceed with the next steps.';
@@ -218,6 +227,10 @@ public class BookingTriggerHandler {
         if(!unitSet.isEmpty())
         {
             updatePlotAvailability(unitSet);
+        }
+        if(!unitSetToUpdateSoldStatus.isEmpty())
+        {
+            updatePlotStatusToSold(unitSetToUpdateSoldStatus);
         }
     }
     /**
@@ -787,6 +800,28 @@ public class BookingTriggerHandler {
             notification.setBody('Unit "' + p.Name + '" in Project "' + p.Project_Name__c + '" has been marked as Available.');
             notification.send(recipientIds);
         }
+    }
+    
+    public static void updatePlotStatusToSold(Set<Id> unitSetToUpdateSoldStatus)
+    {
+        // Step 1: Update Plot status to Available
+        List<Plot__c> plotList = [
+            SELECT Id, Name, Status__c, Project_Name__c, Project__c
+            FROM Plot__c
+            WHERE Id IN :unitSetToUpdateSoldStatus
+        ];
+        
+        for(Plot__c p : plotList)
+        {
+            p.Status__c = 'Sold';
+        }
+        
+        if(!plotList.isEmpty())
+        {
+            update plotList;
+        }
+        
+       
     }
     
 

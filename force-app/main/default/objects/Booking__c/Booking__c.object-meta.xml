@@ -185,9 +185,9 @@
         <searchResultsAdditionalFields>First_Applicant_Name__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Project1__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Block__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Phase__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Plot__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Stage__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Booking_Amount__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Total_Amount__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Booking_Date__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Owner_Full_Name__c</searchResultsAdditionalFields>

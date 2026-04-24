@@ -11,13 +11,16 @@
     <aura:attribute name="currentMilestone" type="Payment_schedule__c" />
     
     <aura:attribute name="showCustomButtons" type="boolean" default="false" />
+    <aura:attribute name="showAdjustLandAmount" type="boolean" default="false" />
+    
+    <aura:attribute name="showAdjustLandAmountButton" type="boolean" default="false" />
     
     <!--  force:recordData to load record fields directly -->
     <force:recordData 
         aura:id="bookingLoader"
         recordId="{!v.recordId}"
         targetRecord="{!v.bookingRecord}"
-        fields="Id,Show_Custom_Buttons__c"
+        fields="Id,Show_Custom_Buttons__c,Project_Type__c"
         recordUpdated="{!c.handleRecordLoaded}"
         mode="VIEW"
     />
@@ -35,6 +38,11 @@
             <div class="slds-col" style="margin-left:4px;">
                 <lightning:button variant="brand" label="Edit Payment Schedules" onclick="{!c.paymentSchduleEdit}" />
             </div>
+            <aura:if isTrue="{!v.showAdjustLandAmountButton}">
+                <div class="slds-col" style="margin-left:4px;">
+                    <lightning:button variant="brand" label="Adjust Land Amount" onclick="{!c.landAmountEditClick}" />
+                </div>
+            </aura:if>
         </div>
     </aura:if>
     
@@ -50,5 +58,10 @@
     <aura:if isTrue="{!v.showPaymentSchduleEdit}">
         <c:paymentSchedulePercentEdit recordId="{!v.recordId}" onclose="{!c.handlePaymentScheduleClose}" />
     </aura:if>
+
+    <aura:if isTrue="{!v.showAdjustLandAmount}">
+        <c:bookingAmountAdjustment recordId="{!v.recordId}" onclose="{!c.landAmountEditClickClose}"/>
+    </aura:if>
+
 
 </aura:component>

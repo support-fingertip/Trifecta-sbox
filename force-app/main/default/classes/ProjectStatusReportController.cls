@@ -168,7 +168,22 @@ public with sharing class ProjectStatusReportController {
 
         // Send Email
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[]{email});
+        
+        List<String> toAddresses = new List<String>{ email };
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Email__c
+                FROM Co_Applicant__c
+                WHERE Booking__c = :booking.Id
+                ORDER BY CreatedDate ASC
+            ];
+        for (Co_Applicant__c cpp : coApplicants) {
+            if (String.isNotBlank(cpp.Email__c)) {
+                toAddresses.add(cpp.Email__c);
+            }
+        }
+        mail.setToAddresses(toAddresses);
+        
+        
         mail.setOrgWideEmailAddressId(owea.Id);
         mail.setSubject(subject);
         mail.setHtmlBody(messageBody);

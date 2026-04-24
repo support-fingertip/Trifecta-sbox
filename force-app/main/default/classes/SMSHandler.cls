@@ -344,7 +344,7 @@ public class SMSHandler implements Queueable, Database.AllowsCallouts{
             String customerPhoneNumber = demand.Booking__r.Mobile__c;
             String customerName = demand.Booking__r.First_Applicant_Name__c;
             String amount = String.valueOf(demand.Grand_Total__c);
-            String unit = demand.Booking__r.Unit_No__c;
+            String unit = ' ' + demand.Booking__r.Unit_No__c;
             String projectandBlockName = demand.Project_Block_Name__c;
             String dueDate = demand.Payment_Due_Date__c != null
                 ? String.valueOf(demand.Payment_Due_Date__c.format())

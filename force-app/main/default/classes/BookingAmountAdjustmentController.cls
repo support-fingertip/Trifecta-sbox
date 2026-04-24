@@ -94,7 +94,7 @@ public with sharing class BookingAmountAdjustmentController {
 
             List<Payment_schedule__c> psList = [
                 SELECT Id, Name, S_No__c, Type__c, Payment_percent__c, Amount__c,
-                       Pending_Amount_Without_Tds__c
+                       Pending_Amount_Without_Tds__c,Received_Amount1__c
                 FROM Payment_schedule__c
                 WHERE Booking__c = :bookingId
             ];
@@ -113,14 +113,15 @@ public with sharing class BookingAmountAdjustmentController {
                 Decimal newAmount = (base * pct / 100)
                     .setScale(0, System.RoundingMode.HALF_UP);
 
-                Decimal pendingExTds = ps.Pending_Amount_Without_Tds__c == null
-                    ? 0 : ps.Pending_Amount_Without_Tds__c;
-                if (pendingExTds > newAmount) {
+                Decimal receivedAmount = ps.Received_Amount1__c == null
+                    ? 0 : ps.Received_Amount1__c;
+                if (receivedAmount > newAmount) {
                     throw new AuraHandledException(
-                        'Payment Schedule S.No ' + ps.S_No__c
-                        + ' has a pending (ex-TDS) amount of ' + pendingExTds
-                        + ' which would exceed the new scheduled amount of ' + newAmount
-                        + '. Reduce the adjustment so already-received payments are respected.');
+                        'Payment Schedule S.No ' + ps.S_No__c + 
+                        ' has a received amount of ₹' + receivedAmount + 
+                        ', which exceeds the new scheduled amount of ₹' + newAmount + 
+                        '. Please adjust the Plot Land Cost to accommodate already-received payments.'
+                    );
                 }
 
                 ps.Amount__c = newAmount;

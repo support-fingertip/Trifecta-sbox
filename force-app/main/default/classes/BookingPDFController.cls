@@ -34,7 +34,7 @@ public class BookingPDFController {
                    Total_Land_Amount__c,Extra_Land_Amount__c,Construction_Cost__c
                    FROM Booking__c WHERE Id = :bookingId];
         
-        list<Payment_schedule__c> paymentSchdulesList = [select id ,Name,Payment_percent__c,Amount1__c,S_No__c,Type__c
+        list<Payment_schedule__c> paymentSchdulesList = [select id ,Name,Payment_percent__c,S_No__c,Type__c,AmountB__c
                                                      from Payment_schedule__c where Quote__c =:booking.Quote__c  order by S_No__c asc];
         projectHead = booking.Project_Brand_Name__c;
         if(!paymentSchdulesList.isEmpty())

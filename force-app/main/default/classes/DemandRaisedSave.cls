@@ -1051,12 +1051,12 @@ public class DemandRaisedSave {
     
     public Static String RaiseDemandController(ID bookingRecordId) {
         Booking__c bk = [select id,Agreement_Value_Before_GST__c,Payment_Plan_Name__c,Booking_Date__c,Project1__r.GST_on_Aggrement__c from Booking__c where Id =:bookingRecordId];
-        Payment_schedule__c ps = [select id,Amount__c,Amount1__c,Master_Payment_Schedule__c From Payment_schedule__c where Booking__c =: bk.Id and S_No__c=1];
+        Payment_schedule__c ps = [select id,Amount__c,AmountB__c,Master_Payment_Schedule__c From Payment_schedule__c where Booking__c =: bk.Id and S_No__c=1];
         
         Decimal demandAmount = bk.Agreement_Value_Before_GST__c* 0.2;
         Demand_Raised__c re = new Demand_Raised__c();
-        re.Current_Demand_amount__c = ps.Amount1__c; 
-        re.Amount_Demanded__c = ps.Amount1__c;
+        re.Current_Demand_amount__c = ps.AmountB__c; 
+        re.Amount_Demanded__c = ps.AmountB__c;
         re.Include_Interest__c = true;
         if(bk.Payment_Plan_Name__c =='20:80 Payment plan'){
             re.Due_Date__c = bk.Booking_Date__c + 20;

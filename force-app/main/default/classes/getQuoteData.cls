@@ -39,7 +39,7 @@ public class getQuoteData {
                    GST_Amount__c, Floor_Rise_Charge__c, Bescom_STP_and_Generator__c, Plot_Land_Area__c,
                    Land_Rate_Per_Sqft__c, Land_Cost__c, Extra_Land_Amount__c, PLC_Amount__c,
                    Bescom_Charges__c, STP_and_Generator_Charges__c,
-                   (SELECT Id, Name, Payment_percent__c, Amount1__c, S_No__c, Type__c
+                   (SELECT Id, Name, Payment_percent__c, S_No__c, Type__c
                     FROM Payment_Schedules__r
                     ORDER BY S_No__c ASC)
             FROM Quote__c

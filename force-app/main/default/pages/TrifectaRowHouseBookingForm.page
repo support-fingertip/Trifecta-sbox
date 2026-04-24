@@ -488,7 +488,7 @@
                             </td>
                             <td  >
                                 <apex:outputText value="{0, Number}">
-                                    <apex:param value="{!p.Amount1__c}" /> 
+                                    <apex:param value="{!p.AmountB__c}" /> 
                                 </apex:outputText>  
                             </td>
                             <td ></td>
