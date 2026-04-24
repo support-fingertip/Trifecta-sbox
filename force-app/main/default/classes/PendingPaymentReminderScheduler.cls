@@ -123,25 +123,24 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
         // Track email index → schedule IDs and reminder type for precise success tracking
         Map<Integer, List<Id>> emailIndexToScheduleIds = new Map<Integer, List<Id>>();
         Map<Integer, String> emailIndexToReminderType  = new Map<Integer, String>();
-        
+
+        // Collect bookings to notify via WhatsApp. Batch Apex only allows ONE
+        // queueable enqueue per execute(), so we enqueue once after the loop.
+        List<Booking__c> bookingsForNotification = new List<Booking__c>();
+
         for (Id bookingId : bookingToSchedules.keySet()) {
-            
+
             List<Payment_Schedule__c> schedules =
                 bookingToSchedules.get(bookingId);
             System.debug('schedules==>' + schedules);
-            
+
             if (schedules.isEmpty()) continue;
-            
+
             Booking__c booking = schedules[0].Booking__r;
             if (booking == null) continue;
-            
-            // Call WhatsappController for demand reminder (action '9')
-            List<Booking__c> bookingList = new List<Booking__c>{ booking };
-                WhatsappController controller = new WhatsappController(bookingList, '9');
-            System.enqueueJob(controller);
-            //SMSHandler smsctrl = new SMSHandler(bookingList, '9');
-            //System.enqueueJob(smsctrl);
-            
+
+            bookingsForNotification.add(booking);
+
             String reminderType =
                 determineReminderTypeForBooking(schedules, today);
             
@@ -298,6 +297,13 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             totalEmailsSent     += emails.size();
             customerEmailsSent  += batchCustomerEmails;
             internalEmailsSent  += batchInternalEmails;
+        }
+
+        // Batch Apex permits only one queueable job per execute(); enqueue once
+        // with the full booking list rather than per-booking inside the loop.
+        if (!bookingsForNotification.isEmpty() && !Test.isRunningTest()) {
+            System.enqueueJob(
+                new WhatsappController(bookingsForNotification, '9'));
         }
     }
     
