@@ -326,12 +326,13 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             String unit = rec.Booking__r.Unit_No__c;
             String projectandBlockName = rec.Project_Block_Name__c;
             String crmExectutivePhone = rec.Booking__r.CRM_Executive_Contact_No__c;
+            String crmExectutiveEmail = rec.Booking__r.Owner_Email__c;
             system.debug('customerPhoneNumber'+customerPhoneNumber);
             if (String.isBlank(customerPhoneNumber)) {
                 continue; // Skip to the next lead if no phone number
             }
             // Construct the dynamic JSON body
-            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+crmExectutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+crmExectutivePhone+'"},{"type":"text","text":"'+crmExectutiveEmail+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
             
             // Send the message
             Boolean res = sendWhatsAppMessage(jsonBody, config);
@@ -432,7 +433,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
                 ? String.valueOf(demand.Payment_Due_Date__c.format())
                 : 'N/A';
             String crmExecutivePhone   = demand.Booking__r.CRM_Executive_Contact_No__c;
-            
+            String crmExecutiveEmail  = demand.Booking__r.Owner_Email__c;
             // Fetch amount and projectandBlockName from Receipt via Booking
             Decimal amount             = demand.Grand_Total__c;
             String projectandBlockName = demand.Project_Block_Name__c ;
@@ -443,7 +444,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             
             // Construct the dynamic JSON body
             // 1 - [Name], 2 - [Amount], 3 - [Flat Number], 4 - [Project Name], 5 - [Due Date], 6 - [phone]
-            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+dueDate+'"},{"type":"text","text":"'+crmExecutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+amount+'"},{"type":"text","text":"'+unit+'"},{"type":"text","text":"'+projectandBlockName+'"},{"type":"text","text":"'+dueDate+'"},{"type":"text","text":"'+crmExecutivePhone+'"},{"type":"text","text":"'+crmExecutiveEmail+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
             
             // Send the message
             Boolean res = sendWhatsAppMessage(jsonBody, config);
@@ -466,14 +467,14 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             String customerPhoneNumber = book.Mobile__c;
             String customerName = book.First_Applicant_Name__c;
             String crmExecutivePhone = book.CRM_Executive_Contact_No__c;
-            
+            String crmExecutiveEmail = book.Owner_Email__c;
             if (String.isBlank(customerPhoneNumber)) {
                 continue; // Skip if no phone number
             }
             
             // Construct the dynamic JSON body
             // 1 - [Name], 2 - [Phone]
-            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+crmExecutivePhone+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
+            String jsonBody = '{"mobileNumbers":"'+customerPhoneNumber+'","senderId":"'+config.Sender_ID__c+'","component":{"messaging_product":"whatsapp","recipient_type":"individual","type":"template","template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},"components":[{"type":"body","index":0,"parameters":[{"type":"text","text":"'+customerName+'"},{"type":"text","text":"'+crmExecutivePhone+'"},{"type":"text","text":"'+crmExecutiveEmail+'"}]}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
             
             // Send the message
             Boolean res = sendWhatsAppMessage(jsonBody, config);
@@ -496,6 +497,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         String unit                = booking.Unit_No__c;
         String projectandBlockName = booking.Project_Block_Name__c;
         String crmExecutivePhone   = booking.CRM_Executive_Contact_No__c;
+        String crmExecututiveEmail = booking.Owner.Email;
         String dueDateStr          = dueDate != null 
             ? String.valueOf(dueDate.format())
             : 'N/A';
@@ -518,7 +520,8 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             + '{"type":"text","text":"'+unit+'"},'
             + '{"type":"text","text":"'+projectandBlockName+'"},'
             + '{"type":"text","text":"'+dueDateStr+'"},'
-            + '{"type":"text","text":"'+crmExecutivePhone+'"}'
+            + '{"type":"text","text":"'+crmExecutivePhone+'"},'
+            + '{"type":"text","text":"'+crmExecututiveEmail+'"}'
             + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
         
         // Send the message
@@ -543,6 +546,7 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         String projectandBlockName = booking.Project_Block_Name__c;
         String crmExecutivePhone   = booking.CRM_Executive_Contact_No__c;
         String interestPercentage   = booking.Default_Interest_Percentage__c;
+        String crmExecututiveEmail = booking.Owner.Email;
         String dueDateStr          = dueDate != null 
             ? String.valueOf(dueDate.format())
             : 'N/A';
@@ -562,7 +566,8 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             + '"components":[{"type":"body","index":0,"parameters":['
             + '{"type":"text","text":"'+customerName+'"},'
             + '{"type":"text","text":"'+interestPercentage+'"},'
-            + '{"type":"text","text":"'+crmExecutivePhone+'"}'
+            + '{"type":"text","text":"'+crmExecutivePhone+'"},'
+            + '{"type":"text","text":"'+crmExecututiveEmail+'"}'
             + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
         
         // Send the message
@@ -585,7 +590,8 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
         String customerPhoneNumber = booking.Mobile__c;
         String customerName        = booking.First_Applicant_Name__c;
         String crmExecututiveName = booking.Owner_Full_Name__c;
-    
+        String crmExecututiveEmail = booking.Owner_Email__c;
+        
         if (String.isBlank(customerPhoneNumber)) {
             System.debug('No phone number found for booking: ' + booking.Id);
             return;
@@ -599,7 +605,8 @@ public class WhatsappController implements Queueable, Database.AllowsCallouts{
             + '"template":{"name":"'+config.Template_Name__c+'","language":{"code":"en"},'
             + '"components":[{"type":"body","index":0,"parameters":['
             + '{"type":"text","text":"'+customerName+'"},'
-            + '{"type":"text","text":"'+crmExecututiveName+'"}'
+            + '{"type":"text","text":"'+crmExecututiveName+'"},'
+            + '{"type":"text","text":"'+crmExecututiveEmail+'"}'
             + ']}]},"qrImageUrl":false,"qrLinkUrl":false,"to":"'+customerPhoneNumber+'"}}';
         
         // Send the message

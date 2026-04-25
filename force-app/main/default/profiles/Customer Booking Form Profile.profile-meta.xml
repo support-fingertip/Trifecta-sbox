@@ -721,6 +721,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ReminderdemandInvioceController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RemoveDuplicateLeadsBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -10095,6 +10099,10 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>Receipt</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>ReminderDemandNote</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

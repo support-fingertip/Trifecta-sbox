@@ -12,7 +12,7 @@ public class DemandRaisedTriggerHandler {
 
         // Query demands with required Booking__r fields
         List<Demand_Raised__c> demandsWithBooking = [
-            SELECT Id, Booking__c, Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c, Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c, Payment_Due_Date__c, Grand_Total__c, Project_Block_Name__c
+            SELECT Id, Booking__c, Booking__r.Mobile__c,Booking__r.Owner_Email__c, Booking__r.First_Applicant_Name__c, Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c, Payment_Due_Date__c, Grand_Total__c, Project_Block_Name__c
             FROM Demand_Raised__c
             WHERE Id IN :demandIds
         ];

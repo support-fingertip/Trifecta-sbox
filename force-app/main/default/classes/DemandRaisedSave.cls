@@ -376,7 +376,7 @@ public class DemandRaisedSave {
         
         Booking__c book = [SELECT Id,Applicant_Name__c,First_Applicant_Name__c,Plot__r.Name, Total__c, Name, Project__c, Project1__r.Name,GST__c,
                            RecordType.DeveloperName, Quote__r.Agreement_Value_Before_GST__c,Total_Amount__c,Block_Name__c,Unit_No__c,Owner_Phone_Number__c,
-                           Company_Name__c FROM Booking__c WHERE Id = :psRecord.Booking__c];
+                           Company_Name__c,Owner.Email FROM Booking__c WHERE Id = :psRecord.Booking__c];
         String result = customScheduleCalculations(psRecord.Id,psRecord.Master_Payment_Schedule__c,book,emailContent,true,contentIds,false);
         // Preserve LWC API: return success message, not the raw Demand_Raised__c Id
         return (result != null && !result.startsWith('Error')) ? 'Demand raised successfully.' : result;

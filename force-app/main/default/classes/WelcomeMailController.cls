@@ -247,7 +247,7 @@ public without sharing class WelcomeMailController {
     public static void sendWelcomeEmail(Id recordId, String emailContent, List<String> toAddresses, List<String> contentIds) {
         system.debug('Content IDs: ' + contentIds);
         Booking__c bk = [SELECT Id, Quote__c,Name, CRM_Manager__c,Project1__r.Name, Owner_Phone__c,CRM_Head__c, 
-                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c,Phase__c,
+                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c,Phase__c,Owner_Email__c,
                          Project__c,Block_Name__c,Unit_No__c,Project_Type__c,Property_Type__c,Mobile__c,Owner_Full_Name__c,
                          (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks 
                           WHERE ContentDocumentId IN :contentIds) 

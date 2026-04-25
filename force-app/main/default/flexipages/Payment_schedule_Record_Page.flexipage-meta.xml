@@ -112,24 +112,6 @@
                 <identifier>RecordPending_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.X1st_Reminder_Sent__c</fieldItem>
-                <identifier>RecordX1st_Reminder_Sent__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.X2nd_Reminder_Sent__c</fieldItem>
-                <identifier>RecordX2nd_Reminder_Sent__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.X3rd_Reminder_Sent__c</fieldItem>
-                <identifier>RecordX3rd_Reminder_Sent__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-a7105d8d-6bdb-4216-ad5a-92b481c4465e</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -429,6 +411,16 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.X2nd_Reminder_Date__c</fieldItem>
+                <identifier>RecordX2nd_Reminder_Date_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.X3rd_Interest_Reminder_Date__c</fieldItem>
                 <identifier>RecordX3rd_Interest_Reminder_Date_cField</identifier>
             </fieldInstance>
@@ -441,10 +433,30 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.X2nd_Reminder_Date__c</fieldItem>
-                <identifier>RecordX2nd_Reminder_Date_cField</identifier>
+                <fieldItem>Record.X1st_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX1st_Reminder_Sent__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.X2nd_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX2nd_Reminder_Sent__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.X3rd_Reminder_Sent__c</fieldItem>
+                <identifier>RecordX3rd_Reminder_Sent__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-bf2ffd56-ace1-442d-ab99-987f1f9a1439</name>
@@ -589,7 +601,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>

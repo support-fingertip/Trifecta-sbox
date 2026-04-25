@@ -321,7 +321,7 @@ public class DocumentandEmailController {
             List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
             // Fetch the Demand_Raised__c records for the given recIds
             List<Demand_Raised__c> demandRecords = [
-                SELECT Id, Demand_Email_Content__c,CreatedBy.Email, Booking__r.Email__c, Demand_Name__c,Project__c,
+                SELECT Id, Demand_Email_Content__c,CreatedBy.Email, Booking__r.Email__c, Demand_Name__c,Project__c,Booking__r.Owner_Email__c,
                 Booking__r.Owner.Email,Booking__r.Total__c,booking__c, booking__r.CRM_Manager__r.Email,booking__r.Project1__r.Name,booking__r.CRM_Head_Manager_Email__c,
                 (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks WHERE LinkedEntityId IN :recIds)
                 FROM Demand_Raised__c 

@@ -41,7 +41,8 @@ global class PendingPaymentReminderScheduler implements Database.Batchable<SObje
             Booking__r.Disable_Automatic_Payment_Reminders__c,
             Booking__r.Company_Name__c,
             Booking__r.Owner_Phone__c,
-            Booking__r.Mobile__c
+            Booking__r.Mobile__c,
+            Booking__r.Owner_Email__c
             FROM Payment_Schedule__c
             WHERE Is_Demanded__c = true
             AND Pending_Amount__c > 0
