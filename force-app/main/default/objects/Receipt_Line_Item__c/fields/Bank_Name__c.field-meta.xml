@@ -3,10 +3,24 @@
     <fullName>Bank_Name__c</fullName>
     <externalId>false</externalId>
     <label>Bank Name</label>
-    <length>220</length>
     <required>false</required>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
-    <type>Text</type>
-    <unique>false</unique>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>false</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>SBI</fullName>
+                <default>false</default>
+                <label>SBI</label>
+            </value>
+            <value>
+                <fullName>HDFC</fullName>
+                <default>false</default>
+                <label>HDFC</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
 </CustomField>
