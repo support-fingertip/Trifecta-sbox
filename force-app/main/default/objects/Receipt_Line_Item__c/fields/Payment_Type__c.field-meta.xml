@@ -56,6 +56,21 @@
                 <default>false</default>
                 <label>Booking Amount</label>
             </value>
+            <value>
+                <fullName>TDS from Bank</fullName>
+                <default>false</default>
+                <label>TDS from Bank</label>
+            </value>
+            <value>
+                <fullName>TDS Refund</fullName>
+                <default>false</default>
+                <label>TDS Refund</label>
+            </value>
+            <value>
+                <fullName>TDS Paid</fullName>
+                <default>false</default>
+                <label>TDS Paid</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

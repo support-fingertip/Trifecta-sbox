@@ -80,9 +80,9 @@ public class ReceiptLineIemTriggerHandler {
             Payment_schedule__r.Interest_Percent__c,
             Payment_Type__c,
             Payment_schedule__r.Include_Interest__c
-            FROM Receipt_Line_Item__c 
-            WHERE Id IN :newReceiptlineItemIds 
-            AND Payment_Type__c != 'Interest'
+            FROM Receipt_Line_Item__c
+            WHERE Id IN :newReceiptlineItemIds
+            AND Payment_Type__c NOT IN ('Interest', 'TDS from Bank', 'TDS Refund')
         ];
         
         // One Schedule - Many Receipt Lines
