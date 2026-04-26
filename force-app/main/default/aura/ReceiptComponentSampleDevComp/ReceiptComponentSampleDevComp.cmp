@@ -300,8 +300,12 @@
                             </aura:if>
                             <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input type="text" aura:id="field" label="Bank Name"
-                                                     required="true" value="{!qt.Bank_Name__c}"/>
+                                    <lightning:select aura:id="field" label="Bank Name"
+                                                      required="true" value="{!qt.Bank_Name__c}">
+                                        <option value="">choose one...</option>
+                                        <option value="SBI">SBI</option>
+                                        <option value="HDFC">HDFC</option>
+                                    </lightning:select>
                                 </div>
                             </div>
                             <div class="slds-col slds-size_1-of-6 rli-field">
