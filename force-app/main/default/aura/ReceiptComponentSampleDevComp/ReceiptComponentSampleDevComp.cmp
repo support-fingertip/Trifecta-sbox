@@ -36,8 +36,10 @@
     <aura:attribute name="additionlCharges" type="List[]" />
     <aura:attribute name="bookingType" type="String" />
     <aura:attribute name="totalPendingTds" type="Decimal" default="0"/>
+    <aura:attribute name="pendingTdsRefundAmount" type="Decimal" default="0"/>
     <aura:attribute name="tdsStatusPicklist" type="String[]" />
     <aura:attribute name="pendingTdsRefunds" type="Object[]" default="[]"/>
+    <aura:attribute name="stagedFiles" type="Object[]" default="[]"/>
     <aura:html tag="style">
         .slds-p-around–medium {
         padding: 0rem !important;
@@ -255,24 +257,12 @@
                                             <option value="Row House Amount">Row House Amount</option>
                                         </aura:if>
                                         <option value="Interest Amount">Interest Amount</option>
-                                        <option value="TDS">TDS</option>
+                                        <option value="TDS from Bank">TDS from Bank</option>
+                                        <option value="TDS Paid">TDS Paid</option>
+                                        <option value="TDS Refund">TDS Refund</option>
                                     </lightning:select>
                                 </div>
                             </div>
-                            <aura:if isTrue="{!qt.Payment_Type__c == 'TDS'}">
-                                <div class="slds-col slds-size_1-of-6 rli-field">
-                                    <div data-record="{!index}">
-                                        <lightning:select aura:id="field" name="tdsStatusSel"
-                                                          label="TDS Status" required="true"
-                                                          value="{!qt.TDS_Status__c}">
-                                            <aura:iteration items="{!v.tdsStatusPicklist}" var="st">
-                                                <option text="{!st}" value="{!st}"
-                                                        selected="{!st == qt.TDS_Status__c}"></option>
-                                            </aura:iteration>
-                                        </lightning:select>
-                                    </div>
-                                </div>
-                            </aura:if>
                             <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input name="Amount" type="decimal" label="Pending Amount"
@@ -352,9 +342,30 @@
                     </lightning:card>
                 </aura:iteration>
             </div>
-       
+
+            <!-- ATTACHMENTS (staged before save) -->
+            <div class="card-border slds-p-around_medium" style="margin: 8px 4px;">
+                <div class="slds-text-heading_small slds-m-bottom_x-small">
+                    Receipt Attachments (optional)
+                </div>
+                <lightning:input
+                    type="file"
+                    aura:id="receiptFileInput"
+                    label="Attach files"
+                    multiple="true"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+                    onchange="{!c.handleFileSelection}"/>
+                <aura:if isTrue="{!not(empty(v.stagedFiles))}">
+                    <ul class="slds-list_dotted slds-m-top_x-small">
+                        <aura:iteration items="{!v.stagedFiles}" var="f">
+                            <li>{!f.name} ({!f.sizeKb} KB)</li>
+                        </aura:iteration>
+                    </ul>
+                </aura:if>
+            </div>
+
             <div class="card-border slds-p-around_medium">
-                
+
                 <!-- PRINCIPAL SECTION -->
                 <div class="slds-box slds-theme_shade slds-m-bottom_small">
                     <div class="slds-grid slds-wrap">

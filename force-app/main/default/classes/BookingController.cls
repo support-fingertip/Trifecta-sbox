@@ -208,7 +208,7 @@ public without sharing class BookingController {
                 }
                 repItem.Cheque_no_Transaction_Number__c = bk.Transaction_ID__c;
                 replineItems.add(repItem);
-                ReceiptController.insertReceiptLineItems(replineItems, 'Booking Amount', string.valueof(bk.Booking_Date__c),bk.Id,bk.Booking_Amount__c,0);  
+                ReceiptController.insertReceiptLineItems(replineItems, 'Booking Amount', string.valueof(bk.Booking_Date__c),bk.Id,bk.Booking_Amount__c,0,null);
             }
             
             return bk.Id;
