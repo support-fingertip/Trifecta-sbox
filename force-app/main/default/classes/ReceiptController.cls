@@ -141,9 +141,9 @@ public without sharing class ReceiptController {
         List<Payment_Schedule__c> payList = [
             SELECT Id, Is_Demanded__c, Interest_Pending_Amount__c,
             Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,Pending_Amount_Without_Tds__c,
-            S_No__c, Pending_Tds_Amount__c
-            FROM Payment_Schedule__c 
-            WHERE Pending_Amount__c > 0 AND Booking__c = :bk.Id 
+            S_No__c, Pending_Tds_Amount__c, Pending_TDS_Refund__c
+            FROM Payment_Schedule__c
+            WHERE Pending_Amount__c > 0 AND Booking__c = :bk.Id
             ORDER BY S_No__c ASC
         ];
         
@@ -213,54 +213,89 @@ public without sharing class ReceiptController {
         
         // ===============================
         // 2. TDS Branches
-        //    'TDS from Bank' — bank-deducted TDS, informational; no schedule decrement
-        //    'TDS Refund'    — refund of bank-deducted TDS back to customer; no decrement
+        //    'TDS from Bank' — bank-deducted TDS, informational; allocated across
+        //                      schedules using each schedule's Pending_Tds_Amount__c
+        //                      so the per-schedule rollup Total_TDS_From_Bank__c
+        //                      attributes correctly.
+        //    'TDS Refund'    — Trifecta refunds bank-deducted TDS to the customer;
+        //                      allocated across schedules using each schedule's
+        //                      Pending_TDS_Refund__c (= Total_TDS_From_Bank__c -
+        //                      Total_TDS_Refund_Issued__c). Cannot exceed what bank
+        //                      has deducted on a given schedule.
         //    'TDS Paid'      — challan from customer; decrements Pending_Tds_Amount__c
         //    'TDS' (legacy)  — preserved for backward compatibility, behaves like 'TDS Paid'
         // ===============================
 
-        Id firstScheduleWithPendingTds = null;
-        for (Payment_Schedule__c ps : payList) {
-            if (ps.Pending_Tds_Amount__c != null && ps.Pending_Tds_Amount__c > 0) {
-                firstScheduleWithPendingTds = ps.Id;
-                break;
-            }
-        }
-        if (firstScheduleWithPendingTds == null && !payList.isEmpty()) {
-            firstScheduleWithPendingTds = payList[payList.size() - 1].Id;
-        }
-
-        // (a) Informational TDS rows — no schedule decrement
+        // (a) TDS from Bank — split across schedules by Pending_Tds_Amount__c
+        Decimal totalTdsFromBank = 0;
+        Receipt_Line_Item__c tdsFromBankSrc = null;
         for (Integer i = 0; i < polist.size(); i++) {
-            Receipt_Line_Item__c src = polist[i];
-            String pt = src.Payment_Type__c;
-            if (pt != 'TDS from Bank' && pt != 'TDS Refund') {
-                continue;
+            if (polist[i].Payment_Type__c == 'TDS from Bank' &&
+                polist[i].Received_Amount__c != null && polist[i].Received_Amount__c > 0) {
+                totalTdsFromBank += polist[i].Received_Amount__c;
+                if (tdsFromBankSrc == null) {
+                    tdsFromBankSrc = polist[i];
+                }
             }
-            if (src.Received_Amount__c == null || src.Received_Amount__c <= 0) {
-                continue;
-            }
-
-            Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
-            rece.Booking__c = bk.Id;
-            rece.Name = pt;
-            rece.Payment_Type__c = pt;
-            rece.TDS_Status__c = src.TDS_Status__c;
-            rece.Payment_Schedule__c = firstScheduleWithPendingTds;
-            rece.Received_Amount__c = src.Received_Amount__c;
-            rece.Amount__c = src.Received_Amount__c;
-            rece.Bank_Name__c = src.Bank_Name__c;
-            rece.Branch__c = src.Branch__c;
-            rece.Drawn_On__c = src.Drawn_On__c;
-            rece.Mode_of_Payment__c = src.Mode_of_Payment__c;
-            rece.Cheque_Date__c = src.Cheque_Date__c;
-            rece.Cheque_no_Transaction_Number__c = src.Cheque_no_Transaction_Number__c;
-            rece.Challan_Reference_Number__c = src.Challan_Reference_Number__c;
-            rece.Approval_Status_Picklist__c = 'Approved';
-            receiptsToCreate.add(rece);
         }
 
-        // (b) TDS Paid (and legacy 'TDS') — decrement Pending_Tds_Amount__c
+        if (totalTdsFromBank > 0 && tdsFromBankSrc != null) {
+            Decimal remaining = totalTdsFromBank;
+            for (Payment_Schedule__c ps : payList) {
+                if (remaining <= 0) {
+                    break;
+                }
+                if (ps.Pending_Tds_Amount__c != null && ps.Pending_Tds_Amount__c > 0) {
+                    Decimal amt = Math.min(ps.Pending_Tds_Amount__c, remaining);
+                    remaining -= amt;
+                    receiptsToCreate.add(buildTdsRli(bk.Id, 'TDS from Bank', amt, ps.Id, tdsFromBankSrc));
+                }
+            }
+            // Excess — attribute to last schedule (matches TDS Paid overflow pattern)
+            if (remaining > 0 && !payList.isEmpty()) {
+                receiptsToCreate.add(buildTdsRli(
+                    bk.Id, 'TDS from Bank', remaining,
+                    payList[payList.size() - 1].Id, tdsFromBankSrc
+                ));
+            }
+        }
+
+        // (b) TDS Refund — split across schedules by Pending_TDS_Refund__c
+        Decimal totalTdsRefund = 0;
+        Receipt_Line_Item__c tdsRefundSrc = null;
+        for (Integer i = 0; i < polist.size(); i++) {
+            if (polist[i].Payment_Type__c == 'TDS Refund' &&
+                polist[i].Received_Amount__c != null && polist[i].Received_Amount__c > 0) {
+                totalTdsRefund += polist[i].Received_Amount__c;
+                if (tdsRefundSrc == null) {
+                    tdsRefundSrc = polist[i];
+                }
+            }
+        }
+
+        if (totalTdsRefund > 0 && tdsRefundSrc != null) {
+            Decimal remaining = totalTdsRefund;
+            for (Payment_Schedule__c ps : payList) {
+                if (remaining <= 0) {
+                    break;
+                }
+                if (ps.Pending_TDS_Refund__c != null && ps.Pending_TDS_Refund__c > 0) {
+                    Decimal amt = Math.min(ps.Pending_TDS_Refund__c, remaining);
+                    remaining -= amt;
+                    receiptsToCreate.add(buildTdsRli(bk.Id, 'TDS Refund', amt, ps.Id, tdsRefundSrc));
+                }
+            }
+            // Excess — attribute to last schedule. (A separate validation rule
+            // should block refund > bank-deducted at the booking level.)
+            if (remaining > 0 && !payList.isEmpty()) {
+                receiptsToCreate.add(buildTdsRli(
+                    bk.Id, 'TDS Refund', remaining,
+                    payList[payList.size() - 1].Id, tdsRefundSrc
+                ));
+            }
+        }
+
+        // (c) TDS Paid (and legacy 'TDS') — decrement Pending_Tds_Amount__c
         Decimal totalTdsPaid = 0;
         Receipt_Line_Item__c tdsPaidSourceLineItem = null;
         String tdsPaidStampedType = 'TDS Paid';
@@ -534,6 +569,28 @@ public without sharing class ReceiptController {
         }
 
         return bk.Id;
+    }
+
+    private static Receipt_Line_Item__c buildTdsRli(Id bookingId, String paymentType,
+                                                    Decimal amount, Id scheduleId,
+                                                    Receipt_Line_Item__c src) {
+        Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
+        rece.Booking__c = bookingId;
+        rece.Name = paymentType;
+        rece.Payment_Type__c = paymentType;
+        rece.TDS_Status__c = src.TDS_Status__c;
+        rece.Payment_Schedule__c = scheduleId;
+        rece.Received_Amount__c = amount;
+        rece.Amount__c = amount;
+        rece.Bank_Name__c = src.Bank_Name__c;
+        rece.Branch__c = src.Branch__c;
+        rece.Drawn_On__c = src.Drawn_On__c;
+        rece.Mode_of_Payment__c = src.Mode_of_Payment__c;
+        rece.Cheque_Date__c = src.Cheque_Date__c;
+        rece.Cheque_no_Transaction_Number__c = src.Cheque_no_Transaction_Number__c;
+        rece.Challan_Reference_Number__c = src.Challan_Reference_Number__c;
+        rece.Approval_Status_Picklist__c = 'Approved';
+        return rece;
     }
 
 }
