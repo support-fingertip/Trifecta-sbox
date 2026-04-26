@@ -38,6 +38,7 @@
     <aura:attribute name="totalPendingTds" type="Decimal" default="0"/>
     <aura:attribute name="pendingTdsRefundAmount" type="Decimal" default="0"/>
     <aura:attribute name="tdsStatusPicklist" type="String[]" />
+    <aura:attribute name="bankNamePicklist" type="String[]" />
     <aura:attribute name="pendingTdsRefunds" type="Object[]" default="[]"/>
     <aura:attribute name="stagedFiles" type="Object[]" default="[]"/>
     <aura:html tag="style">
@@ -303,8 +304,10 @@
                                     <lightning:select aura:id="field" label="Bank Name"
                                                       required="true" value="{!qt.Bank_Name__c}">
                                         <option value="">choose one...</option>
-                                        <option value="SBI">SBI</option>
-                                        <option value="HDFC">HDFC</option>
+                                        <aura:iteration items="{!v.bankNamePicklist}" var="bn">
+                                            <option text="{!bn}" value="{!bn}"
+                                                    selected="{!bn == qt.Bank_Name__c}"></option>
+                                        </aura:iteration>
                                     </lightning:select>
                                 </div>
                             </div>

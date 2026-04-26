@@ -15,6 +15,8 @@ public without sharing class ReceiptController {
         @AuraEnabled
         public List<String> tdsStatusPicklist {get;set;}
         @AuraEnabled
+        public List<String> bankNamePicklist {get;set;}
+        @AuraEnabled
         public List<Receipt_Line_Item__c> pendingTdsRefunds {get;set;}
         @AuraEnabled
         public Decimal pendingTdsRefundAmount;
@@ -39,6 +41,7 @@ public without sharing class ReceiptController {
                               WHERE Booking__c =:recid ORDER BY S_No__c ASC];
         dt.paymentTypePicklist = getPicklistValues('Receipt_Line_Item__c','Mode_of_Payment__c');
         dt.tdsStatusPicklist = getPicklistValues('Receipt_Line_Item__c', 'TDS_Status__c');
+        dt.bankNamePicklist = getPicklistValues('Receipt_Line_Item__c', 'Bank_Name__c');
         Set<Id> refundedFromBankIds = new Set<Id>();
         Decimal refundedTotal = 0;
         Decimal bankDeductedTotal = 0;

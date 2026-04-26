@@ -41,6 +41,7 @@
                 component.set('v.paymentschdl',  data.paymentSchdules);
                 component.set("v.paymentTypePicklist",data.paymentTypePicklist);
                 component.set("v.tdsStatusPicklist", data.tdsStatusPicklist);
+                component.set("v.bankNamePicklist", data.bankNamePicklist || []);
                 component.set("v.pendingTdsRefunds", data.pendingTdsRefunds || []);
                 component.set("v.pendingTdsRefundAmount", data.pendingTdsRefundAmount || 0);
                 component.set("v.totalPendingTds", data.tdsAmount);
