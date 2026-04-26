@@ -18,6 +18,22 @@ public class ConsolidatedReceiptController {
         public String receiptNo { get; set; }
         public Date refdate { get; set; }
         public String  paymentType { get; set; } // added for grouping
+        public Boolean isNegative { get; set; }
+    }
+
+    private static final String BUCKET_MAIN = 'MAIN';
+    private static final String BUCKET_TDS_REFUND = 'TDS Refund';
+    private static final String BUCKET_TDS_PAID = 'TDS Paid';
+
+    @TestVisible
+    private static String bucketFor(String paymentType) {
+        if (paymentType == 'Flat Amount' || paymentType == 'Villa Amount' ||
+            paymentType == 'Plot Amount' || paymentType == 'Booking Amount' ||
+            paymentType == 'Row House Amount' ||
+            paymentType == 'TDS from Bank' || paymentType == 'TDS') {
+            return BUCKET_MAIN;
+        }
+        return paymentType;
     }
 
     public bookingInfoWrapper bookingInfo { get; set; }
@@ -205,55 +221,67 @@ public class ConsolidatedReceiptController {
 
         List<ReceiptWrapper> reppList = new List<ReceiptWrapper>();
 
-        // Step 1: Group by Receipt__r + Payment_Type__c
-        // Key => Receipt__c|Payment_Type__c
+        // Step 1: Group by Receipt__c + bucket. The 'MAIN' bucket folds principal types
+        // and 'TDS from Bank' (and legacy 'TDS') into a single cash-receipt row, so a
+        // bank-funded receipt of Flat 9,90,000 + TDS from Bank 10,000 renders as one
+        // 10,00,000 line. 'TDS Refund' and 'TDS Paid' stay as their own rows.
         Map<String, Decimal>              groupedAmounts  = new Map<String, Decimal>();
         Map<String, Receipt_Line_Item__c> groupedItemMeta = new Map<String, Receipt_Line_Item__c>();
-        
+
         for (Receipt_Line_Item__c re : repLst) {
-            String  groupKey = re.Receipt__c + '|' + re.Payment_Type__c;
+            String  bucket   = bucketFor(re.Payment_Type__c);
+            String  groupKey = re.Receipt__c + '|' + bucket;
             Decimal amt      = re.Received_Amount__c != null ? re.Received_Amount__c : 0;
-            
+
             if (groupedAmounts.containsKey(groupKey)) {
                 groupedAmounts.put(groupKey, groupedAmounts.get(groupKey) + amt);
             } else {
                 groupedAmounts.put(groupKey, amt);
-                groupedItemMeta.put(groupKey, re); // first item's metadata
+                groupedItemMeta.put(groupKey, re);
             }
-            
-            totalAmount += amt;
+
+            // Refund subtracts from net; everything else adds.
+            if (bucket == BUCKET_TDS_REFUND) {
+                totalAmount -= amt;
+            } else {
+                totalAmount += amt;
+            }
         }
-        
-        // Step 2: Build wrappers in defined Payment_Type__c order
-        List<String> paymentTypeOrder = new List<String>{
-            'Flat Amount', 'GST Amount', 'TDS', 'Additional Charges',
-                'Villa Amount', 'Interest', 'Plot Amount', 'Row House Amount', 'Booking Amount'
-                };
-                    
-                    // Collect all unique Receipt__c Ids in the order they appear
-                    List<String> orderedReceiptIds = new List<String>();
+
+        // Step 2: Bucket render order. MAIN appears first (folded receipt), then
+        // ancillary buckets, then TDS Refund (negative) and TDS Paid (challan).
+        List<String> bucketOrder = new List<String>{
+            BUCKET_MAIN, 'GST Amount', 'Additional Charges', 'Interest',
+            BUCKET_TDS_REFUND, BUCKET_TDS_PAID
+        };
+
+        List<String> orderedReceiptIds = new List<String>();
         Set<String>  seenReceiptIds    = new Set<String>();
-        
+
         for (Receipt_Line_Item__c re : repLst) {
             if (!seenReceiptIds.contains(re.Receipt__c)) {
                 seenReceiptIds.add(re.Receipt__c);
                 orderedReceiptIds.add(re.Receipt__c);
             }
         }
-        
-        // Step 3: Outer loop = Receipt, Inner loop = Payment Type (preserves grouping order)
+
+        // Step 3: Outer loop = Receipt, Inner loop = Bucket (preserves grouping order)
         for (String rId : orderedReceiptIds) {
-            for (String paymentType : paymentTypeOrder) {
-                String groupKey = rId + '|' + paymentType;
-                
+            for (String bucket : bucketOrder) {
+                String groupKey = rId + '|' + bucket;
+
                 if (groupedAmounts.containsKey(groupKey)) {
                     Receipt_Line_Item__c meta = groupedItemMeta.get(groupKey);
                     Decimal groupTotal        = groupedAmounts.get(groupKey);
-                    
+                    Boolean isNeg             = (bucket == BUCKET_TDS_REFUND);
+
                     ReceiptWrapper rw  = new ReceiptWrapper();
-                    rw.paymentType     = paymentType;
+                    rw.paymentType     = bucket;
+                    rw.isNegative      = isNeg;
                     rw.receiptDate     = meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null;
-                    rw.receiptAmount   = groupTotal.setScale(2).format();
+                    rw.receiptAmount   = isNeg
+                        ? '(' + groupTotal.setScale(2).format() + ')'
+                        : groupTotal.setScale(2).format();
                     rw.modeOfPayment   = meta.Mode_of_Payment__c;
                     rw.instruMentNo    = meta.Cheque_no_Transaction_Number__c;
                     rw.payNameName     = meta.Payment_schedule__r != null ? meta.Payment_schedule__r.Name : '';
@@ -262,11 +290,11 @@ public class ConsolidatedReceiptController {
                     rw.refdate         = meta.Cheque_Date__c != null
                         ? meta.Cheque_Date__c
                         : (meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null);
-                            reppList.add(rw);
+                    reppList.add(rw);
                 }
             }
         }
-        
+
         repList = reppList;
         
         totalAmountFormatted = totalAmount != null
