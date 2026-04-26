@@ -17,6 +17,8 @@ public without sharing class ReceiptController {
         @AuraEnabled
         public List<Receipt_Line_Item__c> pendingTdsRefunds {get;set;}
         @AuraEnabled
+        public Decimal pendingTdsRefundAmount;
+        @AuraEnabled
         public Decimal tdsAmount;
         @AuraEnabled
         public Decimal flatOrVillaPendingAmount;
@@ -68,6 +70,9 @@ public without sharing class ReceiptController {
         } else {
             dt.pendingTdsRefunds = new List<Receipt_Line_Item__c>();
         }
+        dt.pendingTdsRefundAmount = (bankDeductedTotal > refundedTotal)
+            ? (bankDeductedTotal - refundedTotal)
+            : 0;
 
         Booking__c bk =[select Id,Name,Project__c,TOTAL__c,Unit_Number__c,Total_Tds_Amount__c,
                         Pending_Amount__c,Total_Amount__c,Project_Type__c from Booking__c where Id=: recId];
@@ -127,7 +132,7 @@ public without sharing class ReceiptController {
         return picklistValueList;
     }
     @AuraEnabled
-    public static Id insertReceiptLineItems(List<Receipt_Line_Item__c> polist, String remark, String poc, String recid, Decimal paidAmount, Decimal interestAmount)
+    public static Id insertReceiptLineItems(List<Receipt_Line_Item__c> polist, String remark, String poc, String recid, Decimal paidAmount, Decimal interestAmount, String stagedFiles)
     {
         Booking__c bk = [SELECT Id, Name, Finance_Lead__c, Project__c, Project_Type__c 
                          FROM Booking__c WHERE Id = :recid LIMIT 1];
@@ -474,8 +479,61 @@ public without sharing class ReceiptController {
         }
         
         insert receiptsToCreate;
-        
+
+        // Stage attached files: create ContentVersion + ContentDocumentLink to
+        // every Receipt created in this transaction (Villas split → both
+        // Land & Construction receipts get the same file).
+        if (String.isNotBlank(stagedFiles)) {
+            List<Object> raw = (List<Object>) JSON.deserializeUntyped(stagedFiles);
+            if (raw != null && !raw.isEmpty()) {
+                List<ContentVersion> versions = new List<ContentVersion>();
+                for (Object o : raw) {
+                    Map<String, Object> w = (Map<String, Object>) o;
+                    String fileName = (String) w.get('name');
+                    String b64 = (String) w.get('base64');
+                    if (String.isBlank(fileName) || String.isBlank(b64)) {
+                        continue;
+                    }
+                    ContentVersion cv = new ContentVersion();
+                    cv.Title = fileName;
+                    cv.PathOnClient = fileName;
+                    cv.VersionData = EncodingUtil.base64Decode(b64);
+                    cv.IsMajorVersion = true;
+                    versions.add(cv);
+                }
+                if (!versions.isEmpty()) {
+                    insert versions;
+
+                    Set<Id> versionIds = new Set<Id>();
+                    for (ContentVersion cv : versions) {
+                        versionIds.add(cv.Id);
+                    }
+                    Map<Id, Id> versionToDocument = new Map<Id, Id>();
+                    for (ContentVersion cv : [
+                        SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id IN :versionIds
+                    ]) {
+                        versionToDocument.put(cv.Id, cv.ContentDocumentId);
+                    }
+
+                    List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+                    for (Receipt__c r : receiptsToInsert) {
+                        for (Id vId : versionToDocument.keySet()) {
+                            ContentDocumentLink cdl = new ContentDocumentLink();
+                            cdl.ContentDocumentId = versionToDocument.get(vId);
+                            cdl.LinkedEntityId = r.Id;
+                            cdl.ShareType = 'V';
+                            cdl.Visibility = 'AllUsers';
+                            links.add(cdl);
+                        }
+                    }
+                    if (!links.isEmpty()) {
+                        insert links;
+                    }
+                }
+            }
+        }
+
         return bk.Id;
     }
-    
+
 }

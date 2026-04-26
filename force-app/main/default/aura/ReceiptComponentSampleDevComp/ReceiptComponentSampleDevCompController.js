@@ -14,6 +14,9 @@
         var index = event.currentTarget.dataset.record;
         var recptItemList = component.get("v.recptItemList");
         var selectedType = recptItemList[index].Payment_Type__c;
+        var SOLO_TYPES = ['TDS Paid', 'TDS Refund'];
+
+        // Duplicate-row check (preserved from original)
         var isTrue = false;
         for (var i = 0; i < recptItemList.length; i++) {
             if (i != index && recptItemList[i].Payment_Type__c === selectedType) {
@@ -22,21 +25,43 @@
                 break;
             }
         }
-           console.log('flatOrVillaPendingAmount'+component.get('v.flatOrVillaPendingAmount'));
-        if(selectedType === 'Flat Amount' || selectedType === 'Villa Amount' ||  selectedType === 'Row House Amount'){
+
+        // Solo-row guards: TDS Paid / TDS Refund must be standalone receipts
+        var isSelectedSolo = SOLO_TYPES.indexOf(selectedType) !== -1;
+        var otherRowsHaveContent = recptItemList.some(function(r, i) {
+            return i != index && (r.Payment_Type__c || '').length > 0;
+        });
+        var otherRowHasSolo = recptItemList.some(function(r, i) {
+            return i != index && SOLO_TYPES.indexOf(r.Payment_Type__c) !== -1;
+        });
+
+        if (isSelectedSolo && otherRowsHaveContent) {
+            helper.showToast("'" + selectedType + "' must be the only line item in a receipt. Remove other rows first.", "error");
+            recptItemList[index].Payment_Type__c = '';
+            component.set("v.recptItemList", recptItemList);
+            return;
+        }
+        if (otherRowHasSolo) {
+            helper.showToast("This receipt already contains a TDS Paid or TDS Refund row, which must be standalone.", "error");
+            recptItemList[index].Payment_Type__c = '';
+            component.set("v.recptItemList", recptItemList);
+            return;
+        }
+
+        if (selectedType === 'Flat Amount' || selectedType === 'Villa Amount' || selectedType === 'Row House Amount') {
             recptItemList[index].Pending_Amount__c = component.get('v.flatOrVillaPendingAmount');
         }
-        else if(selectedType === 'TDS'){
+        else if (selectedType === 'TDS from Bank' || selectedType === 'TDS Paid') {
             recptItemList[index].Pending_Amount__c = component.get('v.totalPendingTds');
-            if (!recptItemList[index].TDS_Status__c) {
-                recptItemList[index].TDS_Status__c = 'TDS Refund';
-            }
         }
-        else if(selectedType === 'Interest Amount'){
+        else if (selectedType === 'TDS Refund') {
+            recptItemList[index].Pending_Amount__c = component.get('v.pendingTdsRefundAmount');
+        }
+        else if (selectedType === 'Interest Amount') {
             recptItemList[index].Pending_Amount__c = component.get('v.interestAmount');
         }
-        
-        if(isTrue){
+
+        if (isTrue) {
             recptItemList.splice(index, 1);
             helper.addProductRecord(component, event);
         }
@@ -58,9 +83,42 @@
     },
 
     addRow: function(component, event, helper) {
+        var existing = component.get("v.recptItemList") || [];
+        var SOLO_TYPES = ['TDS Paid', 'TDS Refund'];
+        var hasSolo = existing.some(function(r) {
+            return SOLO_TYPES.indexOf(r.Payment_Type__c) !== -1;
+        });
+        if (hasSolo) {
+            helper.showToast("TDS Paid and TDS Refund must be standalone receipts. Cannot add more rows.", "error");
+            return;
+        }
         component.set("v.savebuttonhide",true);
         helper.addProductRecord(component, event);
         helper.getTotalAmount(component, event, helper);
+    },
+    handleFileSelection: function(component, event, helper) {
+        var files = event.getSource().get("v.files");
+        if (!files || files.length === 0) {
+            return;
+        }
+        var staged = component.get("v.stagedFiles") || [];
+        var pending = files.length;
+        Array.prototype.forEach.call(files, function(file) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var base64 = reader.result.split(',')[1];
+                staged.push({
+                    name: file.name,
+                    base64: base64,
+                    sizeKb: Math.round(file.size / 1024)
+                });
+                pending--;
+                if (pending === 0) {
+                    component.set("v.stagedFiles", staged);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
     },
     removeRow: function(component, event, helper) {
         var selectedItem = event.currentTarget;
@@ -96,7 +154,8 @@
                 'poc' : tarik,
                 'recid':  component.get('v.recordId'),
                 'paidAmount' : component.get('v.totalrcvdAmount'),
-                'interestAmount' : component.get('v.interestReceived')
+                'interestAmount' : component.get('v.interestReceived'),
+                'stagedFiles' : JSON.stringify(component.get("v.stagedFiles") || [])
             });
             action.setCallback(this, function(response) {
                 var state = response.getState();      

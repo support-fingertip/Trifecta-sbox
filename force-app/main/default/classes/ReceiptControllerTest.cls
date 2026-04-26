@@ -166,7 +166,7 @@ public class ReceiptControllerTest {
         
         
         ReceiptController.getData(book.Id);
-        ReceiptController.insertReceiptLineItems(lineItemList,'remarks',String.valueof(Date.Today()),book.Id,45000, 3600);
+        ReceiptController.insertReceiptLineItems(lineItemList,'remarks',String.valueof(Date.Today()),book.Id,45000, 3600, null);
         
         
     }
