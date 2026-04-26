@@ -321,7 +321,7 @@ public class DocumentandEmailController {
             List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
             // Fetch the Demand_Raised__c records for the given recIds
             List<Demand_Raised__c> demandRecords = [
-                SELECT Id, Demand_Email_Content__c,CreatedBy.Email, Booking__r.Email__c, Demand_Name__c,Project__c,
+                SELECT Id, Demand_Email_Content__c,CreatedBy.Email, Booking__r.Email__c, Demand_Name__c,Project__c,Booking__r.Owner_Email__c,
                 Booking__r.Owner.Email,Booking__r.Total__c,booking__c, booking__r.CRM_Manager__r.Email,booking__r.Project1__r.Name,booking__r.CRM_Head_Manager_Email__c,
                 (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks WHERE LinkedEntityId IN :recIds)
                 FROM Demand_Raised__c 
@@ -332,6 +332,23 @@ public class DocumentandEmailController {
                 return;
             }
             system.debug('contentIds'+ contentIds);
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Name, Salutation__c ,Email__c
+                FROM Co_Applicant__c 
+                WHERE Booking__c = :demandRecords[0].booking__c 
+                ORDER BY CreatedDate ASC 
+            ];
+            List<String> emailList = new List<String>();
+            if (!coApplicants.isEmpty()) {
+                for(Co_Applicant__c cpp : coApplicants)
+                {
+                    if(cpp.Email__c != null)
+                    {
+                        emailList.add(cpp.Email__c );
+                    }               
+                }
+            }
+            
             
             for (Demand_Raised__c demand : demandRecords) {
                 // Convert comma-separated string of content IDs to Set<Id>
@@ -352,20 +369,41 @@ public class DocumentandEmailController {
                     lstCCEmail.add(booking.Owner.Email);
                     if (booking.CRM_Head_Manager_Email__c != null) {
                         lstCCEmail.add(booking.CRM_Head_Manager_Email__c);
-                    }        
+                    }   
+                    if (!emailList.isEmpty()) {
+                        sendTo.addAll(emailList);
+                    }
                     email.setToAddresses(sendTo);
                     email.setSubject('Demand Note for Completion of '+demand.Demand_Name__c +' In '+demand.Booking__r.Project1__r.name);
                     
                     String cleanHtml = demand.Demand_Email_Content__c.unescapeHtml4();
                     system.debug('cleanHtml'+cleanHtml);
-                    // Remove empty paragraphs like <p>&nbsp;</p> or <p> </p>
-                    cleanHtml = cleanHtml.replaceAll('(?i)<p>(\\s|&nbsp;)*</p>', '');
+                    // Step 1: Remove empty paragraphs BEFORE unescaping
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
                     
-                    // Also normalize multiple <br>
+                    // Step 2: Unescape
+                    cleanHtml = cleanHtml.unescapeHtml4();
+                    
+                    // Step 3: Remove empty paragraphs AGAIN after unescaping
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+                    
+                    // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+                    
+                    // Step 5: Collapse multiple breaks
                     cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
                     
+                    // Step 6: Merge footer 3 separate <p> into one tight block
+                    cleanHtml = cleanHtml.replaceAll(
+                        '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                        '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+                    );
+                    
+                    // Step 7: Add spacing to remaining <p> tags (without style only)
+                    cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+                    
                     String htmlBody =
-                        '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
+                        '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
                         + cleanHtml +
                         '</body></html>';
                     

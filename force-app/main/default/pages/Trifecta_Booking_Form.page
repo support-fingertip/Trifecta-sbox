@@ -170,7 +170,7 @@
                             BOOKING FORM
                         </div>
                         <div style="font-size:22px; font-weight:700; color:#4b4b4b; margin-top:6px;">
-                            <span style="font-weight:700;">VANTO</span>
+                            <span style="font-weight:700;">{!projectHead}</span>
                             <span style="font-weight:400;"> / TRIFECTA</span>
                         </div>
                     </td>
@@ -553,7 +553,7 @@
                         </td>
                         <td  >
                             <apex:outputText value="{0, Number}">
-                                <apex:param value="{!p.Amount1__c}" /> 
+                                <apex:param value="{!p.AmountB__c}" /> 
                             </apex:outputText>  
                         </td>
                         <td ></td>

@@ -64,7 +64,25 @@ public class InspectionCompletionMailController {
         ];
         mail.setOrgWideEmailAddressId(owea.Id);
 
-        mail.setToAddresses(new List<String>{ ins.Customer_Email__c });
+        list<String> toEmails = new  list<String>();
+        // Recipients in To
+        if (ins.Customer_Email__c!= null) {
+            toEmails.add(ins.Customer_Email__c);
+        }
+        List<Co_Applicant__c> coApplicants = [
+            SELECT Id, Name, Email__c, Booking__c
+            FROM Co_Applicant__c
+            WHERE Booking__c = :ins.Booking__c
+        ];
+        
+        
+        for (Co_Applicant__c coApp : coApplicants) {
+            if (coApp.Email__c != null) {
+                toEmails.add(coApp.Email__c);
+            }
+        }
+        
+        mail.setToAddresses(toEmails);
 
         if (ins.Booking__r.CRM_Head__c != null && ins.Booking__r.CRM_Head__r.Email != null) {
             mail.setCcAddresses(new List<String>{ ins.Booking__r.CRM_Head__r.Email });

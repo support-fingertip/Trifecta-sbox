@@ -35,7 +35,7 @@
                         <valueListItems>
                             <value>Booking__c.Welcome_Mail</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -53,6 +53,11 @@
                                 </criteria>
                                 <criteria>
                                     <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
@@ -176,7 +181,7 @@
                         <valueListItems>
                             <value>Booking__c.Create_Receipt</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
+                                <booleanFilter>1 AND 2 AND (3 OR 4)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Pending_Amount__c}</leftValue>
                                     <operator>NE</operator>
@@ -187,12 +192,22 @@
                                     <operator>NE</operator>
                                     <rightValue>Cancellation</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Raise_Demand</value>
                             <visibilityRule>
-                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -207,6 +222,16 @@
                                     <leftValue>{!Record.Pending_Amount__c}</leftValue>
                                     <operator>GT</operator>
                                     <rightValue>5</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -295,7 +320,7 @@
                         <valueListItems>
                             <value>Booking__c.Request_Booking_Cancellation</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Is_Cancellation_Requested_by_Executive__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -311,12 +336,17 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>CRM Executive</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Request_Agreement_Time_Extension</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6 AND (7 OR 8)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Time_Extension_Approval_Status__c}</leftValue>
                                     <operator>NE</operator>
@@ -347,12 +377,22 @@
                                     <operator>NE</operator>
                                     <rightValue>Executed &amp; Registered</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Generate_NOC</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND ((2 AND ( 3 OR 4 )) Or  (6 AND 5))</booleanFilter>
+                                <booleanFilter>1 AND ((2 AND ( 3 OR 4 )) Or  (6 AND 5)) AND (7 OR 8)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.Profile.Name}</leftValue>
                                     <operator>NE</operator>
@@ -383,12 +423,22 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Land_NOC</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2 AND 3 AND (4 OR 5)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -404,45 +454,99 @@
                                     <operator>EQUAL</operator>
                                     <rightValue>Villas</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Unit_Readiness_Email</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Generate_Key_Handover_Letter</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Possession_Letter</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Booking__c.Inspection</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Stage__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>Possession / Handover</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_open_by_Admin__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Is_Opened_By_Owner__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -609,6 +713,29 @@
                 <identifier>RecordBlock_Name_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
+                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Debit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-add77c2e-2e5c-4074-acbe-86dc1bbe4725</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -697,23 +824,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Credit_Debit_Card_Number__c</fieldItem>
-                <identifier>RecordCredit_Debit_Card_Number_cField</identifier>
-                <visibilityRule>
-                    <booleanFilter>1 OR 2</booleanFilter>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Credit Card</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Mode_Of_Payment__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Debit Card</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <fieldItem>Record.Phase__c</fieldItem>
+                <identifier>RecordPhase_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-13dde832-0f68-4202-a9da-ec6fa36c5622</name>
@@ -2882,8 +2996,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Total_received_Amount__c</fieldItem>
-                <identifier>RecordTotal_received_Amount__cField</identifier>
+                <fieldItem>Record.Total_Amount__c</fieldItem>
+                <identifier>RecordTotal_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -2892,8 +3006,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Received_Interest_Amount__c</fieldItem>
-                <identifier>RecordReceived_Interest_Amount_cField</identifier>
+                <fieldItem>Record.Pending_Amount__c</fieldItem>
+                <identifier>RecordPending_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-780e9eb3-99cc-4ca3-9ee7-bc4e0e05d75d</name>
@@ -2906,8 +3020,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Pending_Amount__c</fieldItem>
-                <identifier>RecordPending_Amount_cField</identifier>
+                <fieldItem>Record.Total_received_Amount__c</fieldItem>
+                <identifier>RecordTotal_received_Amount_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-5673afc2-ab59-40c7-aecd-932ca592cc05</name>
@@ -2944,6 +3058,58 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.Total_Interest__c</fieldItem>
+                <identifier>RecordTotal_Interest_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-3a486878-b848-4783-8e00-ee4e5ef84da7</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Received_Interest_Amount__c</fieldItem>
+                <identifier>RecordReceived_Interest_Amount_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-1d7cb97f-170e-4924-84d4-96b3ce6e900f</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-3a486878-b848-4783-8e00-ee4e5ef84da7</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column19</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-1d7cb97f-170e-4924-84d4-96b3ce6e900f</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column20</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-95e6ea46-999c-440b-8d6a-716739eb9885</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.Sales_User__c</fieldItem>
                 <identifier>RecordSales_User_cField</identifier>
             </fieldInstance>
@@ -2958,16 +3124,6 @@
                 <identifier>RecordFinance_Lead_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.CRM_Head__c</fieldItem>
-                <identifier>RecordCRM_Head_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-5d65d853-d80b-4590-aea0-1ed6acf042df</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -2980,26 +3136,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Project_Sales_Head__c</fieldItem>
                 <identifier>RecordProject_Sales_Head_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.CRM_Manager__c</fieldItem>
-                <identifier>RecordCRM_Manager_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.CRM_executive__c</fieldItem>
-                <identifier>RecordCRM_executive_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-75045774-7f19-45f4-a824-c6be6c689cf3</name>
@@ -3027,6 +3163,108 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-22c94642-db10-4d5d-859d-d747dea598d7</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CRM_Head__c</fieldItem>
+                <identifier>RecordCRM_Head_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CRM_executive__c</fieldItem>
+                <identifier>RecordCRM_executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Demands_Collections_CRM_Executive__c</fieldItem>
+                <identifier>RecordDemands_Collections_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Customer_Service_CRM_Executive__c</fieldItem>
+                <identifier>RecordCustomer_Service_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-3fd4577a-64cd-4826-a8cb-805635c76754</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CRM_Manager__c</fieldItem>
+                <identifier>RecordCRM_Manager_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Agreement_CRM_Executive__c</fieldItem>
+                <identifier>RecordAgreement_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Registration_CRM_Executive__c</fieldItem>
+                <identifier>RecordRegistration_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-dc8a4cee-2257-4057-8920-14a15af73069</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-3fd4577a-64cd-4826-a8cb-805635c76754</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column23</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-dc8a4cee-2257-4057-8920-14a15af73069</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column24</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-0e670e8a-b158-44b2-a11f-abb346440ced</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -3663,6 +3901,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-95e6ea46-999c-440b-8d6a-716739eb9885</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Interest Summary</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection10</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-22c94642-db10-4d5d-859d-d747dea598d7</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -3675,6 +3931,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection22</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-0e670e8a-b158-44b2-a11f-abb346440ced</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>CRM Team Information</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection12</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -3798,7 +4072,7 @@
                             <value>Payment_percent__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Amount1__c</value>
+                            <value>Amount__c</value>
                         </valueListItems>
                         <valueListItems>
                             <value>status__c</value>

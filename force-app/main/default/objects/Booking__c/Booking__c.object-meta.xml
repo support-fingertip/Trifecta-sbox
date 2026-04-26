@@ -182,15 +182,15 @@
         <excludedStandardButtons>MassChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>PrintableListView</excludedStandardButtons>
         <excludedStandardButtons>MassAssignRecordLabel</excludedStandardButtons>
-        <searchResultsAdditionalFields>Project_Type__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>First_Applicant_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Project1__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Block__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Phase__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Plot__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Stage__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Email1__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Booking_Amount__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Total_Amount__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Booking_Date__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>CREATEDBY_USER</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Owner_Full_Name__c</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>

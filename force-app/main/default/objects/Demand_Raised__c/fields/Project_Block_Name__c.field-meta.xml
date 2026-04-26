@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Project_Block_Name__c</fullName>
     <externalId>false</externalId>
-    <formula>TEXT(Booking__r.Project1__r.Project__c) +&apos; &apos;+ Booking__r.Block_Name__c</formula>
+    <formula>Booking__r.Plot__r.Block_Lookup__r.Project_Name__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Project &amp; Block Name</label>
     <required>false</required>

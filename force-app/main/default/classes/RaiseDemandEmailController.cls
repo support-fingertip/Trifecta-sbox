@@ -35,7 +35,7 @@ public without sharing class RaiseDemandEmailController {
                           Block_Name__c,Owner_Full_Name__c,Email__c,Project_Type__c,Block_Id__c FROM Booking__c WHERE Id = :bookingId LIMIT 1];
         
         Block__c block = bk.Block_Id__c != null ? [SELECT Id, Name, Email__c, Project_Address__c,Company_Name__c,
-                                                   Construction_Company_Name__c,Land_Company_Name__c,
+                                                   Construction_Company_Name__c,Land_Company_Name__c,Project_Name__c,
                                                    Branch__c, Type_of_Account__c, IFSC_Code__c, Account_Number__c, 
                                                    Bank_Name__c FROM Block__c WHERE Id = :bk.Block_Id__c LIMIT 1] : null;
         
@@ -96,7 +96,7 @@ public without sharing class RaiseDemandEmailController {
         // Project
         template = template.replace(
             '##PROJECT_NAME##',
-            bk.Project__c != null ? bk.Project__c : ''
+            block.Project_Name__c != null ? block.Project_Name__c : ''
         );
         
         // -------- UNIT DETAILS (YOU CAN CHANGE THIS LINE ANYTIME) --------
@@ -415,7 +415,7 @@ public without sharing class RaiseDemandEmailController {
             ];
             
             // 2. Get email template and fill merge fields
-            String template = String.isBlank(emailContent)
+            String cleanHtml = String.isBlank(emailContent)
                 ? getDemandEmailTemplate(book)
                 : emailContent;
             
@@ -425,6 +425,17 @@ public without sharing class RaiseDemandEmailController {
             if (!String.isBlank(book.Email__c)) {
                 toList.add(book.Email__c);
             }
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Email__c
+                FROM Co_Applicant__c
+                WHERE Booking__c = :book.Id
+                ORDER BY CreatedDate ASC
+            ];
+            for (Co_Applicant__c cpp : coApplicants) {
+                if (String.isNotBlank(cpp.Email__c)) {
+                    toList.add(cpp.Email__c);
+                }
+            } 
             email.setToAddresses(toList);
             
             // CCs
@@ -441,10 +452,34 @@ public without sharing class RaiseDemandEmailController {
             
             email.setSubject(rawSubject);
             
-            // HTML Body
-            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                + template +
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 2: Unescape
+            cleanHtml = cleanHtml.unescapeHtml4();
+            
+            // Step 3: Remove empty paragraphs AGAIN after unescaping
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+            
+            // Step 5: Collapse multiple breaks
+            cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+            
+            // Step 6: Merge footer 3 separate <p> into one tight block
+            cleanHtml = cleanHtml.replaceAll(
+                '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+            );
+            
+            // Step 7: Add spacing to remaining <p> tags (without style only)
+            cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+            
+            String htmlBody =
+                '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
+                + cleanHtml +
                 '</body></html>';
+                    
             email.setHtmlBody(htmlBody);
             
             // Attach PDF and any ContentVersion files
@@ -706,14 +741,14 @@ public without sharing class RaiseDemandEmailController {
                 SELECT Id, Applicant_Name__c, First_Applicant_Name__c, Plot__r.Name, Total__c, Name,
                 Project__c, Project1__r.Name, GST__c, RecordType.DeveloperName, Mobile__c, Project_Block_Name__c,
                 Quote__r.Agreement_Value_Before_GST__c, Total_Amount__c, Block_Name__c, CRM_Executive_Contact_No__c,
-                Unit_No__c, Owner_Phone_Number__c, Company_Name__c,
+                Unit_No__c, Owner_Phone_Number__c, Company_Name__c,Default_Interest_Percentage__c,
                 Email__c, Owner.Email, CRM_Head_Manager_Email__c
                 FROM Booking__c
                 WHERE Id = :psRecord.Booking__c
                 LIMIT 1
             ];
             
-            String template = String.isBlank(emailContent)
+            String cleanHtml = String.isBlank(emailContent)
                 ? getPenaltyDemandEmailTemplate(book)
                 : emailContent;
             
@@ -722,7 +757,20 @@ public without sharing class RaiseDemandEmailController {
             if (!String.isBlank(book.Email__c)) {
                 toList.add(book.Email__c);
             }
+            
+            List<Co_Applicant__c> coApplicants = [
+                SELECT Email__c
+                FROM Co_Applicant__c
+                WHERE Booking__c = :book.Id
+                ORDER BY CreatedDate ASC
+            ];
+            for (Co_Applicant__c cpp : coApplicants) {
+                if (String.isNotBlank(cpp.Email__c)) {
+                    toList.add(cpp.Email__c);
+                }
+            }
             email.setToAddresses(toList);
+           
             
             List<String> ccList = new List<String>();
             if (!String.isBlank(book.Owner.Email)) {
@@ -742,9 +790,34 @@ public without sharing class RaiseDemandEmailController {
             
             email.setSubject(rawSubject);
             
-            String htmlBody = '<html><body style="font-family: Arial; font-size:14px; color:#000; line-height:1.4;">'
-                + template +
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 2: Unescape
+            cleanHtml = cleanHtml.unescapeHtml4();
+            
+            // Step 3: Remove empty paragraphs AGAIN after unescaping
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>(\\s|&nbsp;)*</p>', '');
+            
+            // Step 4: Strip ALL existing <p> styles first to avoid double nesting
+            cleanHtml = cleanHtml.replaceAll('(?i)<p[^>]*>', '<p>');
+            
+            // Step 5: Collapse multiple breaks
+            cleanHtml = cleanHtml.replaceAll('(<br\\s*/?>\\s*){2,}', '<br/>');
+            
+            // Step 6: Merge footer 3 separate <p> into one tight block
+            cleanHtml = cleanHtml.replaceAll(
+                '(?i)<p>\\s*<strong>Thanks\\s*&\\s*Regards,</strong>\\s*</p>\\s*<p>([\\s\\S]*?)</p>\\s*<p>([\\s\\S]*?)</p>',
+                '<p style="margin:0; padding:0; line-height:1.8;"><strong>Thanks &amp; Regards,</strong><br/>$1<br/>$2</p>'
+            );
+            
+            // Step 7: Add spacing to remaining <p> tags (without style only)
+            cleanHtml = cleanHtml.replaceAll('(?i)<p(?!\\s*style)', '<p style="margin:0 0 10px 0; padding:0;"');
+            
+            String htmlBody =
+                '<html><body style="font-family:Arial; font-size:14px; color:#000; line-height:1.6;">'
+                + cleanHtml +
                 '</body></html>';
+            
             email.setHtmlBody(htmlBody);
             
             List<Messaging.EmailFileAttachment> emailAttachments = new List<Messaging.EmailFileAttachment>();
@@ -799,7 +872,7 @@ public without sharing class RaiseDemandEmailController {
             }
             
             Decimal Amount = calculateGrandTotal(psRecord, book);
-            WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '10');
+            WhatsappController controller = new WhatsappController(book, Amount, psRecord.PaymentDueDate__c, '12');
             System.enqueueJob(controller);
             
             return 'Penalty Demand sent successfully.';

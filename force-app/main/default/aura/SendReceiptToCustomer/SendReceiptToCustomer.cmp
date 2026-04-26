@@ -13,7 +13,18 @@
     <aura:attribute name="previewUrl" type="String" />
     <aura:attribute name="filesIDS" type="List" default="[]" />
     <aura:attribute name="uploadedFiles" type="List" default="[]" />
-
+    
+    <aura:attribute name="bookingRecord" type="Object" />
+    <aura:attribute name="showCustomButtons" type="boolean" default="false" />
+    <!--  force:recordData to load record fields directly -->
+    <force:recordData 
+                      aura:id="bookingLoader"
+                      recordId="{!v.recordId}"
+                      targetRecord="{!v.bookingRecord}"
+                      fields="Id,Show_Custom_Buttons__c"
+                      recordUpdated="{!c.handleRecordLoaded}"
+                      mode="VIEW"
+                      />
     <aura:html tag="style">
     .slds-modal__container{
         max-width: 90rem !important;

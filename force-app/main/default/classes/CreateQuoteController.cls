@@ -313,7 +313,7 @@ public Without Sharing class  CreateQuoteController {
         db.objectName = sObjName;
         List<Payment_schedule__c> schdules;
         string paymentType;
-        schdules = [SELECT Id,Name,Payment_percent__c,Recived_Per__c,S_No__c,status__c,Booking__c,Quote__c,Quote__r.Grand_Total__c,Quote__r.project__c,Quote__r.unit__r.Name,Amount1__c FROM Payment_schedule__c WHERE Quote__c =:Quoteid  ORDER BY S_No__c ASC];
+        schdules = [SELECT Id,Name,Payment_percent__c,Recived_Per__c,S_No__c,status__c,Booking__c,Quote__c,Quote__r.Grand_Total__c,Quote__r.project__c,Quote__r.unit__r.Name FROM Payment_schedule__c WHERE Quote__c =:Quoteid  ORDER BY S_No__c ASC];
         Quote__c qt = [SELECT Id,Grand_Total__c,Plot_Type__c,project__c,Payment_Type__c,unit__r.Name FROM Quote__c WHERE Id=:Quoteid LIMIT 1];
         db.grandTotal = qt.Grand_Total__c;
         db.projectName = qt.project__c;

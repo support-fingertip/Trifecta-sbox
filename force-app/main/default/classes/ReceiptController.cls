@@ -13,6 +13,10 @@ public without sharing class ReceiptController {
         @AuraEnabled
         public List<string> paymentTypePicklist {get;set;}
         @AuraEnabled
+        public List<String> tdsStatusPicklist {get;set;}
+        @AuraEnabled
+        public List<Receipt_Line_Item__c> pendingTdsRefunds {get;set;}
+        @AuraEnabled
         public Decimal tdsAmount;
         @AuraEnabled
         public Decimal flatOrVillaPendingAmount;
@@ -28,11 +32,23 @@ public without sharing class ReceiptController {
         dt.additionalCharges = [select id,name,Pending_Amount__c
                                 from Additional_Charges__c where Booking__c =: recid and Pending_Amount__c> 0];
         dt.paymentSchdules = [SELECT Id,Name,Payment_percent__c,
-                              Payment_Due_Date__c,Recived_Per__c,Amount1__c,S_No__c,
+                              Payment_Due_Date__c,Recived_Per__c,S_No__c,
                               status__c,Booking__c,Quote__c FROM Payment_schedule__c
                               WHERE Booking__c =:recid ORDER BY S_No__c ASC];
         dt.paymentTypePicklist = getPicklistValues('Receipt_Line_Item__c','Mode_of_Payment__c');
-        
+        dt.tdsStatusPicklist = getPicklistValues('Receipt_Line_Item__c', 'TDS_Status__c');
+        dt.pendingTdsRefunds = [
+            SELECT Id, Name, Received_Amount__c, Amount__c, TDS_Status__c,
+                   Receipt__c, Receipt__r.Name,
+                   Payment_Schedule__c, Payment_Schedule__r.Name,
+                   Mode_of_Payment__c, Drawn_On__c
+            FROM Receipt_Line_Item__c
+            WHERE Booking__c = :recId
+              AND Payment_Type__c = 'TDS'
+              AND TDS_Status__c = 'TDS Refund'
+            ORDER BY CreatedDate DESC
+        ];
+
         Booking__c bk =[select Id,Name,Project__c,TOTAL__c,Unit_Number__c,Total_Tds_Amount__c,
                         Pending_Amount__c,Total_Amount__c,Project_Type__c from Booking__c where Id=: recId];
         dt.bookingRecord = bk; 
@@ -98,7 +114,7 @@ public without sharing class ReceiptController {
         
         //  FIX: Added Pending_Tds_Amount__c to the query
         List<Payment_Schedule__c> payList = [
-            SELECT Id, Amount1__c, Is_Demanded__c, Interest_Pending_Amount__c,
+            SELECT Id, Is_Demanded__c, Interest_Pending_Amount__c,
             Villa_Flat_Amount_Pending__c, Pending_Amount__c, Type__c,Pending_Amount_Without_Tds__c,
             S_No__c, Pending_Tds_Amount__c
             FROM Payment_Schedule__c 
@@ -190,7 +206,10 @@ public without sharing class ReceiptController {
         
         if (totalTdsAmount > 0 && tdsSourceLineItem != null) {
             Decimal remainingTds = totalTdsAmount;
-            
+            String tdsStatusToApply = String.isNotBlank(tdsSourceLineItem.TDS_Status__c)
+                ? tdsSourceLineItem.TDS_Status__c
+                : 'TDS Refund';
+
             for (Payment_Schedule__c paymentSchedule : payList) {
                 if (remainingTds <= 0) {
                     break;
@@ -198,11 +217,12 @@ public without sharing class ReceiptController {
                 if (paymentSchedule.Pending_Tds_Amount__c != null && paymentSchedule.Pending_Tds_Amount__c > 0) {
                     Decimal amountToReceive = Math.min(paymentSchedule.Pending_Tds_Amount__c, remainingTds);
                     remainingTds -= amountToReceive;
-                    
+
                     Receipt_Line_Item__c rece = new Receipt_Line_Item__c();
                     rece.Booking__c = bk.Id;
                     rece.Name = 'Against TDS';
                     rece.Payment_Type__c = 'TDS';
+                    rece.TDS_Status__c = tdsStatusToApply;
                     rece.Payment_Schedule__c = paymentSchedule.Id;
                     rece.Received_Amount__c = amountToReceive;
                     rece.Amount__c = amountToReceive;
@@ -213,13 +233,13 @@ public without sharing class ReceiptController {
                     rece.Cheque_Date__c = tdsSourceLineItem.Cheque_Date__c;
                     rece.Cheque_no_Transaction_Number__c = tdsSourceLineItem.Cheque_no_Transaction_Number__c;
                     rece.Approval_Status_Picklist__c = 'Approved';
-                    
+
                     if (amountToReceive > 0) {
                         receiptsToCreate.add(rece);
                     }
                 }
             }
-            
+
             // Handle excess TDS — if user entered more TDS than total Pending_Tds_Amount__c
             // Adjust against last Payment Schedule (same pattern as interest overflow)
             if (remainingTds > 0) {
@@ -229,6 +249,7 @@ public without sharing class ReceiptController {
                 rece.Booking__c = bk.Id;
                 rece.Name = 'Against TDS';
                 rece.Payment_Type__c = 'TDS';
+                rece.TDS_Status__c = tdsStatusToApply;
                 rece.Payment_Schedule__c = payList[paymentScheduleSize - 1].Id;
                 rece.Received_Amount__c = remainingTds;
                 rece.Amount__c = remainingTds;

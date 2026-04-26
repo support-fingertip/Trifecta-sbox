@@ -20,6 +20,7 @@ public without sharing class WelcomeMailController {
         @auraEnabled public Booking__c bookingRecord;
         @auraEnabled public String emailTemplate;
         @auraEnabled public boolean isAggementDateExisted;
+        @auraEnabled public List<String> coApplicantEmails;
     }
     /**
      * Method Name  : getRecordData
@@ -85,18 +86,28 @@ public without sharing class WelcomeMailController {
         
         // Co-Applicant (only first one)
         List<Co_Applicant__c> coApplicants = [
-            SELECT Name, Salutation__c 
+            SELECT Name, Salutation__c ,Email__c
             FROM Co_Applicant__c 
             WHERE Booking__c = :bk.Id 
             ORDER BY CreatedDate ASC 
-            LIMIT 1
+      
         ];
         
+        List<String> emailList = new List<String>();
         String coApplicantName = '';
         if (!coApplicants.isEmpty()) {
             coApplicantName =
                 (coApplicants[0].Salutation__c != null ? coApplicants[0].Salutation__c + ' ' : '') +
                 (coApplicants[0].Name != null ? coApplicants[0].Name : '');
+            for(Co_Applicant__c cpp : coApplicants)
+            {
+                if(cpp.Email__c != null)
+                {
+                    emailList.add(cpp.Email__c );
+                }               
+            }
+            db.coApplicantEmails = emailList;
+           
         }
         
         // Combine both
@@ -236,7 +247,7 @@ public without sharing class WelcomeMailController {
     public static void sendWelcomeEmail(Id recordId, String emailContent, List<String> toAddresses, List<String> contentIds) {
         system.debug('Content IDs: ' + contentIds);
         Booking__c bk = [SELECT Id, Quote__c,Name, CRM_Manager__c,Project1__r.Name, Owner_Phone__c,CRM_Head__c, 
-                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c,Phase__c,
+                         CRM_Head__r.Email, CRM_Manager__r.Email, First_Applicant_Name__c, Email__c,Phase__c,Owner_Email__c,
                          Project__c,Block_Name__c,Unit_No__c,Project_Type__c,Property_Type__c,Mobile__c,Owner_Full_Name__c,
                          (SELECT ContentDocumentId, ContentDocument.Title FROM ContentDocumentLinks 
                           WHERE ContentDocumentId IN :contentIds) 

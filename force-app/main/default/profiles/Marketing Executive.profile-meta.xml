@@ -21,6 +21,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingAmountAdjustmentController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingCancellApprovalControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -717,6 +721,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ReminderdemandInvioceController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>RemoveDuplicateLeadsBatch</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -1214,6 +1222,31 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Block__c.Company_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Constriction_Account_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Constriction_Bank_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Constriction_Branch__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Constriction_IFSC_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Constriction_Type_of_Account__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1793,7 +1826,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Booking__c.Customer_Service_Complaints__c</field>
+        <field>Booking__c.Customer_Service_CRM_Executive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1840,6 +1873,11 @@
         <editable>false</editable>
         <field>Booking__c.Deemed_HandOver__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Default_Interest_Percentage__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -2085,6 +2123,11 @@
         <editable>false</editable>
         <field>Booking__c.Is_Swapped__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Is_open_by_Admin__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -2427,6 +2470,11 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Booking__c.Possession_Handover_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Posting_in_Date__c</field>
         <readable>false</readable>
@@ -2459,6 +2507,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Project_Block_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Project_Brand_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2525,6 +2578,11 @@
         <editable>false</editable>
         <field>Booking__c.Reason_For_Swapping_Applicant__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Received_Amount_Crores__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -2675,6 +2733,11 @@
         <editable>false</editable>
         <field>Booking__c.Shaft_room_No_Of_Keys__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Show_Custom_Buttons__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -2864,6 +2927,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Booking__c.Total_Land_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Booking__c.Total_Pending_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3709,6 +3777,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Follow_up__c.Completed_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Follow_up__c.Dashboard_Filter__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6257,6 +6330,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X1st_Reminder_Sent__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X2nd_Interest_Reminder_Date__c</field>
         <readable>false</readable>
@@ -6267,8 +6345,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X2nd_Reminder_Sent__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.X3rd_Interest_Reminder_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Payment_schedule__c.X3rd_Reminder_Sent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6439,6 +6527,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Plot__c.Current_AOP__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Plot__c.Dashboard_Filter__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7044,6 +7137,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Project__c.Company_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Project__c.Dashboard_Filter__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7998,6 +8096,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Receipt_Line_Item__c.Challan_Reference_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Receipt_Line_Item__c.Cheque_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -8029,6 +8132,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Receipt_Line_Item__c.Received_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Receipt_Line_Item__c.TDS_Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8579,6 +8687,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Site_Visit__c.Customer_Visit_Not_Required__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Site_Visit__c.Dashboard_Filter__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -9234,11 +9347,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Ticket__c.Block__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Ticket__c.Booking__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -10314,6 +10422,10 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>Receipt</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>ReminderDemandNote</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

@@ -44,6 +44,7 @@
                 component.set('v.grandTotal', qt.Grand_Total_Amount__c);
 
                 component.set('v.book',book);
+                helper.addAppliacantRecord(component, event, helper);
                 
             }
             component.set("v.isModalOpen", true);

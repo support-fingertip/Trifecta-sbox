@@ -28,6 +28,9 @@
         }
         else if(selectedType === 'TDS'){
             recptItemList[index].Pending_Amount__c = component.get('v.totalPendingTds');
+            if (!recptItemList[index].TDS_Status__c) {
+                recptItemList[index].TDS_Status__c = 'TDS Refund';
+            }
         }
         else if(selectedType === 'Interest Amount'){
             recptItemList[index].Pending_Amount__c = component.get('v.interestAmount');
@@ -122,6 +125,12 @@
             helper.showToast("Please fill all mandatory fields","Error");
             component.set("v.saveButtonDisabled", false);
         }
+    },
+    navigateToRefund: function(component, event, helper) {
+        var recId = event.currentTarget.dataset.recordId;
+        var navEvt = $A.get("e.force:navigateToSObject");
+        navEvt.setParams({ "recordId": recId, "slideDevName": "detail" });
+        navEvt.fire();
     },
     receiptCancel:function(component, event, helper) {
         component.set("v.savebuttonhide",false);

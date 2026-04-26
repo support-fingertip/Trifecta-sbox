@@ -18,26 +18,26 @@
 *****************************************************************/
 public class BookingTriggerHandler {
     /**
-* Method Name  : afterInsert
-* Description  : Executes after Booking__c records are inserted.
-*
-* Functionality:
-* 1. Maps related Payment_Schedule__c records from Quote__c → Booking__c.
-* 2. Updates all payment schedules linked to the Quote with the newly
-*    created Booking Id.
-* 3. Triggers WhatsApp and SMS notifications if the custom label
-*    'Enable_whatsapp_notifications' is set to TRUE.
-*
-* Process Flow:
-* - Collect Quote Ids from new Booking records.
-* - Fetch all Payment_Schedule__c linked to those Quotes.
-* - Update Booking__c lookup on Payment_Schedule__c.
-* - Enqueue WhatsAppController and SMSHandler queueable jobs.
-*
-*
-* Parameters:
-* @param newBookingList - List of newly inserted Booking__c records
-*/
+    * Method Name  : afterInsert
+    * Description  : Executes after Booking__c records are inserted.
+    *
+    * Functionality:
+    * 1. Maps related Payment_Schedule__c records from Quote__c → Booking__c.
+    * 2. Updates all payment schedules linked to the Quote with the newly
+    *    created Booking Id.
+    * 3. Triggers WhatsApp and SMS notifications if the custom label
+    *    'Enable_whatsapp_notifications' is set to TRUE.
+    *
+    * Process Flow:
+    * - Collect Quote Ids from new Booking records.
+    * - Fetch all Payment_Schedule__c linked to those Quotes.
+    * - Update Booking__c lookup on Payment_Schedule__c.
+    * - Enqueue WhatsAppController and SMSHandler queueable jobs.
+    *
+    *
+    * Parameters:
+    * @param newBookingList - List of newly inserted Booking__c records
+    */
     public static void afterInsert(list<Booking__c> newBookingList){
         for(Booking__c bk: newBookingList)
         {
@@ -95,30 +95,30 @@ public class BookingTriggerHandler {
     }
     
     /**
-* Method Name  : beforeUpdate
-* Description  : Executes before Booking__c records are updated to enforce
-*                business rules during approval stage transition.
-*
-* Functionality:
-* 1. Detects when Sub_Stages__c is changed to 'Management User Approved'.
-* 2. Validates that an Initial CRM Executive (CRM_Executive__c) is populated.
-* 3. If CRM Executive is available:
-*      - Transfers Booking ownership to the CRM Executive.
-* 4. If CRM Executive is NOT available:
-*      - Blocks the update with a validation error message.
-*
-* Business Rule:
-* - A booking cannot move to 'Management User Approved' stage
-*   without assigning an Initial Booking CRM Executive.
-*
-*
-* Parameters:
-* @param newBookingList - List of Booking__c records being updated
-* @param oldBookingMap  - Map of old Booking__c records by Id
-*
-* Used From:
-* - Booking Trigger (before update context)
-*/
+    * Method Name  : beforeUpdate
+    * Description  : Executes before Booking__c records are updated to enforce
+    *                business rules during approval stage transition.
+    *
+    * Functionality:
+    * 1. Detects when Sub_Stages__c is changed to 'Management User Approved'.
+    * 2. Validates that an Initial CRM Executive (CRM_Executive__c) is populated.
+    * 3. If CRM Executive is available:
+    *      - Transfers Booking ownership to the CRM Executive.
+    * 4. If CRM Executive is NOT available:
+    *      - Blocks the update with a validation error message.
+    *
+    * Business Rule:
+    * - A booking cannot move to 'Management User Approved' stage
+    *   without assigning an Initial Booking CRM Executive.
+    *
+    *
+    * Parameters:
+    * @param newBookingList - List of Booking__c records being updated
+    * @param oldBookingMap  - Map of old Booking__c records by Id
+    *
+    * Used From:
+    * - Booking Trigger (before update context)
+    */
     public static void beforeUpdate(List<Booking__c> newBookingList,Map<Id, Booking__c> oldBookingMap)
     {
         for (Booking__c bk : newBookingList)
@@ -165,6 +165,7 @@ public class BookingTriggerHandler {
         String notificationTypeId = getNotificationTypeId();
         Map<Id, Id> bookingToOwnerMap = new Map<Id, Id>();
         Set<Id> unitSet = new Set<Id>();
+        Set<Id> unitSetToUpdateSoldStatus = new Set<Id>();
         for (Booking__c bk : newBookingList) {
             Booking__c oldBk = oldBookingMap.get(bk.Id);
             if (oldBk.OwnerId != bk.OwnerId && bk.OwnerId != null) {
@@ -197,6 +198,14 @@ public class BookingTriggerHandler {
                         unitSet.add(bk.Plot__c);
                     }
                 }
+                else if(bk.Stage__c == 'Possession / Handover')
+                {
+                    if(bk.Plot__c != null)
+                    {
+                        unitSetToUpdateSoldStatus.add(bk.Plot__c);
+                    }
+                    body += 'Please proceed with the next steps.';
+                }
                 else
                 {
                     body += 'Please proceed with the next steps.';
@@ -212,11 +221,16 @@ public class BookingTriggerHandler {
             }
         }
         syncChildOwner(bookingToOwnerMap);
+        shareBookingWithCRMExecutives(newBookingList, oldBookingMap);
         sendCancellationRequestEmail(newBookingList, oldBookingMap);
         sendCancellationApprovedEmail(newBookingList, oldBookingMap);
         if(!unitSet.isEmpty())
         {
             updatePlotAvailability(unitSet);
+        }
+        if(!unitSetToUpdateSoldStatus.isEmpty())
+        {
+            updatePlotStatusToSold(unitSetToUpdateSoldStatus);
         }
     }
     /**
@@ -242,6 +256,7 @@ public class BookingTriggerHandler {
         //4.Payment Schdule - Lookup
         //5.Refund - Lookup
         //6.Inspections - lookup
+        //7.Ticket - Master Detail
         
         // ===== 1. Update Payment Schedules =====
         List<Payment_Schedule__c> psList = [
@@ -292,12 +307,258 @@ public class BookingTriggerHandler {
         if (!inspectionList.isEmpty()) {
             update inspectionList;
         }
-        
+
     }
+
+    /**
+    * Method Name  : shareBookingWithCRMExecutives
+    * Description  : When any of the 5 stage-specific CRM Executive lookup fields
+    *                on Booking__c change, grant Read share to the newly assigned
+    *                user and revoke the previously assigned user. The share is
+    *                cascaded to the lookup children Payment_Schedule__c,
+    *                Refund__c and Inspection__c. Master-Detail children
+    *                (Co_Applicant__c, Receipt__c, Demand_Raised__c) inherit
+    *                automatically and need no code.
+    *
+    *                The Booking Owner is always excluded from share insertion
+    *                because the owner already has implicit Read/Write; inserting
+    *                a Read share for the owner raises FIELD_FILTER_VALIDATION_EXCEPTION.
+    */
+    public static void shareBookingWithCRMExecutives(List<Booking__c> newBookingList, Map<Id, Booking__c> oldBookingMap) {
+        Map<Id, Set<Id>> toShare  = new Map<Id, Set<Id>>();
+        Map<Id, Set<Id>> toRevoke = new Map<Id, Set<Id>>();
     
+        List<String> fields = new List<String>{
+            'CRM_executive__c',
+            'Agreement_CRM_Executive__c',
+            'Registration_CRM_Executive__c',
+            'Demands_Collections_CRM_Executive__c',
+            'Possession_Handover_CRM_Executive__c',
+            'Customer_Service_CRM_Executive__c'
+        };
     
+        for (Booking__c bk : newBookingList) {
+            Booking__c oldBk = (oldBookingMap != null) ? oldBookingMap.get(bk.Id) : null;
+
+            //  Only process if any relevant field has changed
+            Boolean hasChanged = (
+                bk.OwnerId != oldBk.OwnerId ||
+                bk.Stage__c != oldBk.Stage__c ||
+                bk.CRM_executive__c != oldBk.CRM_executive__c ||
+                bk.Agreement_CRM_Executive__c != oldBk.Agreement_CRM_Executive__c ||
+                bk.Registration_CRM_Executive__c != oldBk.Registration_CRM_Executive__c ||
+                bk.Demands_Collections_CRM_Executive__c != oldBk.Demands_Collections_CRM_Executive__c ||
+                bk.Possession_Handover_CRM_Executive__c != oldBk.Possession_Handover_CRM_Executive__c ||
+                bk.Customer_Service_CRM_Executive__c != oldBk.Customer_Service_CRM_Executive__c
+            );
     
+            if (!hasChanged) continue;
     
+            // Issue 2 Fix — Exclude both old and new OwnerId from stillAssigned
+            Set<Id> stillAssigned = new Set<Id>();
+            for (String f : fields) {
+                Id v = (Id) bk.get(f);
+                if (v != null && v != bk.OwnerId) {
+                    stillAssigned.add(v);
+                }
+            }
+    
+            for (String f : fields) {
+                Id newVal = (Id) bk.get(f);
+                Id oldVal = (Id) oldBk.get(f);
+
+                if (oldVal != null && !stillAssigned.contains(oldVal) && oldVal != bk.OwnerId) {
+                    if (!toRevoke.containsKey(bk.Id)) {
+                        toRevoke.put(bk.Id, new Set<Id>());
+                    }
+                    toRevoke.get(bk.Id).add(oldVal);
+                }
+    
+                if (newVal != null && newVal != bk.OwnerId) {
+                    if (!toShare.containsKey(bk.Id)) {
+                        toShare.put(bk.Id, new Set<Id>());
+                    }
+                    toShare.get(bk.Id).add(newVal);
+                }
+            }
+        }
+    
+        if (toShare.isEmpty() && toRevoke.isEmpty()) return;
+    
+        // ──────────────────────────────────────────
+        // REVOKE
+        // ──────────────────────────────────────────
+        if (!toRevoke.isEmpty()) {
+            List<Booking__Share> existing = [
+                SELECT Id, ParentId, UserOrGroupId
+                FROM Booking__Share
+                WHERE ParentId IN :toRevoke.keySet()
+                  AND RowCause = 'Manual'
+            ];
+    
+            List<Booking__Share> toDelete = new List<Booking__Share>();
+            for (Booking__Share s : existing) {
+                Set<Id> usersToRevoke = toRevoke.get(s.ParentId);
+                if (usersToRevoke != null && usersToRevoke.contains(s.UserOrGroupId)) {
+                    toDelete.add(s);
+                }
+            }
+    
+            if (!toDelete.isEmpty()) {
+                Database.delete(toDelete, false);
+            }
+        }
+    
+        // ──────────────────────────────────────────
+        // SHARE
+        // ──────────────────────────────────────────
+        if (!toShare.isEmpty()) {
+    
+            //  Issue 3 Fix — Dedup against existing share records before insert
+            Set<String> existingKeys = new Set<String>();
+            for (Booking__Share ex : [
+                SELECT ParentId, UserOrGroupId
+                FROM Booking__Share
+                WHERE ParentId IN :toShare.keySet()
+                  AND RowCause = 'Manual'
+            ]) {
+                existingKeys.add(ex.ParentId + '_' + ex.UserOrGroupId);
+            }
+    
+            List<Booking__Share> toInsert = new List<Booking__Share>();
+            for (Id bookingId : toShare.keySet()) {
+                for (Id userId : toShare.get(bookingId)) {
+                    String key = bookingId + '_' + userId;
+                    if (!existingKeys.contains(key)) {
+                        Booking__Share s       = new Booking__Share();
+                        s.ParentId             = bookingId;
+                        s.UserOrGroupId        = userId;
+                        s.AccessLevel          = 'Read';
+                        s.RowCause             = Schema.Booking__Share.RowCause.Manual;
+                        toInsert.add(s);
+                    }
+                }
+            }
+    
+            if (!toInsert.isEmpty()) {
+                Database.insert(toInsert, false);
+            }
+        }
+    
+        // ──────────────────────────────────────────
+        // CASCADE TO CHILDREN
+        // ──────────────────────────────────────────
+        Set<Id> bookingIdsAll = new Set<Id>();
+        bookingIdsAll.addAll(toShare.keySet());
+        bookingIdsAll.addAll(toRevoke.keySet());
+    
+        if (!bookingIdsAll.isEmpty()) {
+            cascadeShareToChildren(bookingIdsAll, toShare, toRevoke);
+        }
+    }
+
+    /**
+    * Cascade Booking-level share/revoke to its Lookup child records:
+    * Payment_Schedule__c, Refund__c, Inspection__c. Master-Detail children
+    * inherit access from the parent Booking share automatically.
+    */
+    private static void cascadeShareToChildren(Set<Id> bookingIds,Map<Id, Set<Id>> toShare,Map<Id, Set<Id>> toRevoke) {
+        if (bookingIds == null || bookingIds.isEmpty()) return;
+
+        Map<Id, List<Id>> bookingToPS   = new Map<Id, List<Id>>();
+        Map<Id, List<Id>> bookingToRef  = new Map<Id, List<Id>>();
+        Map<Id, List<Id>> bookingToInsp = new Map<Id, List<Id>>();
+
+        for (Payment_Schedule__c c : [
+            SELECT Id, Booking__c FROM Payment_Schedule__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToPS.containsKey(c.Booking__c)) bookingToPS.put(c.Booking__c, new List<Id>());
+            bookingToPS.get(c.Booking__c).add(c.Id);
+        }
+        for (Refund__c c : [
+            SELECT Id, Booking__c FROM Refund__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToRef.containsKey(c.Booking__c)) bookingToRef.put(c.Booking__c, new List<Id>());
+            bookingToRef.get(c.Booking__c).add(c.Id);
+        }
+        for (Inspection__c c : [
+            SELECT Id, Booking__c FROM Inspection__c
+            WHERE Booking__c IN :bookingIds
+        ]) {
+            if (!bookingToInsp.containsKey(c.Booking__c)) bookingToInsp.put(c.Booking__c, new List<Id>());
+            bookingToInsp.get(c.Booking__c).add(c.Id);
+        }
+
+        insertChildShares('Payment_Schedule__Share', bookingToPS,   toShare);
+        insertChildShares('Refund__Share',           bookingToRef,  toShare);
+        insertChildShares('Inspection__Share',       bookingToInsp, toShare);
+
+        deleteChildShares('Payment_Schedule__Share', bookingToPS,   toRevoke);
+        deleteChildShares('Refund__Share',           bookingToRef,  toRevoke);
+        deleteChildShares('Inspection__Share',       bookingToInsp, toRevoke);
+    }
+
+    private static void insertChildShares(String shareObjectName,Map<Id, List<Id>> bookingToChildIds,Map<Id, Set<Id>> toShare) {
+        if (toShare == null || toShare.isEmpty() || bookingToChildIds.isEmpty()) return;
+        Schema.SObjectType shareType = Schema.getGlobalDescribe().get(shareObjectName);
+        if (shareType == null) return;
+
+        List<SObject> shares = new List<SObject>();
+        for (Id bookingId : toShare.keySet()) {
+            List<Id> childIds = bookingToChildIds.get(bookingId);
+            if (childIds == null || childIds.isEmpty()) continue;
+            for (Id childId : childIds) {
+                for (Id userId : toShare.get(bookingId)) {
+                    SObject s = shareType.newSObject();
+                    s.put('ParentId', childId);
+                    s.put('UserOrGroupId', userId);
+                    s.put('AccessLevel', 'Read');
+                    s.put('RowCause', 'Manual');
+                    shares.add(s);
+                }
+            }
+        }
+        if (!shares.isEmpty()) {
+            Database.insert(shares, false);
+        }
+    }
+
+    private static void deleteChildShares(String shareObjectName,Map<Id, List<Id>> bookingToChildIds,Map<Id, Set<Id>> toRevoke) {
+        if (toRevoke == null || toRevoke.isEmpty() || bookingToChildIds.isEmpty()) return;
+        Schema.SObjectType shareType = Schema.getGlobalDescribe().get(shareObjectName);
+        if (shareType == null) return;
+
+        Set<Id> childIds = new Set<Id>();
+        Map<Id, Set<Id>> childToRevokeUsers = new Map<Id, Set<Id>>();
+        for (Id bookingId : toRevoke.keySet()) {
+            List<Id> kids = bookingToChildIds.get(bookingId);
+            if (kids == null) continue;
+            for (Id k : kids) {
+                childIds.add(k);
+                childToRevokeUsers.put(k, toRevoke.get(bookingId));
+            }
+        }
+        if (childIds.isEmpty()) return;
+
+        String soql = 'SELECT Id, ParentId, UserOrGroupId FROM ' + shareObjectName +
+                      ' WHERE ParentId IN :childIds AND RowCause = \'Manual\'';
+        List<SObject> existing = Database.query(soql);
+        List<SObject> toDelete = new List<SObject>();
+        for (SObject s : existing) {
+            Id parentId = (Id) s.get('ParentId');
+            Id userId   = (Id) s.get('UserOrGroupId');
+            Set<Id> users = childToRevokeUsers.get(parentId);
+            if (users != null && users.contains(userId)) {
+                toDelete.add(s);
+            }
+        }
+        if (!toDelete.isEmpty()) {
+            Database.delete(toDelete, false);
+        }
+    }
+
     /**
     * Method Name  : getNotificationTypeId
     * Description  : Fetches Custom Notification Type Id for
@@ -539,6 +800,28 @@ public class BookingTriggerHandler {
             notification.setBody('Unit "' + p.Name + '" in Project "' + p.Project_Name__c + '" has been marked as Available.');
             notification.send(recipientIds);
         }
+    }
+    
+    public static void updatePlotStatusToSold(Set<Id> unitSetToUpdateSoldStatus)
+    {
+        // Step 1: Update Plot status to Available
+        List<Plot__c> plotList = [
+            SELECT Id, Name, Status__c, Project_Name__c, Project__c
+            FROM Plot__c
+            WHERE Id IN :unitSetToUpdateSoldStatus
+        ];
+        
+        for(Plot__c p : plotList)
+        {
+            p.Status__c = 'Sold';
+        }
+        
+        if(!plotList.isEmpty())
+        {
+            update plotList;
+        }
+        
+       
     }
     
 
