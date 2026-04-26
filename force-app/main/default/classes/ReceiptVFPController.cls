@@ -275,59 +275,40 @@ public class ReceiptVFPController {
                 AND   Receipt__c = :receiptId
             ];
             
-            // ── 5c. Group by Receipt__c + Payment_Type__c ──
-            // Key format: Receipt__c|Payment_Type__c
-            Map<String, Decimal>               groupedAmounts  = new Map<String, Decimal>();
-            Map<String, Receipt_Line_Item__c>  groupedItemMeta = new Map<String, Receipt_Line_Item__c>();
-            
-            for (Receipt_Line_Item__c item : receiptLineItems) {
-                String  groupKey = item.Receipt__c + '|' + item.Payment_Type__c;
-                Decimal amt      = item.Received_Amount__c != null ? item.Received_Amount__c : 0;
-                
-                if (groupedAmounts.containsKey(groupKey)) {
-                    // Accumulate amount for same group
-                    groupedAmounts.put(groupKey, groupedAmounts.get(groupKey) + amt);
+            // ── 5c. Collapse all line items into one summed row for this Receipt ──
+            // Metadata (mode/instrument/bank/etc) comes from the first line of the
+            // receipt. Sign is negative iff any line is 'TDS Refund' (Phase 2 makes
+            // TDS Refund a solo-row receipt, so this is equivalent to "this is a
+            // refund receipt").
+            if (!receiptLineItems.isEmpty()) {
+                Decimal sumAmt = 0;
+                Boolean isNegative = false;
+                for (Receipt_Line_Item__c item : receiptLineItems) {
+                    sumAmt += item.Received_Amount__c != null ? item.Received_Amount__c : 0;
+                    if (item.Payment_Type__c == 'TDS Refund') {
+                        isNegative = true;
+                    }
+                }
+
+                Receipt_Line_Item__c meta = receiptLineItems[0];
+                String displayLabel = isNegative ? 'TDS Refund' : 'Receipt';
+
+                LineItemWrapper rw = new LineItemWrapper(receiptId, displayLabel, meta, sumAmt);
+                if (isNegative) {
+                    rw.formattedAmount = '(' + formatIndianCurrency(sumAmt) + ')';
+                    totalReceivedAmount = -sumAmt;
                 } else {
-                    // First occurrence — store amount and item metadata
-                    groupedAmounts.put(groupKey, amt);
-                    groupedItemMeta.put(groupKey, item);
+                    totalReceivedAmount = sumAmt;
                 }
-                
-                totalReceivedAmount += amt;
+                receiptLineItemWrappers.add(rw);
             }
-            
-            // ── 5d. Build ordered wrappers from grouped map ──
-            // Defined order controls the sequence of rows in the UI
-            List<String> paymentTypeOrder = new List<String>{
-                'Flat Amount',
-                'GST Amount',
-                'TDS',
-                'Additional Charges',
-                'Villa Amount',
-                'Interest',
-                'Plot Amount',
-                'Row House Amount',
-                'Booking Amount'
-            };
-            
-            for (String paymentType : paymentTypeOrder) {
-                String groupKey = receiptId + '|' + paymentType;
-                if (groupedAmounts.containsKey(groupKey)) {
-                    receiptLineItemWrappers.add(new LineItemWrapper(
-                        receiptId,
-                        paymentType,
-                        groupedItemMeta.get(groupKey),
-                        groupedAmounts.get(groupKey)
-                    ));
-                }
-            }
-            
-            // ── 5e. Format totals ──
+
+            // ── 5d. Format totals ──
             totalAmountFormatted = totalReceivedAmount != null
                 ? totalReceivedAmount.setScale(2).format()
                 : '0.00';
             amountInWords = totalReceivedAmount != null
-                ? conversion.getNumberTOWordConvertion(totalReceivedAmount)
+                ? conversion.getNumberTOWordConvertion(totalReceivedAmount.abs())
                 : null;
         }
     }
