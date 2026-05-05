@@ -1300,6 +1300,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Possession_Handover_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Project_Address__c</field>
         <readable>true</readable>
     </fieldPermissions>

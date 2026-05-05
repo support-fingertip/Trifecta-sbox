@@ -1296,6 +1296,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Block__c.Possession_Handover_CRM_Executive__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Block__c.Project_Address__c</field>
         <readable>false</readable>
     </fieldPermissions>
