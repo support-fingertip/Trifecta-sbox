@@ -21,7 +21,7 @@
             component.set("v.isButtonDisabled", true);
             var state = response.getState();
             if (state === 'SUCCESS') {
-                helper.showToast("Success", "Stage Status has been Updated Successfully", "Success");
+                helper.showToast("Success", "Stage marked complete. The booking has advanced to the next stage and been reassigned to the configured CRM Executive.", "Success");
                 
                 var recordId = component.get("v.recordId");
                 var navEvt = $A.get("e.force:navigateToSObject");
