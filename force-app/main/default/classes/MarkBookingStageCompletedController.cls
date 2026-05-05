@@ -84,9 +84,9 @@ public class MarkBookingStageCompletedController {
                     bookingRec.Move_to_Next_Stage__c = false;
                     update bookingRec;
                 }
-            } catch (Exception inner) {
+            } catch (Exception phaseEx) {
                 Database.rollback(sp);
-                throw inner;
+                throw phaseEx;
             }
 
             // Send Notification
