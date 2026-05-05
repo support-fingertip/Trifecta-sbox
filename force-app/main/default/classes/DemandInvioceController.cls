@@ -258,7 +258,7 @@ public class DemandInvioceController {
         
         balanceInterest = (currentDueInterest + totalInterestUplodateAmount) - totalInterestPaid;
         /** ===================== PAID TDS ===================== **/
-        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS'
+        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS Paid'
                                       AND Booking__c = :booking.Id];
 
         paidTDS = (Decimal)paidTDSAgg.get('amt') ?? 0;

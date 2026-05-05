@@ -529,24 +529,20 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CRM_Manager__c</fieldItem>
-                <identifier>RecordCRM_Manager_cField</identifier>
+                <fieldItem>Record.Demands_Collections_CRM_Executive__c</fieldItem>
+                <identifier>RecordDemands_Collections_CRM_Executive_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-64f03ae6-c801-4a19-a48e-72a6cf6cfe98</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CRM_Head__c</fieldItem>
-                <identifier>RecordCRM_Head_cField</identifier>
+                <fieldItem>Record.Possession_Handover_CRM_Executive__c</fieldItem>
+                <identifier>RecordPossession_Handover_CRM_Executive_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -557,6 +553,60 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Inspection_Executive__c</fieldItem>
                 <identifier>RecordInspection_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CRM_Head__c</fieldItem>
+                <identifier>RecordCRM_Head_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-64f03ae6-c801-4a19-a48e-72a6cf6cfe98</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Agreement_CRM_Executive__c</fieldItem>
+                <identifier>RecordAgreement_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Registration_CRM_Executive__c</fieldItem>
+                <identifier>RecordRegistration_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Customer_Service_CRM_Executive__c</fieldItem>
+                <identifier>RecordCustomer_Service_CRM_Executive_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CRM_Manager__c</fieldItem>
+                <identifier>RecordCRM_Manager_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-b6b26ad6-90a2-4efb-8f27-8026c8e009d6</name>

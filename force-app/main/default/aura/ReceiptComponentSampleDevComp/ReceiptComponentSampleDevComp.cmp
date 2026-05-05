@@ -36,8 +36,11 @@
     <aura:attribute name="additionlCharges" type="List[]" />
     <aura:attribute name="bookingType" type="String" />
     <aura:attribute name="totalPendingTds" type="Decimal" default="0"/>
+    <aura:attribute name="pendingTdsRefundAmount" type="Decimal" default="0"/>
     <aura:attribute name="tdsStatusPicklist" type="String[]" />
+    <aura:attribute name="bankNamePicklist" type="String[]" />
     <aura:attribute name="pendingTdsRefunds" type="Object[]" default="[]"/>
+    <aura:attribute name="stagedFiles" type="Object[]" default="[]"/>
     <aura:html tag="style">
         .slds-p-around–medium {
         padding: 0rem !important;
@@ -153,7 +156,7 @@
     <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
         <div class="card-border">
             <!-- TDS Refund Warning Banner -->
-            <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
+           <!-- <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
                 <div class="tds-refund-banner">
                     <div class="tds-refund-title">
                         <lightning:icon iconName="utility:warning" size="x-small" variant="warning"/>
@@ -175,7 +178,7 @@
                         </aura:iteration>
                     </div>
                 </div>
-            </aura:if>
+            </aura:if>-->
             <!-- Page Header -->
             <div class="slds-page-header" style="border-radius: 15px; margin: 5px;">
                 <div class="slds-page-header__row">
@@ -254,25 +257,13 @@
                                         <aura:if isTrue="{!v.bookingType == 'Row House'}">
                                             <option value="Row House Amount">Row House Amount</option>
                                         </aura:if>
+                                        <option value="TDS from Bank">TDS from Bank</option>
+                                        <option value="TDS Paid">TDS Challan Entry</option>
+                                        <option value="TDS Refund">TDS Refund</option>
                                         <option value="Interest Amount">Interest Amount</option>
-                                        <option value="TDS">TDS</option>
                                     </lightning:select>
                                 </div>
                             </div>
-                            <aura:if isTrue="{!qt.Payment_Type__c == 'TDS'}">
-                                <div class="slds-col slds-size_1-of-6 rli-field">
-                                    <div data-record="{!index}">
-                                        <lightning:select aura:id="field" name="tdsStatusSel"
-                                                          label="TDS Status" required="true"
-                                                          value="{!qt.TDS_Status__c}">
-                                            <aura:iteration items="{!v.tdsStatusPicklist}" var="st">
-                                                <option text="{!st}" value="{!st}"
-                                                        selected="{!st == qt.TDS_Status__c}"></option>
-                                            </aura:iteration>
-                                        </lightning:select>
-                                    </div>
-                                </div>
-                            </aura:if>
                             <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
                                     <lightning:input name="Amount" type="decimal" label="Pending Amount"
@@ -310,8 +301,14 @@
                             </aura:if>
                             <div class="slds-col slds-size_1-of-6 rli-field">
                                 <div data-record="{!index}">
-                                    <lightning:input type="text" aura:id="field" label="Bank Name"
-                                                     required="true" value="{!qt.Bank_Name__c}"/>
+                                    <lightning:select aura:id="field" label="Bank Name"
+                                                      required="true" value="{!qt.Bank_Name__c}">
+                                        <option value="">choose one...</option>
+                                        <aura:iteration items="{!v.bankNamePicklist}" var="bn">
+                                            <option text="{!bn}" value="{!bn}"
+                                                    selected="{!bn == qt.Bank_Name__c}"></option>
+                                        </aura:iteration>
+                                    </lightning:select>
                                 </div>
                             </div>
                             <div class="slds-col slds-size_1-of-6 rli-field">
@@ -352,11 +349,32 @@
                     </lightning:card>
                 </aura:iteration>
             </div>
-       
+
+            <!-- ATTACHMENTS (staged before save) -->
+            <div class="card-border slds-p-around_medium" style="margin: 8px 4px;">
+                <div class="slds-text-heading_small slds-m-bottom_x-small">
+                    Receipt Attachments
+                </div>
+                <lightning:input
+                    type="file"
+                    aura:id="receiptFileInput"
+                    label="Attach files"
+                    multiple="true"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+                    onchange="{!c.handleFileSelection}"/>
+                <aura:if isTrue="{!not(empty(v.stagedFiles))}">
+                    <ul class="slds-list_dotted slds-m-top_x-small">
+                        <aura:iteration items="{!v.stagedFiles}" var="f">
+                            <li>{!f.name} ({!f.sizeKb} KB)</li>
+                        </aura:iteration>
+                    </ul>
+                </aura:if>
+            </div>
+
             <div class="card-border slds-p-around_medium">
-                
+
                 <!-- PRINCIPAL SECTION -->
-                <div class="slds-box slds-theme_shade slds-m-bottom_small">
+               <!-- <div class="slds-box slds-theme_shade slds-m-bottom_small">
                     <div class="slds-grid slds-wrap">
                         <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
                             <b>{!v.bookingType} Total Received (INR):</b>
@@ -372,7 +390,7 @@
                             &nbsp;₹ {!v.interestPending}
                         </div>
                     </div>
-                </div>
+                </div>-->
                 
                            
                 <!-- ACTION BUTTONS -->

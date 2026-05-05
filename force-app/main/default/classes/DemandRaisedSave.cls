@@ -286,7 +286,7 @@ public class DemandRaisedSave {
         
         Decimal totalBookingAmount = book.Total_Amount__c ?? 0;
 
-        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS' AND Booking__c = :book.Id];
+        AggregateResult paidTDSAgg = [SELECT SUM(Amount__c) amt FROM Receipt_Line_Item__c WHERE Payment_Type__c = 'TDS Paid' AND Booking__c = :book.Id];
         paidTDS = (Decimal)paidTDSAgg.get('amt') ?? 0;
         
         pendingPreviousTDS = previousTDS - paidTDS;

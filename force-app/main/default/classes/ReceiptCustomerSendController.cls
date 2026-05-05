@@ -20,19 +20,25 @@ public with sharing class ReceiptCustomerSendController {
         }
 
         List<Receipt__c> receipts = [
-            SELECT Id, Name
+            SELECT Id, Name, Receipt_Date__c, Payment_Type__c
             FROM Receipt__c
             WHERE Booking__c = :bookingId
             ORDER BY CreatedDate DESC
         ];
-
+        
         for (Receipt__c rec : receipts) {
             ReceiptOptionWrapper wrap = new ReceiptOptionWrapper();
             wrap.receiptId = rec.Id;
-            wrap.receiptName = rec.Name;
+            
+            String formattedDate = rec.Receipt_Date__c != null 
+                ? String.valueOf(rec.Receipt_Date__c.day()).leftPad(2,'0') + '-' +
+                String.valueOf(rec.Receipt_Date__c.month()).leftPad(2,'0') + '-' +
+                String.valueOf(rec.Receipt_Date__c.year())
+                : '';
+            
+            wrap.receiptName = rec.Name + ' / ' + formattedDate + ' / ' + rec.Payment_Type__c;
             result.add(wrap);
         }
-
         return result;
     }
 

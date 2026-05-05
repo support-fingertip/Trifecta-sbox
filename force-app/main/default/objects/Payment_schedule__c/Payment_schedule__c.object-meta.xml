@@ -162,7 +162,7 @@
     <label>Payment schedule</label>
     <nameField>
         <label>Payment schedule Name</label>
-        <trackHistory>false</trackHistory>
+        <trackHistory>true</trackHistory>
         <type>Text</type>
     </nameField>
     <pluralLabel>Payment schedules</pluralLabel>

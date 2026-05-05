@@ -18,6 +18,7 @@ public class ConsolidatedReceiptController {
         public String receiptNo { get; set; }
         public Date refdate { get; set; }
         public String  paymentType { get; set; } // added for grouping
+        public Boolean isNegative { get; set; }
     }
 
     public bookingInfoWrapper bookingInfo { get; set; }
@@ -205,68 +206,61 @@ public class ConsolidatedReceiptController {
 
         List<ReceiptWrapper> reppList = new List<ReceiptWrapper>();
 
-        // Step 1: Group by Receipt__r + Payment_Type__c
-        // Key => Receipt__c|Payment_Type__c
-        Map<String, Decimal>              groupedAmounts  = new Map<String, Decimal>();
-        Map<String, Receipt_Line_Item__c> groupedItemMeta = new Map<String, Receipt_Line_Item__c>();
-        
+        // Group by Receipt__c only — one row per Receipt. Metadata fields
+        // (mode/instrument/bank/etc) come from the first encountered line of
+        // the receipt. Sign is negative iff any line of the receipt is a
+        // 'TDS Refund' (Phase 2 makes TDS Refund a solo-row receipt, so this
+        // is equivalent to "the receipt is a refund receipt").
+        Map<Id, Decimal>              receiptToTotal    = new Map<Id, Decimal>();
+        Map<Id, Receipt_Line_Item__c> receiptToMeta     = new Map<Id, Receipt_Line_Item__c>();
+        Map<Id, Boolean>              receiptIsNegative = new Map<Id, Boolean>();
+        List<Id>                      orderedReceiptIds = new List<Id>();
+
         for (Receipt_Line_Item__c re : repLst) {
-            String  groupKey = re.Receipt__c + '|' + re.Payment_Type__c;
-            Decimal amt      = re.Received_Amount__c != null ? re.Received_Amount__c : 0;
-            
-            if (groupedAmounts.containsKey(groupKey)) {
-                groupedAmounts.put(groupKey, groupedAmounts.get(groupKey) + amt);
+            Id rId = re.Receipt__c;
+            Decimal amt = re.Received_Amount__c != null ? re.Received_Amount__c : 0;
+
+            if (!receiptToTotal.containsKey(rId)) {
+                receiptToTotal.put(rId, 0);
+                receiptToMeta.put(rId, re);
+                receiptIsNegative.put(rId, false);
+                orderedReceiptIds.add(rId);
+            }
+            receiptToTotal.put(rId, receiptToTotal.get(rId) + amt);
+            if (re.Payment_Type__c == 'TDS Refund') {
+                receiptIsNegative.put(rId, true);
+            }
+        }
+
+        for (Id rId : orderedReceiptIds) {
+            Receipt_Line_Item__c meta = receiptToMeta.get(rId);
+            Decimal sumAmt            = receiptToTotal.get(rId);
+            Boolean isNeg             = receiptIsNegative.get(rId);
+
+            if (isNeg) {
+                totalAmount -= sumAmt;
             } else {
-                groupedAmounts.put(groupKey, amt);
-                groupedItemMeta.put(groupKey, re); // first item's metadata
+                totalAmount += sumAmt;
             }
-            
-            totalAmount += amt;
+
+            ReceiptWrapper rw  = new ReceiptWrapper();
+            rw.paymentType     = isNeg ? 'TDS Refund' : 'Receipt';
+            rw.isNegative      = isNeg;
+            rw.receiptDate     = meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null;
+            rw.receiptAmount   = isNeg
+                ? '-' + sumAmt.setScale(2).format() 
+                : sumAmt.setScale(2).format();
+            rw.modeOfPayment   = meta.Mode_of_Payment__c;
+            rw.instruMentNo    = meta.Cheque_no_Transaction_Number__c;
+            rw.payNameName     = meta.Payment_schedule__r != null ? meta.Payment_schedule__r.Name : '';
+            rw.bankName        = meta.Bank_Name__c;
+            rw.receiptNo       = meta.Receipt__r != null ? meta.Receipt__r.Name : '';
+            rw.refdate         = meta.Cheque_Date__c != null
+                ? meta.Cheque_Date__c
+                : (meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null);
+            reppList.add(rw);
         }
-        
-        // Step 2: Build wrappers in defined Payment_Type__c order
-        List<String> paymentTypeOrder = new List<String>{
-            'Flat Amount', 'GST Amount', 'TDS', 'Additional Charges',
-                'Villa Amount', 'Interest', 'Plot Amount', 'Row House Amount', 'Booking Amount'
-                };
-                    
-                    // Collect all unique Receipt__c Ids in the order they appear
-                    List<String> orderedReceiptIds = new List<String>();
-        Set<String>  seenReceiptIds    = new Set<String>();
-        
-        for (Receipt_Line_Item__c re : repLst) {
-            if (!seenReceiptIds.contains(re.Receipt__c)) {
-                seenReceiptIds.add(re.Receipt__c);
-                orderedReceiptIds.add(re.Receipt__c);
-            }
-        }
-        
-        // Step 3: Outer loop = Receipt, Inner loop = Payment Type (preserves grouping order)
-        for (String rId : orderedReceiptIds) {
-            for (String paymentType : paymentTypeOrder) {
-                String groupKey = rId + '|' + paymentType;
-                
-                if (groupedAmounts.containsKey(groupKey)) {
-                    Receipt_Line_Item__c meta = groupedItemMeta.get(groupKey);
-                    Decimal groupTotal        = groupedAmounts.get(groupKey);
-                    
-                    ReceiptWrapper rw  = new ReceiptWrapper();
-                    rw.paymentType     = paymentType;
-                    rw.receiptDate     = meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null;
-                    rw.receiptAmount   = groupTotal.setScale(2).format();
-                    rw.modeOfPayment   = meta.Mode_of_Payment__c;
-                    rw.instruMentNo    = meta.Cheque_no_Transaction_Number__c;
-                    rw.payNameName     = meta.Payment_schedule__r != null ? meta.Payment_schedule__r.Name : '';
-                    rw.bankName        = meta.Bank_Name__c;
-                    rw.receiptNo       = meta.Receipt__r != null ? meta.Receipt__r.Name : '';
-                    rw.refdate         = meta.Cheque_Date__c != null
-                        ? meta.Cheque_Date__c
-                        : (meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null);
-                            reppList.add(rw);
-                }
-            }
-        }
-        
+
         repList = reppList;
         
         totalAmountFormatted = totalAmount != null

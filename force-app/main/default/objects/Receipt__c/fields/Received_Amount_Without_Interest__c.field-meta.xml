@@ -7,7 +7,7 @@
     <summaryFilterItems>
         <field>Receipt_Line_Item__c.Payment_Type__c</field>
         <operation>notEqual</operation>
-        <value>Interest</value>
+        <value>Interest,TDS from Bank, TDS Refund</value>
     </summaryFilterItems>
     <summaryForeignKey>Receipt_Line_Item__c.Receipt__c</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>

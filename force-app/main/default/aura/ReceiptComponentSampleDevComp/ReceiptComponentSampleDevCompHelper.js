@@ -1,7 +1,14 @@
 ({
     addProductRecord: function(component, event) {
-        var productList = component.get("v.recptItemList");
-        // Check if the list already has 2 items
+        var productList = component.get("v.recptItemList") || [];
+        // Solo-row guard: TDS Paid / TDS Refund must each be the only line item
+        var SOLO_TYPES = ['TDS Paid', 'TDS Refund'];
+        var hasSolo = productList.some(function(r) {
+            return SOLO_TYPES.indexOf(r.Payment_Type__c) !== -1;
+        });
+        if (hasSolo) {
+            return;
+        }
         if (productList.length >= 3) {
             return;
         }
@@ -20,8 +27,7 @@
             'Drwan_On__c':'',
             'GRAND_TOTAL__c':'',
             'Pending_Amount__c': '',
-            'Additional_Charges__c':'',
-            'TDS_Status__c': 'TDS Refund'
+            'Additional_Charges__c':''
         });
         component.set("v.recptItemList", productList);
     },
@@ -35,7 +41,9 @@
                 component.set('v.paymentschdl',  data.paymentSchdules);
                 component.set("v.paymentTypePicklist",data.paymentTypePicklist);
                 component.set("v.tdsStatusPicklist", data.tdsStatusPicklist);
+                component.set("v.bankNamePicklist", data.bankNamePicklist || []);
                 component.set("v.pendingTdsRefunds", data.pendingTdsRefunds || []);
+                component.set("v.pendingTdsRefundAmount", data.pendingTdsRefundAmount || 0);
                 component.set("v.totalPendingTds", data.tdsAmount);
                 component.set("v.projectName", data.bookingRecord.Project__c);
                 component.set("v.flatNumber", data.bookingRecord.Unit_Number__c);
@@ -90,18 +98,18 @@
             
             // ===== BUCKET SEPARATION =====
             
-            // PRINCIPAL TYPES
+            // PRINCIPAL TYPES (TDS variants intentionally excluded; they
+            // are tracked separately and capped per-row by Pending_Amount__c)
             if (
                 type === 'Flat Amount' ||
                 type === 'Plot Amount' ||
                 type === 'Villa Amount' ||
                 type === 'Row House Amount' ||
-                type === 'GST Amount' ||
-                type === 'TDS'
+                type === 'GST Amount'
             ) {
                 principalReceived += received;
             }
-            
+
             // INTEREST TYPE
             else if (type === 'Interest Amount') {
                 interestReceived += received;
@@ -121,16 +129,15 @@
             principalReceived = 0;
             
             for (var j = 0; j < recptItemList.length; j++) {
-                
+
                 let type = recptItemList[j].Payment_Type__c;
-                
+
                 if (
                     type === 'Flat Amount' ||
                     type === 'Plot Amount' ||
                     type === 'Villa Amount' ||
                     type === 'Row House Amount' ||
-                    type === 'GST Amount' ||
-                    type === 'TDS'
+                    type === 'GST Amount'
                 ) {
                     principalReceived +=
                         parseFloat(recptItemList[j].Received_Amount__c) || 0;
@@ -189,7 +196,7 @@
                 recptItemList[j].Payment_Type__c === 'Plot Amount' ||
                 recptItemList[j].Payment_Type__c === 'GST Amount' ||
                 recptItemList[j].Payment_Type__c === 'Villa Amount' ||
-                recptItemList[j].Payment_Type__c === 'TDS'
+                recptItemList[j].Payment_Type__c === 'Row House Amount'
             ) {
                 cumulativeReceivedAmount += parseFloat(recptItemList[j].Received_Amount__c) || 0;
             }

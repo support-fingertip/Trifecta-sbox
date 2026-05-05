@@ -137,6 +137,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>CancelDemandNoteController</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>CancellationLetterVFPController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -1191,6 +1195,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Agreement_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Bank_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1256,6 +1265,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Customer_Service_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Demands_Collections_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1281,6 +1300,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Possession_Handover_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Project_Address__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1292,6 +1316,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Block__c.RERA_NO__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Registration_CRM_Executive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3576,6 +3605,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Demand_Raised__c.Cancellation_Reason__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Demand_Raised__c.Current_Demand_amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -3647,6 +3681,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Demand_Raised__c.Interest_Till_Now__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Demand_Raised__c.Is_Cancelled__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6231,6 +6270,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Pending_TDS_Refund__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Pending_Tds_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -6298,6 +6342,16 @@
         <editable>false</editable>
         <field>Payment_schedule__c.Total_TDS_Amount__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Total_TDS_From_Bank__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Total_TDS_Refund_Issued__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -8206,6 +8260,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt__c.Payment_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Receipt__c.Project_Block_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -8242,6 +8301,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Receipt__c.Remarks__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt__c.TDS_Refund_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
