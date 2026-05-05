@@ -88,11 +88,7 @@
         transform: translate(-50%, -50%); /* Center the spinner */
         }
     </aura:html>
-    <div >
-     
-        
-        <!--Use aura:if tag to display/hide popup based on isModalOpen value-->  
-        
+    <div>
         <lightning:recordEditForm  objectApiName="Lead__c"  aura:id="recordCreateForm">
             
             <!-- Modal/Popup Box starts here-->
@@ -105,14 +101,14 @@
                     </header>
                     <!--Modal/Popup Box Body Starts here-->
                     <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                      
+                        
                         <aura:if isTrue="{!$Browser.formFactor=='PHONE'}">
                             <div class="slds-grid slds-wrap">
                                 <aura:if isTrue="{!!v.isProcessing}">
                                     <div class="slds-col slds-size_1-of-1" style="padding-right:10px">
                                         <b> <p style="font-size:18px;"> Are you sure you want to request for agreement time extension? </p> </b>
                                         <!-- Extension Days -->
-                                         
+                                        
                                         <lightning:input name="Agreement Extension Days"
                                                          type="Number" label="Extension Days"
                                                          value="{!v.extensionDays}"
@@ -132,13 +128,13 @@
                         </aura:if>
                         <aura:if isTrue="{!$Browser.formFactor=='DESKTOP'}">
                             <div class="slds-grid">
-                              
+                                
                                 <div class="slds-col slds-size_1-of-1">
                                     <aura:if isTrue="{!!v.isProcessing}">
                                         <b> <p style="font-size:18px;"> Are you sure you want to request for agreement time extension?  </p>
                                             <br/>
                                         </b> 
-                                              
+                                        
                                         <lightning:input name="Agreement Extension Days"
                                                          type="Number" label="Extension Days"
                                                          value="{!v.extensionDays}"
@@ -163,7 +159,7 @@
                                           label="Cancel"
                                           title="Cancel"
                                           onclick="{!c.closeModel }"
-                                           disabled="{!v.isProcessing}"/>
+                                          disabled="{!v.isProcessing}"/>
                         <lightning:button  variant="brand" 
                                           label="Submit for Approval" onclick="{!c.submitforApproval}" 
                                           disabled="{!v.isProcessing}"/>
@@ -183,7 +179,6 @@
                 </aura:if>
             </aura:if>
         </lightning:recordEditForm>
-        
     </div>
     
     

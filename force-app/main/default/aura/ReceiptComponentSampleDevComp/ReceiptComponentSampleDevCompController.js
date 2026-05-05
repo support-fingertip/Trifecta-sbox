@@ -36,13 +36,14 @@
         });
 
         if (isSelectedSolo && otherRowsHaveContent) {
-            helper.showToast("'" + selectedType + "' must be the only line item in a receipt. Remove other rows first.", "error");
+            var updatedSelectedType = selectedType == 'TDS Paid' ? 'TDS Challan Entry' : selectedType;
+            helper.showToast("'" + updatedSelectedType + "' must be the only line item in a receipt. Remove other rows first.", "error");
             recptItemList[index].Payment_Type__c = '';
             component.set("v.recptItemList", recptItemList);
             return;
         }
         if (otherRowHasSolo) {
-            helper.showToast("This receipt already contains a TDS Paid or TDS Refund row, which must be standalone.", "error");
+            helper.showToast("This receipt already contains a TDS Challan Entry or TDS Refund row, which must be standalone.", "error");
             recptItemList[index].Payment_Type__c = '';
             component.set("v.recptItemList", recptItemList);
             return;

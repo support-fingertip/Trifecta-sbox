@@ -371,6 +371,8 @@
         <fields>NAME</fields>
         <fields>Total_Received_Amount__c</fields>
         <fields>Remarks__c</fields>
+        <fields>Type__c</fields>
+        <fields>Receipt_Date__c</fields>
         <fields>Approval_status__c</fields>
         <fields>CREATED_DATE</fields>
         <fields>CREATEDBY_USER</fields>

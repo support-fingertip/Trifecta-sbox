@@ -156,7 +156,7 @@
     <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
         <div class="card-border">
             <!-- TDS Refund Warning Banner -->
-            <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
+           <!-- <aura:if isTrue="{!v.pendingTdsRefunds.length > 0}">
                 <div class="tds-refund-banner">
                     <div class="tds-refund-title">
                         <lightning:icon iconName="utility:warning" size="x-small" variant="warning"/>
@@ -178,7 +178,7 @@
                         </aura:iteration>
                     </div>
                 </div>
-            </aura:if>
+            </aura:if>-->
             <!-- Page Header -->
             <div class="slds-page-header" style="border-radius: 15px; margin: 5px;">
                 <div class="slds-page-header__row">
@@ -257,10 +257,10 @@
                                         <aura:if isTrue="{!v.bookingType == 'Row House'}">
                                             <option value="Row House Amount">Row House Amount</option>
                                         </aura:if>
-                                        <option value="Interest Amount">Interest Amount</option>
                                         <option value="TDS from Bank">TDS from Bank</option>
-                                        <option value="TDS Paid">TDS Paid</option>
+                                        <option value="TDS Paid">TDS Challan Entry</option>
                                         <option value="TDS Refund">TDS Refund</option>
+                                        <option value="Interest Amount">Interest Amount</option>
                                     </lightning:select>
                                 </div>
                             </div>
@@ -353,7 +353,7 @@
             <!-- ATTACHMENTS (staged before save) -->
             <div class="card-border slds-p-around_medium" style="margin: 8px 4px;">
                 <div class="slds-text-heading_small slds-m-bottom_x-small">
-                    Receipt Attachments (optional)
+                    Receipt Attachments
                 </div>
                 <lightning:input
                     type="file"
@@ -374,7 +374,7 @@
             <div class="card-border slds-p-around_medium">
 
                 <!-- PRINCIPAL SECTION -->
-                <div class="slds-box slds-theme_shade slds-m-bottom_small">
+               <!-- <div class="slds-box slds-theme_shade slds-m-bottom_small">
                     <div class="slds-grid slds-wrap">
                         <div class="slds-col slds-size_1-of-2 slds-p-around_x-small">
                             <b>{!v.bookingType} Total Received (INR):</b>
@@ -390,7 +390,7 @@
                             &nbsp;₹ {!v.interestPending}
                         </div>
                     </div>
-                </div>
+                </div>-->
                 
                            
                 <!-- ACTION BUTTONS -->

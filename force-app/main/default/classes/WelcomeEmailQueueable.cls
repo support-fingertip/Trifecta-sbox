@@ -115,7 +115,12 @@ public class WelcomeEmailQueueable implements Queueable, Database.AllowsCallouts
         if (ccEmails != null && !ccEmails.isEmpty()) {
             mail.setCcAddresses(ccEmails);
         }
+        system.debug('emailContent'+emailContent);
         mail.setSubject(subject);
+        // Remove extra blank paragraph before setting body
+        emailContent = emailContent.replace('<p style="text-align: justify;"><br></p>', '');
+        
+        mail.setHtmlBody(emailContent);
         mail.setHtmlBody(emailContent);
         if (!emailAttachments.isEmpty()) {
             mail.setFileAttachments(emailAttachments);

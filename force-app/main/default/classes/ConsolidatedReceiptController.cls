@@ -248,7 +248,7 @@ public class ConsolidatedReceiptController {
             rw.isNegative      = isNeg;
             rw.receiptDate     = meta.Receipt__r != null ? meta.Receipt__r.Receipt_Date__c : null;
             rw.receiptAmount   = isNeg
-                ? '(' + sumAmt.setScale(2).format() + ')'
+                ? '-' + sumAmt.setScale(2).format() 
                 : sumAmt.setScale(2).format();
             rw.modeOfPayment   = meta.Mode_of_Payment__c;
             rw.instruMentNo    = meta.Cheque_no_Transaction_Number__c;

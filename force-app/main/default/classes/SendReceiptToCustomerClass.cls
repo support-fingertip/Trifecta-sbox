@@ -21,7 +21,7 @@ public without sharing class SendReceiptToCustomerClass {
         List<OrgWideEmailAddress> orgWideEmails = [
             SELECT Id, Address, DisplayName
             FROM OrgWideEmailAddress
-            WHERE Address = :bookingRecord.Owner.Email
+            WHERE DisplayName = 'Trifecta Admin'
             LIMIT 1
         ];
         

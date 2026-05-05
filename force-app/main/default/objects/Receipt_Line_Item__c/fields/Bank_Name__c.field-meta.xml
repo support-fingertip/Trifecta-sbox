@@ -8,7 +8,6 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <restricted>false</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
@@ -20,6 +19,36 @@
                 <fullName>HDFC</fullName>
                 <default>false</default>
                 <label>HDFC</label>
+            </value>
+            <value>
+                <fullName>ICICI</fullName>
+                <default>false</default>
+                <label>ICICI</label>
+            </value>
+            <value>
+                <fullName>AXIS</fullName>
+                <default>false</default>
+                <label>AXIS</label>
+            </value>
+            <value>
+                <fullName>IDBI</fullName>
+                <default>false</default>
+                <label>IDBI</label>
+            </value>
+            <value>
+                <fullName>KOTAK</fullName>
+                <default>false</default>
+                <label>KOTAK</label>
+            </value>
+            <value>
+                <fullName>TATA</fullName>
+                <default>false</default>
+                <label>TATA</label>
+            </value>
+            <value>
+                <fullName>UNION</fullName>
+                <default>false</default>
+                <label>UNION</label>
             </value>
         </valueSetDefinition>
     </valueSet>

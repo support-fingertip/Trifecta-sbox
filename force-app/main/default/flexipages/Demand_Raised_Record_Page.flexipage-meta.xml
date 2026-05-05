@@ -4,16 +4,41 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Demand_Raised__c.Resend_Demand</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Demand_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Demand Raised</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Demand_Raised__c.Cancel_Demand</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Demand_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Demand Raised</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>collapsed</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>enableActionsConfiguration</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>enableActionsInNative</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>hideChatterActions</name>

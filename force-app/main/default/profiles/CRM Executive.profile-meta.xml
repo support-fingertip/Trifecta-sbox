@@ -22,7 +22,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>BookingAmountAdjustmentController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>BookingCancellApprovalControllerTest</apexClass>
@@ -135,6 +135,10 @@
     <classAccesses>
         <apexClass>CallDetailTriggerTest</apexClass>
         <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CancelDemandNoteController</apexClass>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>CancellationLetterVFPController</apexClass>
@@ -722,7 +726,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ReminderdemandInvioceController</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>RemoveDuplicateLeadsBatch</apexClass>
@@ -3576,6 +3580,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Demand_Raised__c.Cancellation_Reason__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Demand_Raised__c.Current_Demand_amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -3647,6 +3656,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Demand_Raised__c.Interest_Till_Now__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Demand_Raised__c.Is_Cancelled__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -6231,6 +6245,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Payment_schedule__c.Pending_TDS_Refund__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Payment_schedule__c.Pending_Tds_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -6297,6 +6316,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment_schedule__c.Total_TDS_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Total_TDS_From_Bank__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Payment_schedule__c.Total_TDS_Refund_Issued__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8206,6 +8235,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Receipt__c.Payment_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Receipt__c.Project_Block_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -8242,6 +8276,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Receipt__c.Remarks__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Receipt__c.TDS_Refund_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -10179,7 +10218,7 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
-        <allowDelete>false</allowDelete>
+        <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
@@ -10188,7 +10227,7 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
-        <allowDelete>false</allowDelete>
+        <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
@@ -10444,7 +10483,7 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>ReminderDemandNote</apexPage>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
         <apexPage>RowHouseKeyHandoverVfp</apexPage>
@@ -10659,7 +10698,7 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>Inventory_Management</tab>
-        <visibility>Hidden</visibility>
+        <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>
         <tab>Landing_Number__c</tab>

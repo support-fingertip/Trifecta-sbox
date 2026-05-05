@@ -69,7 +69,7 @@
             <value>
                 <fullName>TDS Paid</fullName>
                 <default>false</default>
-                <label>TDS Paid</label>
+                <label>TDS Challan Entry</label>
             </value>
         </valueSetDefinition>
     </valueSet>
