@@ -1195,6 +1195,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Agreement_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Bank_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1260,6 +1265,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Block__c.Customer_Service_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Demands_Collections_CRM_Executive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Block__c.Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1296,6 +1311,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Block__c.RERA_NO__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Block__c.Registration_CRM_Executive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
