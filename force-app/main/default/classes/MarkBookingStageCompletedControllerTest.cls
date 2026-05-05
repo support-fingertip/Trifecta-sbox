@@ -182,6 +182,45 @@ private class MarkBookingStageCompletedControllerTest {
     }
 
     /**
+     * Verifies that stage-completion validation rules fire on Phase A of the
+     * two-phase DML and that the savepoint rolls Phase A back so the booking
+     * is not left at (OldStage, Completed). Drives
+     * `Agreement_Stage_Completion_Validation`, which fires when
+     * Stage_Status__c→'Completed' on Stage='Agreement' with no Signed Agreement.
+     */
+    @IsTest
+    static void validationFiresAndRollsBackOnAgreementStage() {
+        Booking__c bk = TestDataFactory.createBooking('Apartments');
+        Block__c blk = [SELECT Id FROM Block__c WHERE Id = :bk.Block__c LIMIT 1];
+        blk.Demands_Collections_CRM_Executive__c = UserInfo.getUserId();
+        update blk;
+
+        // Seed onto the Agreement stage WITHOUT a Signed Agreement uploaded
+        // so the completion validation rule trips on Phase A.
+        bk.Stage__c = 'Agreement';
+        bk.Stage_Status__c = 'In Progress';
+        bk.Signed_Agreement_Uploaded__c = false;
+        try { update bk; } catch (Exception e) { return; /* manual seed blocked */ }
+
+        Test.startTest();
+        Boolean threw = false;
+        try {
+            MarkBookingStageCompletedController.markStageAsCompleted(
+                bk.Id, 'Try to complete Agreement without signed doc');
+        } catch (Exception e) {
+            threw = true;
+        }
+        Test.stopTest();
+
+        System.assert(threw, 'Expected validation rule to throw via AuraHandledException');
+        Booking__c after0 = [SELECT Stage__c, Stage_Status__c FROM Booking__c WHERE Id = :bk.Id];
+        System.assertEquals('Agreement', after0.Stage__c,
+            'Stage should remain Agreement after validation failure');
+        System.assertNotEquals('Completed', after0.Stage_Status__c,
+            'Stage_Status__c should be rolled back from Completed');
+    }
+
+    /**
      * Terminal stage: Customer Service & Complaints has no row in
      * Stage_Progression__mdt, so the controller must keep Stage / Owner intact
      * and only flip Stage_Status__c to Completed.

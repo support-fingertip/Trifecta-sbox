@@ -42,31 +42,52 @@ public class MarkBookingStageCompletedController {
                 currentUser.Name + ' [' + strTimeInAMorPM + ']: ' + newNote;
 
             String previousStage = bookingRec.Stage__c;
-            bookingRec.Stage_Status__c = 'Completed';
-            bookingRec.Move_to_Next_Stage__c = true;
 
             Stage_Progression__mdt progression = resolveProgression(
                 bookingRec.Project_Type__c, bookingRec.Stage__c);
 
+            // Pre-validate the next CRM Executive lookup BEFORE the completion DML
+            // so we don't leave the booking at (OldStage, Completed) when we
+            // already know we can't advance.
+            Object nextOwnerObj = null;
             if (progression != null) {
                 if (bookingRec.Block__c == null) {
                     throw new AuraHandledException(
                         'Booking ' + bookingRec.Name + ' is not linked to a Block; cannot resolve next CRM Executive.');
                 }
-                Object nextOwnerObj = bookingRec.Block__r.get(progression.Block_Executive_Field_API__c);
+                nextOwnerObj = bookingRec.Block__r.get(progression.Block_Executive_Field_API__c);
                 if (nextOwnerObj == null) {
                     throw new AuraHandledException(
                         'CRM Executive (' + progression.Block_Executive_Field_API__c +
                         ') is not configured on Block ' + bookingRec.Block__r.Name +
                         '. Please populate it before completing this stage.');
                 }
-                bookingRec.Stage__c = progression.Next_Stage__c;
-                bookingRec.OwnerId = (Id) nextOwnerObj;
-                bookingRec.Stage_Status__c = 'In Progress';
-                bookingRec.Move_to_Next_Stage__c = false;
             }
 
-            update bookingRec;
+            Savepoint sp = Database.setSavepoint();
+            try {
+                // Phase A — fires stage-completion validation rules. If a rule
+                // throws (e.g. required document missing), the booking stays
+                // at (OldStage, In Progress) thanks to the rollback below and
+                // the user sees the validation message in the Aura toast.
+                bookingRec.Stage_Status__c       = 'Completed';
+                bookingRec.Move_to_Next_Stage__c = true;
+                update bookingRec;
+
+                // Phase B — advance Stage / Owner only when a progression
+                // matches. The completion validations don't re-fire because
+                // Stage_Status__c is no longer 'Completed' on this DML.
+                if (progression != null) {
+                    bookingRec.Stage__c              = progression.Next_Stage__c;
+                    bookingRec.OwnerId               = (Id) nextOwnerObj;
+                    bookingRec.Stage_Status__c       = 'In Progress';
+                    bookingRec.Move_to_Next_Stage__c = false;
+                    update bookingRec;
+                }
+            } catch (Exception inner) {
+                Database.rollback(sp);
+                throw inner;
+            }
 
             // Send Notification
             if (bookingRec.CRM_Manager__c != null) {
