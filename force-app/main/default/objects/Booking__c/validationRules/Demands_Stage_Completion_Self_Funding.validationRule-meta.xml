@@ -6,6 +6,6 @@
     &amp;&amp; TEXT(Stage_Status__c) = &apos;Completed&apos;
     &amp;&amp; TEXT(Stage__c) = &apos;Demands &amp; Progressive Collections&apos;
     &amp;&amp; ISPICKVAL(Funding_Type__c, &apos;Self&apos;)
-    &amp;&amp; Pending_Amount__c &gt; 0</errorConditionFormula>
+    &amp;&amp; Pending_Amount__c &gt; 1</errorConditionFormula>
     <errorMessage>Pending Amount is greater than Zero, Cannot mark the stage as Completed</errorMessage>
 </ValidationRule>

@@ -9794,6 +9794,9 @@
         <layout>Snag_List__c-Snag List Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
+        <layout>Stage_Progression__mdt-Stage Progression Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>Ticket__c-Ticket Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
