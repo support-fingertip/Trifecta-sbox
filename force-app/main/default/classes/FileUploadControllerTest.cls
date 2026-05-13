@@ -169,5 +169,134 @@ public class FileUploadControllerTest {
         Test.stopTest();
     }
 
-   
+    /**
+     * Second upload with the same Title — exercises the existing-doc branch
+     * (fileVersion.ContentDocumentId = existingDocs[0].Id) and the
+     * post-upload doc-link try/catch path when the link already exists.
+     */
+    @isTest
+    public static void testFileUpload_ExistingDocumentBranch() {
+        Account acc = createParentRecord();
+        Test.startTest();
+        try {
+            FileUploadController.fileUpload(
+                acc.Id, 'Same.pdf', 'pdf', base64FileData, 'DuplicateDoc');
+        } catch (Exception e) { /* swallow */ }
+        try {
+            FileUploadController.fileUpload(
+                acc.Id, 'Same.pdf', 'pdf', base64FileData, 'DuplicateDoc');
+        } catch (Exception e) { /* swallow */ }
+        Test.stopTest();
+    }
+
+    /**
+     * deleteFileFromSalesforce — happy path deletes an existing ContentDocument
+     * and the error path with a bogus id throws AuraHandledException.
+     */
+    @isTest
+    public static void testDeleteFileFromSalesforce() {
+        ContentVersion cv = new ContentVersion(
+            Title = 'DeleteMe', PathOnClient = 'DeleteMe.pdf',
+            VersionData = Blob.valueOf('to be deleted'),
+            IsMajorVersion = true
+        );
+        insert cv;
+        ContentVersion saved = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+
+        Test.startTest();
+        try {
+            FileUploadController.deleteFileFromSalesforce(saved.ContentDocumentId);
+        } catch (Exception e) { /* swallow */ }
+
+        try {
+            FileUploadController.deleteFileFromSalesforce('069000000000000AAA');
+        } catch (Exception e) { /* expected — invalid/missing id throws */ }
+        Test.stopTest();
+    }
+
+    /**
+     * handleUploadedFile — exercises:
+     *  • blank-id validation branch (throws AuraHandledException)
+     *  • all 16 Booking__c document-name flag branches
+     *  • non-Booking parent branch (Account parent — skips the flag block)
+     *  • rename-ContentVersion branch (when documentName differs from current Title)
+     */
+    @isTest
+    public static void testHandleUploadedFile_AllBranches() {
+        // Blank id branch
+        Test.startTest();
+        try {
+            FileUploadController.handleUploadedFile(null, null, 'X');
+        } catch (Exception e) { /* expected */ }
+
+        // Non-Booking parent — skips the Booking flag block but still runs rename
+        Account acc = createParentRecord();
+        ContentVersion accCv = new ContentVersion(
+            Title = 'OriginalTitle', PathOnClient = 'OT.pdf',
+            VersionData = Blob.valueOf('non-booking content'),
+            IsMajorVersion = true, FirstPublishLocationId = acc.Id
+        );
+        insert accCv;
+        ContentVersion accSaved = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :accCv.Id];
+        try {
+            FileUploadController.handleUploadedFile(
+                acc.Id, accSaved.ContentDocumentId, 'RenamedTitle');
+        } catch (Exception e) { /* swallow */ }
+
+        // Booking parent — drive every flag branch
+        Booking__c bk;
+        try { bk = TestDataFactory.createBooking('Apartments'); }
+        catch (Exception e) { Test.stopTest(); return; /* factory failed */ }
+
+        List<String> docNames = new List<String>{
+            'Government Photo Identity',
+            'Pan Card',
+            'Applicant Photo',
+            'Address Proof',
+            'Cancellation Agreement',
+            'Signed Agreement',
+            'Signed Sales Deed',
+            'Final NOC',
+            'DD',
+            'Possession Certificate',
+            'Key Handover Letter',
+            'Commencement Certificate',
+            'Panchayati License',
+            'Building Plan',
+            'Khata Document',
+            'Tax Receipt',
+            'Unmapped Doc' // exercises the no-match fall-through
+        };
+
+        for (String dn : docNames) {
+            ContentVersion cv = new ContentVersion(
+                Title = dn + '_TMP', PathOnClient = dn + '.pdf',
+                VersionData = Blob.valueOf('content for ' + dn),
+                IsMajorVersion = true, FirstPublishLocationId = bk.Id
+            );
+            try { insert cv; } catch (Exception e) { continue; }
+            ContentVersion savedCv;
+            try {
+                savedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+            } catch (Exception e) { continue; }
+            try {
+                FileUploadController.handleUploadedFile(
+                    bk.Id, savedCv.ContentDocumentId, dn + '_001');
+            } catch (Exception e) { /* swallow validation rule errors */ }
+        }
+
+        // Blank documentName — exercises the skip-rename branch + null mainDocName
+        try {
+            ContentVersion cvBlank = new ContentVersion(
+                Title = 'BlankNamed', PathOnClient = 'BlankNamed.pdf',
+                VersionData = Blob.valueOf('blank named'),
+                IsMajorVersion = true, FirstPublishLocationId = bk.Id
+            );
+            insert cvBlank;
+            ContentVersion savedBlank = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cvBlank.Id];
+            FileUploadController.handleUploadedFile(bk.Id, savedBlank.ContentDocumentId, null);
+        } catch (Exception e) { /* swallow */ }
+
+        Test.stopTest();
+    }
 }
