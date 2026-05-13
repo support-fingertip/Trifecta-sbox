@@ -133,7 +133,7 @@ private class WhatsappControllerTest {
         return [
             SELECT Id, Mobile__c, First_Applicant_Name__c, S__c, Unit_No__c,
                    Project_Block_Name__c, CRM_Executive_Contact_No__c,
-                   Owner_Full_Name__c, Project1__r.Name,
+                   Owner_Full_Name__c, Project1__r.Name,Owner_Email__c,Owner.Email,
                    Plot__r.Name, Plot__r.Super_Built_up_Area__c, Plot__r.BHK_Type__c
             FROM Booking__c
             LIMIT 1
@@ -143,7 +143,7 @@ private class WhatsappControllerTest {
     private static Receipt__c getReceiptRecord() {
         return [
             SELECT Id, Amount_Received__c, Total_Received_Amount__c, Project_Block_Name__c,
-                   Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,
+                   Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,Booking__r.Owner_Email__c,
                    Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c
             FROM Receipt__c
             LIMIT 1
@@ -154,7 +154,7 @@ private class WhatsappControllerTest {
         return [
             SELECT Id, Grand_Total__c, Payment_Due_Date__c, Project_Block_Name__c,
                    Booking__c, Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,
-                   Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c
+                   Booking__r.Unit_No__c, Booking__r.CRM_Executive_Contact_No__c,Booking__r.Owner_Email__c
             FROM Demand_Raised__c
             LIMIT 1
         ];
@@ -240,7 +240,7 @@ private class WhatsappControllerTest {
         Site_Visit__c sv = getSiteVisitRecord();
 
         Booking__c bk = getBookingRecord();
-        bk.Mobile__c = null;
+
 
         Receipt__c rc = getReceiptRecord();
         Demand_Raised__c dm = getDemandRecord();

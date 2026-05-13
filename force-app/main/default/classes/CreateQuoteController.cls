@@ -114,15 +114,9 @@ public Without Sharing class  CreateQuoteController {
             ps.S_No__c = mps.S_No__c;
             ps.Include_Interest__c = mps.Include_Interest__c;
             // Make only FIRST schedule Completed When welcome mail sent 1st payment schdule need to completed
-            if(block.Type__c == 'Apartments' || block.Type__c == 'Row House')
+            if(block.Type__c == 'Apartments' || block.Type__c == 'Row House' || block.Type__c == 'Villas')
             {
                 if(mps.S_No__c == 1){
-                    ps.Status__c = 'Completed';
-                }
-            }
-            else if(block.Type__c == 'Villas')
-            {
-                if(mps.S_No__c == 1 || mps.S_No__c == 2){
                     ps.Status__c = 'Completed';
                 }
             }

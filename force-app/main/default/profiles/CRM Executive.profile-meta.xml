@@ -25,6 +25,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingAmountAdjustmentControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingCancellApprovalControllerTest</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -139,6 +143,10 @@
     <classAccesses>
         <apexClass>CancelDemandNoteController</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CancelDemandNoteControllerTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>CancellationLetterVFPController</apexClass>
@@ -329,6 +337,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>FileDocumentControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>FileUploadController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -399,6 +411,10 @@
     <classAccesses>
         <apexClass>InspectionCompletionMailController</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>InspectionCompletionMailControllerTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>InspectionController</apexClass>
@@ -483,6 +499,10 @@
     <classAccesses>
         <apexClass>LightningFileUploadHandler</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LightningFileUploadHandlerTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>LostLeadReassignment</apexClass>
@@ -739,6 +759,10 @@
     <classAccesses>
         <apexClass>RequestForAgreementExtensionController</apexClass>
         <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RequestForAgreementExtensionTest</apexClass>
+        <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>RequestForAgrmntExtensionControllerTest</apexClass>
@@ -9961,10 +9985,6 @@
     <layoutAssignments>
         <layout>WorkThanks-Thanks Layout</layout>
     </layoutAssignments>
-    <loginIpRanges>
-        <endAddress>255.255.255.0</endAddress>
-        <startAddress>0.0.0.0</startAddress>
-    </loginIpRanges>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>

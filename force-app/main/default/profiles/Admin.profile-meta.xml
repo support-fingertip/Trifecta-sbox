@@ -25,6 +25,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>BookingAmountAdjustmentControllerTest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>BookingCancellApprovalControllerTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -138,6 +142,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>CancelDemandNoteController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CancelDemandNoteControllerTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -329,6 +337,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>FileDocumentControllerTest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>FileUploadController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -398,6 +410,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>InspectionCompletionMailController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>InspectionCompletionMailControllerTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -482,6 +498,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>LightningFileUploadHandler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LightningFileUploadHandlerTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -738,6 +758,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>RequestForAgreementExtensionController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RequestForAgreementExtensionTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>

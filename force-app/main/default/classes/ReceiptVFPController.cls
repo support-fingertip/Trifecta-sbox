@@ -223,7 +223,6 @@ public class ReceiptVFPController {
                        Salutation__c,
                        Date_of_Birth__c,
                        Spouse_Date_Of_Birth_coapp__c,
-                       Spouse_Name__c,
                        Permanent_Address__c,
                        Communication_Address__c,
                        Pincode_office__c,

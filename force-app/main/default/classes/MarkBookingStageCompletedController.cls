@@ -4,18 +4,10 @@ public class MarkBookingStageCompletedController {
     public static void markStageAsCompleted(String bookingId, String newNote) {
         try {
             Booking__c bookingRec = [
-                SELECT Id, Name, Booking_Summary__c, CRM_Manager__c,
-                Lead_Name__c, Stage__c, Stage_Status__c, Owner_Full_Name__c,
-                Project_Type__c, Block__c,
-                Block__r.Name,
-                Block__r.Agreement_CRM_Executive__c,
-                Block__r.Demands_Collections_CRM_Executive__c,
-                Block__r.Registration_CRM_Executive__c,
-                Block__r.Possession_Handover_CRM_Executive__c,
-                Block__r.Customer_Service_CRM_Executive__c
-                FROM Booking__c
-                WHERE Id = :bookingId
-                LIMIT 1
+                SELECT Id, Name, Booking_Summary__c, CRM_Manager__c,Lead_Name__c, Stage__c, Stage_Status__c, Owner_Full_Name__c,Project_Type__c, Block__c,
+                Block__r.Name, Block__r.Agreement_CRM_Executive__c, Block__r.Demands_Collections_CRM_Executive__c,
+                Block__r.Registration_CRM_Executive__c,Block__r.Possession_Handover_CRM_Executive__c,Block__r.Customer_Service_CRM_Executive__c
+                FROM Booking__c WHERE Id = :bookingId LIMIT 1
             ];
             
             User currentUser = [
@@ -52,17 +44,14 @@ public class MarkBookingStageCompletedController {
             Object nextOwnerObj = null;
             if (progression != null) {
                 if (bookingRec.Block__c == null) {
-                    String msg = 'Booking ' + bookingRec.Name + 
-                        ' is not linked to a Block; cannot resolve next CRM Executive.';
+                    String msg = 'Booking ' + bookingRec.Name +  ' is not linked to a Block; cannot resolve next CRM Executive.';
                     AuraHandledException ex = new AuraHandledException(msg);
                     ex.setMessage(msg);
                     throw ex;
                 }
                 nextOwnerObj = bookingRec.Block__r.get(progression.Block_Executive_Field_API__c);
                 if (nextOwnerObj == null) {
-                    String msg = progression.Next_Stage__c +
-                        ' CRM Executive is not configured on Block ' + bookingRec.Block__r.Name +
-                        '. Please contact system administrator.';
+                    String msg = progression.Next_Stage__c +' CRM Executive is not configured on Block ' + bookingRec.Block__r.Name + '. Please contact system administrator.';
                     AuraHandledException ex = new AuraHandledException(msg);
                     ex.setMessage(msg);
                     throw ex;

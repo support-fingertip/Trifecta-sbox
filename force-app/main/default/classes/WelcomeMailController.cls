@@ -275,7 +275,10 @@ public without sharing class WelcomeMailController {
             // Raising the First Demand (S_No = 1) — all project types
             // raiseCustomDemand(id, Boolean) returns the Demand_Raised__c Id on success
             //=====================
-            String demandId1 = DemandRaisedSave.raiseCustomDemand(ps.Id, false);
+            String demandId1;
+            if (projectType != 'Villas' && ps != null) {
+                demandId1 = DemandRaisedSave.raiseCustomDemand(ps.Id, false);
+            }
             System.debug('Demand 1 Id: ' + demandId1);
 
             //=====================
@@ -285,8 +288,8 @@ public without sharing class WelcomeMailController {
             //=====================
             String demandId2;
             if (projectType == 'Villas' && psSecond != null) {
-                demandId2 = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
-                System.debug('Demand 2 Id: ' + demandId2);
+                //demandId2 = DemandRaisedSave.raiseCustomDemand(psSecond.Id, true);
+                //System.debug('Demand 2 Id: ' + demandId2);
             }
 
             // ── CC list ──

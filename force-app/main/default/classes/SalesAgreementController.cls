@@ -47,18 +47,13 @@ public class SalesAgreementController {
                    Booking_Amount__c,
                    GRAND_TOTAL__c,
                    Permanent_Address1__c,
-                   Correspondence_Address__Street__s,
-                   Correspondence_Address__City__s,
-                   Correspondence_Address__PostalCode__s,
-                   Correspondence_Address__StateCode__s,
                    Pincode1__c,
-                   Permanent_Address2__c,
                    Plot__c
                    
                    
                    From Booking__c Where Id=:bookingId];
         coapplicants=[
-            SELECT Name, Salutation__c, Date_of_Birth__c, Spouse_Date_Of_Birth_coapp__c,Spouse_Name__c,
+            SELECT Name, Salutation__c, Date_of_Birth__c,Spouse_Name__c,
                    Permanent_Address__c, Communication_Address__c, Pincode_office__c,Other_Qualification__c,
                    Qualification__c, Pincode_commmunication__c, Pincode_permanent__c,Other_Industry__c,
                    Office_Address__c, Anniverssary_Date__c, Son_Daughter_Wife_of__c,Son2_Daughter_Wife_of__c,

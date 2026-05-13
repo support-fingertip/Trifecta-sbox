@@ -193,7 +193,11 @@ svDetails=[Select Id,Name,SLead__c,Date__c,Status__c,Owner.Name,SLead__r.Name,SL
     public static list<Site_Visit__c> getPendingSiteVistInformation()
     {
         System.debug('Sv Details');
-        List<Site_Visit__c> svDetails=[Select Id,Name,SLead__c,Date__c,Site_Visit_Entry_Time__c,Status__c,Owner.Name,SLead__r.Last_Comment__c,SLead__r.Name,SLead__r.Status,SLead__r.Id,Canceled_Reason__c,SLead__r.Description,SLead__r.Lead_Age__c from Site_Visit__c  where (Status__c='Scheduled' OR Status__c='Reschedule') AND Date__c < today AND  OwnerId = :UserInfo.getUserId() order by Date__c ];
+        List<Site_Visit__c> svDetails=[Select Id,Name,SLead__c,Date__c,Site_Visit_Entry_Time__c,
+                                       Status__c,Owner.Name,SLead__r.Last_Comment__c,SLead__r.Name,SLead__r.Status,SLead__r.Id,
+                                       Canceled_Reason__c,SLead__r.Description,SLead__r.Lead_Age__c from Site_Visit__c
+                                       where (Status__c='Scheduled' OR Status__c='Reschedule') AND Date__c < today AND 
+                                       OwnerId = :UserInfo.getUserId() order by Date__c ];
         return svDetails;
     }
     /* @auraEnabled

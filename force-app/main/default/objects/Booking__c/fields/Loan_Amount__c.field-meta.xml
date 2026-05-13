@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Loan_Amount__c</fullName>
     <externalId>false</externalId>
-    <formula>Quote__r.Grand_Total_Amount__c * Loan_Percentage__c</formula>
+    <formula>Total_Amount__c * Loan_Percentage__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Loan Amount</label>
     <precision>18</precision>
