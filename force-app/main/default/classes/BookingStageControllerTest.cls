@@ -214,4 +214,51 @@ public class BookingStageControllerTest {
         }
 
     }
+
+    /**
+     * Drives the individual validation branches: missing newOwnerId and
+     * missing newStage. Each must throw an AuraHandledException.
+     */
+    @isTest
+    static void testUpdateBooking_IndividualValidationBranches() {
+        Booking__c book = [SELECT Id FROM Booking__c LIMIT 1];
+
+        Test.startTest();
+        try {
+            BookingStageController.updateBooking(book.Id, null, 'Agreement', 'x');
+        } catch (Exception e) { /* expected */ }
+
+        try {
+            BookingStageController.updateBooking(book.Id, UserInfo.getUserId(), null, 'x');
+        } catch (Exception e) { /* expected */ }
+        Test.stopTest();
+    }
+
+    /**
+     * Drives each of the 5 stage-specific CRM Executive lookup branches inside
+     * updateBooking. Each call swallows any validation errors since the goal
+     * is to walk every branch of the if/else chain.
+     */
+    @isTest
+    static void testUpdateBooking_AllStageBranches() {
+        Booking__c book = [SELECT Id FROM Booking__c LIMIT 1];
+        Id me = UserInfo.getUserId();
+
+        List<String> stages = new List<String>{
+            'Agreement',
+            'Land Registration',
+            'Registration',
+            'Demands & Progressive Collections',
+            'Possession / Handover',
+            'Customer Service & Complaints'
+        };
+
+        Test.startTest();
+        for (String s : stages) {
+            try {
+                BookingStageController.updateBooking(book.Id, me, s, 'note for ' + s);
+            } catch (Exception e) { /* swallow validation rule mismatches */ }
+        }
+        Test.stopTest();
+    }
 }

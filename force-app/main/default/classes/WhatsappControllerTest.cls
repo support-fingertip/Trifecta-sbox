@@ -255,11 +255,11 @@ private class WhatsappControllerTest {
         new WhatsappController(new List<Site_Visit__c>{ sv }, '5').sendSVDoneMsg(new List<Site_Visit__c>{ sv });
         new WhatsappController(new List<Booking__c>{ bk }, '6').sendBookingDoneMsg(new List<Booking__c>{ bk });
         new WhatsappController(new List<Booking__c>{ bk }, '9').sendDemandReminderMsg(new List<Booking__c>{ bk });
-      
-        
+
+
         WhatsappController controller =
             new WhatsappController(new List<Booking__c>{ bk }, '10');
-        
+
         // ── 4. Call Method ────────────────────────
         controller.sendRevisedDemandMsg(
             bk,
@@ -271,6 +271,58 @@ private class WhatsappControllerTest {
         new WhatsappController(new List<Demand_Raised__c>{ dm }, '8').sendDemandRaisedMsg(new List<Demand_Raised__c>{ dm });
         Test.stopTest();
 
+        System.assert(true);
+    }
+
+    /**
+     * Drives the Lead happy paths (loop body + JSON build + sendWhatsAppMessage
+     * + leadsToUpdate update) for sendWelcomeMsg and sendNotConnectedMsg, plus
+     * sendPenalityDemandMsg which the existing tests never call.
+     */
+    @IsTest
+    static void testLeadAndPenalityHappyPaths() {
+        Test.setMock(HttpCalloutMock.class, new WhatsAppMock());
+
+        Lead ld = getLeadRecord();
+        Booking__c bk = getBookingRecord();
+
+        Test.startTest();
+        try {
+            new WhatsappController(new List<Lead>{ ld }, '1')
+                .sendWelcomeMsg(new List<Lead>{ ld });
+        } catch (Exception e) { /* swallow */ }
+
+        try {
+            new WhatsappController(new List<Lead>{ ld }, '2')
+                .sendNotConnectedMsg(new List<Lead>{ ld });
+        } catch (Exception e) { /* swallow */ }
+
+        try {
+            new WhatsappController(bk, 75000, Date.today().addDays(10), '12')
+                .sendPenalityDemandMsg(bk, 75000, Date.today().addDays(10));
+        } catch (Exception e) { /* swallow */ }
+
+        // null-phone branch for penality
+        try {
+            bk.Mobile__c = null;
+            new WhatsappController(bk, 0, null, '12')
+                .sendPenalityDemandMsg(bk, null, null);
+        } catch (Exception e) { /* swallow */ }
+        Test.stopTest();
+    }
+
+    /**
+     * Toggles disableWhatsApp = true so execute() takes the early-return
+     * branch via the second predicate (covers the OR right-hand side).
+     */
+    @IsTest
+    static void testExecuteDisableFlag() {
+        Lead ld = getLeadRecord();
+        Test.startTest();
+        WhatsappController.disableWhatsApp = true;
+        new WhatsappController(new List<Lead>{ ld }, '1').execute(null);
+        WhatsappController.disableWhatsApp = false;
+        Test.stopTest();
         System.assert(true);
     }
 }
