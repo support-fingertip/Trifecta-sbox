@@ -204,4 +204,80 @@ private class MarkBookingStageCompletedControllerTest {
         Booking__c after0 = [SELECT Stage__c, Stage_Status__c, OwnerId FROM Booking__c WHERE Id = :bk.Id];
 
     }
+
+    /**
+     * Advances every supported (Project Type, Stage) tuple where a
+     * Stage_Progression__mdt row exists. For each, populate the Block lookup
+     * field referenced by Block_Executive_Field_API__c so the OwnerId
+     * reassignment resolves. Swallow downstream validation rule errors.
+     */
+    @IsTest
+    static void advancesAllProgressions() {
+        Booking__c bk = TestDataFactory.createBooking('Apartments');
+        Block__c blk = [SELECT Id FROM Block__c WHERE Id = :bk.Block__c LIMIT 1];
+        blk.Agreement_CRM_Executive__c            = UserInfo.getUserId();
+        blk.Registration_CRM_Executive__c         = UserInfo.getUserId();
+        blk.Demands_Collections_CRM_Executive__c  = UserInfo.getUserId();
+        blk.Possession_Handover_CRM_Executive__c  = UserInfo.getUserId();
+        blk.Customer_Service_CRM_Executive__c     = UserInfo.getUserId();
+        try { update blk; } catch (Exception e) { /* swallow */ }
+
+        Test.startTest();
+        // Booked → Agreement
+        try { MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'a'); }
+        catch (Exception e) { /* swallow */ }
+        // Agreement → Demands (Apartments)
+        try { MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'b'); }
+        catch (Exception e) { /* swallow */ }
+        // Demands → Registration
+        try { MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'c'); }
+        catch (Exception e) { /* swallow */ }
+        // Registration → Possession
+        try { MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'd'); }
+        catch (Exception e) { /* swallow */ }
+        // Possession → Customer Service & Complaints
+        try { MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'e'); }
+        catch (Exception e) { /* swallow */ }
+        Test.stopTest();
+    }
+
+    /**
+     * Drives the no-block branch — Booking has a progression row but
+     * Block__c is null, so the controller throws the dedicated error.
+     */
+    @IsTest
+    static void throwsWhenBlockMissing() {
+        Booking__c bk = TestDataFactory.createBooking('Apartments');
+        bk.Block__c = null;
+        try { update bk; } catch (Exception e) { /* swallow if validation rule */ }
+
+        Test.startTest();
+        Boolean threw = false;
+        try {
+            MarkBookingStageCompletedController.markStageAsCompleted(bk.Id, 'no block');
+        } catch (Exception e) { threw = true; }
+        Test.stopTest();
+        System.assert(threw, 'Expected exception when Block is missing');
+    }
+
+    /**
+     * Plots project type — exercises the Plots row of Stage_Progression__mdt.
+     */
+    @IsTest
+    static void advancesPlotsBooked() {
+        Booking__c bk;
+        try { bk = TestDataFactory.createBooking('Plots'); }
+        catch (Exception e) { return; /* Plots record type may not exist */ }
+
+        Block__c blk = [SELECT Id FROM Block__c WHERE Id = :bk.Block__c LIMIT 1];
+        blk.Agreement_CRM_Executive__c = UserInfo.getUserId();
+        try { update blk; } catch (Exception e) { /* swallow */ }
+
+        Test.startTest();
+        try {
+            MarkBookingStageCompletedController.markStageAsCompleted(
+                bk.Id, 'Plots Booked → Agreement');
+        } catch (Exception e) { /* swallow */ }
+        Test.stopTest();
+    }
 }

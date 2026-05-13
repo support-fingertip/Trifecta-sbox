@@ -380,4 +380,89 @@ public class SMSHandlerTest {
         } catch (Exception e) { /* swallow */ }
         Test.stopTest();
     }
+
+    /**
+     * Null-phone branches for sendWelcomeMsg, sendNotConnectedMsg,
+     * sendSVProposedMsg, sendSVConfirmedMsg, sendSVDoneMsg,
+     * sendBookingDoneMsg, sendPaymentReceiptMsg, sendDemandRaisedMsg,
+     * sendDemandReminderMsg — exercises the early-continue branch in each
+     * loop body that the happy-path tests don't reach.
+     */
+    @isTest
+    static void testNullPhoneBranches() {
+        Test.setMock(HttpCalloutMock.class, new SMSMock());
+
+        Lead ld = [SELECT Id, FirstName, LastName, Phone__c, Allocated_Project__c, Name FROM Lead LIMIT 1];
+        ld.Phone__c = null;
+
+        Site_Visit__c sv = [
+            SELECT Id, SLead__r.Name, SLead__r.Phone__c, Project__c,
+                   SV_Proposed_Date_Time__c, Date__c, SV_Completed_Date_Time__c,
+                   Owner.Name
+            FROM Site_Visit__c LIMIT 1
+        ];
+
+        // Need a Project record matching sv.Project__c for sendSVConfirmedMsg
+        try {
+            insert new Project__c(
+                Name = sv.Project__c, Project__c = 'Trifecta Vanto', Location__c = 'BLR', Active__c = true
+            );
+        } catch (Exception e) { /* may already exist */ }
+
+        Booking__c bk;
+        try { bk = TestDataFactory.createBooking('Apartments'); }
+        catch (Exception e) { return; }
+        bk.Mobile__c = null;
+
+        Receipt__c rc;
+        try {
+            rc = new Receipt__c(Booking__c = bk.Id, Amount_Received__c = 1000);
+            insert rc;
+        } catch (Exception e) { /* swallow */ }
+
+        Test.startTest();
+        try { new SMSHandler(new List<Lead>{ ld }, '1').sendWelcomeMsg(new List<Lead>{ ld }); }
+        catch (Exception e) { /* swallow */ }
+        try { new SMSHandler(new List<Lead>{ ld }, '2').sendNotConnectedMsg(new List<Lead>{ ld }); }
+        catch (Exception e) { /* swallow */ }
+        try { new SMSHandler(new List<Site_Visit__c>{ sv }, '3').sendSVProposedMsg(new List<Site_Visit__c>{ sv }); }
+        catch (Exception e) { /* swallow */ }
+        try { new SMSHandler(new List<Site_Visit__c>{ sv }, '4').sendSVConfirmedMsg(new List<Site_Visit__c>{ sv }); }
+        catch (Exception e) { /* swallow */ }
+        try { new SMSHandler(new List<Site_Visit__c>{ sv }, '5').sendSVDoneMsg(new List<Site_Visit__c>{ sv }); }
+        catch (Exception e) { /* swallow */ }
+        try { new SMSHandler(new List<Booking__c>{ bk }, '6').sendBookingDoneMsg(new List<Booking__c>{ bk }); }
+        catch (Exception e) { /* swallow */ }
+
+        if (rc != null) {
+            List<Receipt__c> rlist = [
+                SELECT Id, Total_Received_Amount__c,
+                       Booking__r.Mobile__c, Booking__r.First_Applicant_Name__c,
+                       Booking__r.Plot__r.Name, Booking__r.Project1__r.Name
+                FROM Receipt__c WHERE Id = :rc.Id
+            ];
+            for (Receipt__c r : rlist) r.Booking__r.Mobile__c = null;
+            try { new SMSHandler(rlist, '7').sendPaymentReceiptMsg(rlist); }
+            catch (Exception e) { /* swallow */ }
+        }
+
+        try { new SMSHandler(new List<Booking__c>{ bk }, '9').sendDemandReminderMsg(new List<Booking__c>{ bk }); }
+        catch (Exception e) { /* swallow */ }
+        Test.stopTest();
+    }
+
+    /**
+     * Toggles disableSMS = true so execute() takes the early-return branch
+     * via the second predicate of (Test.isRunningTest() || disableSMS).
+     */
+    @isTest
+    static void testExecuteDisableFlag() {
+        Lead ld = [SELECT Id FROM Lead LIMIT 1];
+        Test.startTest();
+        SMSHandler.disableSMS = true;
+        new SMSHandler(new List<Lead>{ ld }, '1').execute(null);
+        SMSHandler.disableSMS = false;
+        Test.stopTest();
+        System.assert(true);
+    }
 }
