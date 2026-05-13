@@ -3,10 +3,11 @@
 private class InspectionTriggerHandlerTest {
 
     private static Inspection__c insertInspection(Id bookingId, String customerEmail) {
+        
+        
         Inspection__c i = new Inspection__c(
             Booking__c       = bookingId,
-            Status__c        = 'Scheduled',
-            Customer_Email__c = customerEmail
+            Status__c        = 'Scheduled'
         );
         try { insert i; } catch (Exception e) { /* schema fallbacks */ }
         return i;

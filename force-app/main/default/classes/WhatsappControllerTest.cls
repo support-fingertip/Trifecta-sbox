@@ -18,14 +18,14 @@ private class WhatsappControllerTest {
             FROM User
             WHERE Id = :UserInfo.getUserId()
         ];
-
+        Profile p = [SELECT Id FROM Profile WHERE Name='CRM Executive' LIMIT 1];
         User testUser = new User(
             Alias = 'standt',
             Email = 'standarduser@testorg.com',
             EmailEncodingKey = 'UTF-8',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            ProfileId = loggedInUser.ProfileId,
+            ProfileId = p.Id,
             LastName = 'StandardUser',
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'standarduser' + DateTime.now().getTime() + '@testorg.com'

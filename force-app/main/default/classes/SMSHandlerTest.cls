@@ -160,12 +160,25 @@ public class SMSHandlerTest {
         );
         insert qc;
         
+        Profile p = [SELECT Id FROM Profile WHERE Name='CRM Manager' LIMIT 1];
+        User testUser = new User(
+            Alias = 'standt',
+            Email = 'standarduser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = p.Id,
+            LastName = 'StandardUser',
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'standarduser' + DateTime.now().getTime() + '@testorg.com'
+        );
+        insert testUser;
         
         Booking__c book = new Booking__c(
             Funding_Type__c = 'Loan',
             Quote__c = qc.Id,
             Plot__c = ut.Id,
-            CRM_Manager__c = UserInfo.getUserId()
+            CRM_Manager__c = testUser.Id
         );
         insert book;
         

@@ -60,7 +60,7 @@ public with sharing class ReceiptCustomerSendController {
         }
     }
 
-    private static ReceiptEmailPreviewWrapper buildReceiptEmailPreview(Id receiptId) {
+    public static ReceiptEmailPreviewWrapper buildReceiptEmailPreview(Id receiptId) {
         if (receiptId == null) {
             throw new AuraHandledException('Please select a receipt.');
         }
@@ -196,7 +196,7 @@ public with sharing class ReceiptCustomerSendController {
         return wrap;
     }
 
-    private static String sendReceiptInternal(Id receiptId, String emailContent, List<Id> extraFileIds) {
+    public static String sendReceiptInternal(Id receiptId, String emailContent, List<Id> extraFileIds) {
         ReceiptEmailPreviewWrapper preview = buildReceiptEmailPreview(receiptId);
         
         Receipt__c receipt = [
